@@ -93,6 +93,11 @@
             <artifactId>threeten-extra</artifactId>
             <version>1.7.2</version>
         </dependency>
+        <!--  Apache Commons Lang - Utility functions  -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
     </dependencies>
 
 </project>
