@@ -1,2 +1,4 @@
-package hu.softdream;public class SoftDreamApplication {
+package hu.softdream;
+
+public class SoftDreamApplication {
 }
