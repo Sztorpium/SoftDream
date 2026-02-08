@@ -1,9 +1,13 @@
 cat > .gitignore << 'EOF'
 ### Sensitive Configuration ###
-src/main/resources/application.properties
-src/main/resources/application-*.properties
+# Allow profile-based configuration files in version control
+# as they use environment variables for sensitive data
+!src/main/resources/application.properties
+!src/main/resources/application-h2.properties
+!src/main/resources/application-mysql.properties
 !src/main/resources/application.properties.template
 !src/main/resources/application-*.properties.template
+src/main/resources/application-*.properties
 .env
 .env.local
 secrets.properties
