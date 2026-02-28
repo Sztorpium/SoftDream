@@ -23,5 +23,5 @@ public class Role {
     private String name;
 
     @Column(columnDefinition = "TEXT")
-    private String desciption;
+    private String description;
 }
