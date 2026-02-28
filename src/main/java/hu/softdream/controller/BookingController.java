@@ -2,6 +2,7 @@ package hu.softdream.controller;
 
 import hu.softdream.dto.request.BookingRequest;
 import hu.softdream.dto.response.BookingResponse;
+import hu.softdream.entity.enums.BookingStatus;
 import hu.softdream.security.CustomUserDetails;
 import hu.softdream.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
