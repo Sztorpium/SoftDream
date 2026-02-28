@@ -1,4 +1,100 @@
 package hu.softdream.controller;
 
+import hu.softdream.dto.request.BookingRequest;
+import hu.softdream.dto.response.BookingResponse;
+import hu.softdream.security.CustomUserDetails;
+import hu.softdream.service.BookingService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/bookings")
+@RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
+@Tag(name = "Bookings", description = "Booking management APIs")
 public class BookingController {
+
+    private final BookingService bookingService;
+
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get all bookings (Admin only)")
+    public ResponseEntity<List<BookingResponse>> getAllBookings() {
+        return ResponseEntity.ok(bookingService.getAllBookings());
+    }
+
+    @GetMapping("/{bookingId}")
+    @Operation(summary = "Get booking by ID")
+    public ResponseEntity<BookingResponse> getBookingById(@PathVariable Integer bookingId) {
+        return ResponseEntity.ok(bookingService.getBookingById(bookingId));
+    }
+
+    @GetMapping("/my-bookings")
+    @Operation(summary = "Get current user's bookings")
+    public ResponseEntity<List<BookingResponse>> getMyBookings(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return ResponseEntity.ok(bookingService.getBookingsByUserId(userDetails.getUserId()));
+    }
+
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get bookings by user ID (Admin only)")
+    public ResponseEntity<List<BookingResponse>> getBookingsByUserId(@PathVariable Integer userId) {
+        return ResponseEntity.ok(bookingService.getBookingsByUserId(userId));
+    }
+
+    @GetMapping("/room/{roomId}")
+    @Operation(summary = "Get bookings by room ID")
+    public ResponseEntity<List<BookingResponse>> getBookingsByRoomId(@PathVariable Integer roomId) {
+        return ResponseEntity.ok(bookingService.getBookingsByRoomId(roomId));
+    }
+
+    @GetMapping("/status/{status}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get bookings by status (Admin only)")
+    public ResponseEntity<List<BookingResponse>> getBookingsByStatus(@PathVariable BookingStatus status) {
+        return ResponseEntity.ok(bookingService.getBookingsByStatus(status));
+    }
+
+    @PostMapping
+    @Operation(summary = "Create a new booking")
+    public ResponseEntity<BookingResponse> createBooking(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody BookingRequest request
+    ) {
+        BookingResponse response = bookingService.createBooking(userDetails.getUserId(), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PatchMapping("/{bookingId}/confirm")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Confirm booking (Admin only)")
+    public ResponseEntity<BookingResponse> confirmBooking(@PathVariable Integer bookingId) {
+        return ResponseEntity.ok(bookingService.confirmBooking(bookingId));
+    }
+
+    @PatchMapping("/{bookingId}/cancel")
+    @Operation(summary = "Cancel booking")
+    public ResponseEntity<BookingResponse> cancelBooking(@PathVariable Integer bookingId) {
+        return ResponseEntity.ok(bookingService.cancelBooking(bookingId));
+    }
+
+    @DeleteMapping("/{bookingId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete booking (Admin only)")
+    public ResponseEntity<Void> deleteBooking(@PathVariable Integer bookingId) {
+        bookingService.deleteBooking(bookingId);
+        return ResponseEntity.noContent().build();
+    }
 }
