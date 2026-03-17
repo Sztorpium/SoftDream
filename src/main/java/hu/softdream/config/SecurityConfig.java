@@ -40,15 +40,23 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints - Authentication
+                        // ========================================
+                        // PUBLIC ENDPOINTS - Authentication
+                        // ========================================
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // Public endpoints - Rooms
+                        // ========================================
+                        // PUBLIC ENDPOINTS - Rooms & Reviews
+                        // ========================================
                         .requestMatchers("/rooms/**").permitAll()
                         .requestMatchers("/api/rooms/**").permitAll()
+                        .requestMatchers("/reviews/**").permitAll()
+                        .requestMatchers("/api/reviews/**").permitAll()
 
-                        // Public endpoints - Swagger/OpenAPI
+                        // ========================================
+                        // PUBLIC ENDPOINTS - Swagger/OpenAPI/Documentation
+                        // ========================================
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -59,37 +67,86 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
 
-                        // ✨ NEW: H2 Console (dev)
+                        // ========================================
+                        // PUBLIC ENDPOINTS - H2 Console (Development)
+                        // ========================================
                         .requestMatchers("/h2-console/**").permitAll()
 
-                        // Public endpoints - Health check
+                        // ========================================
+                        // PUBLIC ENDPOINTS - Actuator Health Check
+                        // ========================================
                         .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/actuator/health").permitAll()
 
-                        // All other endpoints require authentication
+                        // ========================================
+                        // PROTECTED ENDPOINTS - Bookings (Authenticated Users)
+                        // ========================================
+                        .requestMatchers("/api/bookings/**").authenticated()
+                        .requestMatchers("/api/users/**").authenticated()
+
+                        // ========================================
+                        // ADMIN ENDPOINTS
+                        // ========================================
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                        // ========================================
+                        // ALL OTHER ENDPOINTS - Require Authentication
+                        // ========================================
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                // H2 Console frame support (development only)
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
 
         return http.build();
     }
 
+    /**
+     * CORS Configuration - Frontend hozzáférésének engedélyezése
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:4200", "http://localhost:8080"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
+
+        // Frontend URL-ek (fejlesztéshez)
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:3000",      // React
+                "http://localhost:5173",      // Vite
+                "http://localhost:4200",      // Angular
+                "http://localhost:8080",      // Backend (testing)
+                "http://127.0.0.1:3000",
+                "http://127.0.0.1:5173",
+                "http://127.0.0.1:4200"
+        ));
+
+        configuration.setAllowedMethods(Arrays.asList(
+                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"
+        ));
+
+        configuration.setAllowedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "Accept",
+                "Origin",
+                "X-Requested-With",
+                "X-CSRF-Token"
+        ));
+
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
+    /**
+     * Authentication Provider - Database-based authentication
+     */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -98,11 +155,17 @@ public class SecurityConfig {
         return authProvider;
     }
 
+    /**
+     * Authentication Manager - For login/authentication
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * Password Encoder - BCrypt hashing
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
