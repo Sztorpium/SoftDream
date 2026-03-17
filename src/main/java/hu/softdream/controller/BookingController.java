@@ -34,18 +34,18 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getAllBookings());
     }
 
-    @GetMapping("/{bookingId}")
-    @Operation(summary = "Get booking by ID")
-    public ResponseEntity<BookingResponse> getBookingById(@PathVariable Integer bookingId) {
-        return ResponseEntity.ok(bookingService.getBookingById(bookingId));
-    }
-
     @GetMapping("/my-bookings")
     @Operation(summary = "Get current user's bookings")
     public ResponseEntity<List<BookingResponse>> getMyBookings(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         return ResponseEntity.ok(bookingService.getBookingsByUserId(userDetails.getUserId()));
+    }
+
+    @GetMapping("/{bookingId}")
+    @Operation(summary = "Get booking by ID")
+    public ResponseEntity<BookingResponse> getBookingById(@PathVariable Integer bookingId) {
+        return ResponseEntity.ok(bookingService.getBookingById(bookingId));
     }
 
     @GetMapping("/user/{userId}")

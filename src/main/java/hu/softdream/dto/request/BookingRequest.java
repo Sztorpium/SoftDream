@@ -1,6 +1,7 @@
 package hu.softdream.dto.request;
 
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,10 +20,10 @@ public class BookingRequest {
     private Integer roomId;
 
     @NotNull(message = "A bejelentkezése dátuma kötelező!")
-    @Future(message = "A bejelentkezés dátumának a jövőben kell lennie!")
+    @FutureOrPresent(message = "A bejelentkezés dátuma nem lehet múltban!")
     private LocalDate checkIn;
 
     @NotNull(message = "A kijelentkezés dátuma kötelező!")
-    @Future(message = "A kijelentkezés dátumának a jövőben kell lennie!")
+    @FutureOrPresent(message = "A kijelentkezés dátuma nem lehet múltban!")
     private LocalDate checkOut;
 }

@@ -84,6 +84,8 @@ public class AuthService {
                 .role(userRole.getName())
                 .build();
     }
+
+    @Transactional
     public AuthResponse login(LoginRequest request) {
         // Autentikáció
         Authentication authentication = authenticationManager.authenticate(

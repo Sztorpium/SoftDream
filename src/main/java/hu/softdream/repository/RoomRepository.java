@@ -19,7 +19,7 @@ public interface RoomRepository extends JpaRepository<Room, Integer> {
     @Query("SELECT r FROM Room r WHERE r.roomId NOT IN " +
             "(SELECT b.room.roomId FROM Booking b WHERE " +
             "(b.checkIn <= :checkOut AND b.checkOut >= :checkIn) AND " +
-            "b.status = 'CONFIRMED')")
+            "b.status = hu.softdream.entity.enums.BookingStatus.CONFIRMED)")
     List<Room> findAvailableRooms(@Param("checkIn") LocalDate checkIn,
                                   @Param("checkOut") LocalDate checkOut);
 }
