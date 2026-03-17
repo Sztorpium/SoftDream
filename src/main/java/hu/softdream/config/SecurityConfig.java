@@ -59,8 +59,11 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
 
+                        // ✨ NEW: H2 Console (dev)
+                        .requestMatchers("/h2-console/**").permitAll()
+
                         // Public endpoints - Health check
-                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
 
                         // All other endpoints require authentication
                         .anyRequest().authenticated()
