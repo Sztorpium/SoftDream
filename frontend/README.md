@@ -1,16 +1,55 @@
-# React + Vite
+# SoftDream Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React 19 + Vite frontend for the SoftDream hotel booking application.
 
-Currently, two official plugins are available:
+## Getting started
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### 1. Install dependencies
 
-## React Compiler
+```bash
+npm install
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 2. Configure the backend URL
 
-## Expanding the ESLint configuration
+Copy `.env.example` to `.env.local` and set the Spring backend base URL:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+cp .env.example .env.local
+```
+
+Edit `.env.local`:
+
+```
+VITE_API_BASE_URL=http://localhost:8080
+```
+
+> **Note:** Do **not** add a trailing slash. The API client will prepend this value to every request path (e.g. `/api/auth/login`).
+>
+> If `VITE_API_BASE_URL` is not set, requests are made relative to the Vite dev-server origin (useful when using the Vite proxy).
+
+### 3. Start the dev server
+
+```bash
+npm run dev
+```
+
+### 4. Build for production
+
+```bash
+npm run build
+```
+
+## Environment variables
+
+| Variable             | Required | Description                                                    |
+|----------------------|----------|----------------------------------------------------------------|
+| `VITE_API_BASE_URL`  | No       | Base URL of the Spring Boot backend, e.g. `http://localhost:8080` |
+
+## Features
+
+- JWT-based authentication (token stored in `localStorage`)
+- Login (`/login`) and Register (`/register`) pages wired to `/api/auth/*`
+- Protected route support — redirects to `/login` and returns to the original page after login
+- My Bookings (`/my-bookings`) — lists the current user's bookings from `/api/bookings/my-bookings`
+- Responsive Material UI navigation with login/register or username/logout depending on auth state
