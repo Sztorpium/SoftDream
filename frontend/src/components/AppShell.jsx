@@ -1,8 +1,11 @@
 import * as React from "react";
-import { AppBar, Box, Container, Link, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Button, Container, Link, Toolbar, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 
 export default function AppShell({ children }) {
+    const { isAuthenticated, logout, user } = useAuth();
+
     return (
         <Box sx={{ minHeight: "100vh" }}>
             <AppBar position="static">
@@ -31,15 +34,26 @@ export default function AppShell({ children }) {
                         About
                     </Link>
 
-                    <Link
-                        component={RouterLink}
-                        to="/login"
-                        color="inherit"
-                        underline="hover"
-                        sx={{ fontWeight: 500 }}
-                    >
-                        Bejelentkezés
-                    </Link>
+                    {!isAuthenticated ? (
+                        <Link
+                            component={RouterLink}
+                            to="/login"
+                            color="inherit"
+                            underline="hover"
+                            sx={{ fontWeight: 500 }}
+                        >
+                            Bejelentkezés
+                        </Link>
+                    ) : (
+                        <>
+                            <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                                {user?.email}
+                            </Typography>
+                            <Button color="inherit" size="small" onClick={logout}>
+                                Kilépés
+                            </Button>
+                        </>
+                    )}
                 </Toolbar>
             </AppBar>
 
