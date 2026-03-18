@@ -30,6 +30,16 @@ export default function AppShell({ children }) {
                     >
                         About
                     </Link>
+
+                    <Link
+                        component={RouterLink}
+                        to="/login"
+                        color="inherit"
+                        underline="hover"
+                        sx={{ fontWeight: 500 }}
+                    >
+                        Bejelentkezés
+                    </Link>
                 </Toolbar>
             </AppBar>
 
