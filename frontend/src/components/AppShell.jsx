@@ -24,30 +24,40 @@ export default function AppShell({ children }) {
                         Home
                     </Link>
 
-                    <Link
-                        component={RouterLink}
-                        to="/about"
-                        color="inherit"
-                        underline="hover"
-                        sx={{ fontWeight: 500 }}
-                    >
-                        About
-                    </Link>
-
                     {!isAuthenticated ? (
-                        <Link
-                            component={RouterLink}
-                            to="/login"
-                            color="inherit"
-                            underline="hover"
-                            sx={{ fontWeight: 500 }}
-                        >
-                            Bejelentkezés
-                        </Link>
+                        <>
+                            <Link
+                                component={RouterLink}
+                                to="/login"
+                                color="inherit"
+                                underline="hover"
+                                sx={{ fontWeight: 500 }}
+                            >
+                                Bejelentkezés
+                            </Link>
+                            <Link
+                                component={RouterLink}
+                                to="/register"
+                                color="inherit"
+                                underline="hover"
+                                sx={{ fontWeight: 500 }}
+                            >
+                                Regisztráció
+                            </Link>
+                        </>
                     ) : (
                         <>
+                            <Link
+                                component={RouterLink}
+                                to="/my-bookings"
+                                color="inherit"
+                                underline="hover"
+                                sx={{ fontWeight: 500 }}
+                            >
+                                Foglalásaim
+                            </Link>
                             <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                                {user?.email}
+                                {user?.username}
                             </Typography>
                             <Button color="inherit" size="small" onClick={logout}>
                                 Kilépés
