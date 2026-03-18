@@ -1,30 +1,50 @@
 import * as React from "react";
 import {
+    Alert,
     Button,
     Container,
+    Link,
     Paper,
     Stack,
     TextField,
     Typography,
 } from "@mui/material";
+import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
 
 export default function Login() {
-    const [email, setEmail] = React.useState("");
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { login } = useAuth();
+
+    const [username, setUsername] = React.useState("");
     const [password, setPassword] = React.useState("");
-    const [touched, setTouched] = React.useState({ email: false, password: false });
+    const [touched, setTouched] = React.useState({ username: false, password: false });
+    const [submitError, setSubmitError] = React.useState("");
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-    const emailError = touched.email && email.trim() === "";
+    const usernameTrimmed = username.trim();
+    const usernameError = touched.username && usernameTrimmed === "";
     const passwordError = touched.password && password.trim() === "";
-    const canSubmit = email.trim() !== "" && password.trim() !== "";
 
-    function onSubmit(e) {
+    const from = location.state?.from?.pathname || "/";
+
+    async function onSubmit(e) {
         e.preventDefault();
-        setTouched({ email: true, password: true });
+        setSubmitError("");
+        setTouched({ username: true, password: true });
 
-        if (!canSubmit) return;
+        if (usernameTrimmed === "" || password.trim() === "") return;
 
-        // Placeholder – backend integráció később
-        console.log("Login submit", { email, password });
+        setIsSubmitting(true);
+        try {
+            await login({ username: usernameTrimmed, password });
+            navigate(from, { replace: true });
+        } catch (err) {
+            setSubmitError(err?.message || "Sikertelen bejelentkezés.");
+        } finally {
+            setIsSubmitting(false);
+        }
     }
 
     return (
@@ -35,17 +55,20 @@ export default function Login() {
                         Bejelentkezés
                     </Typography>
 
+                    {submitError ? <Alert severity="error">{submitError}</Alert> : null}
+
                     <TextField
-                        label="Email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        onBlur={() => setTouched((t) => ({ ...t, email: true }))}
+                        label="Felhasználónév"
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        onBlur={() => setTouched((t) => ({ ...t, username: true }))}
                         required
                         fullWidth
-                        error={emailError}
-                        helperText={emailError ? "Az email megadása kötelező." : " "}
-                        autoComplete="email"
+                        error={usernameError}
+                        helperText={usernameError ? "A felhasználónév megadása kötelező." : " "}
+                        autoComplete="username"
+                        inputProps={{ "aria-label": "username" }}
                     />
 
                     <TextField
@@ -59,11 +82,23 @@ export default function Login() {
                         error={passwordError}
                         helperText={passwordError ? "A jelszó megadása kötelező." : " "}
                         autoComplete="current-password"
+                        inputProps={{ "aria-label": "password" }}
                     />
 
-                    <Button type="submit" variant="contained" disabled={!canSubmit}>
-                        Belépés
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? "Beléptetés..." : "Belépés"}
                     </Button>
+
+                    <Typography variant="body2" align="center">
+                        Még nincs fiókod?{" "}
+                        <Link component={RouterLink} to="/register">
+                            Regisztrálj
+                        </Link>
+                    </Typography>
                 </Stack>
             </Paper>
         </Container>
