@@ -8,12 +8,18 @@ import Register from "../pages/Register";
 import MyBookings from "../pages/MyBookings";
 import NotFound from "../pages/NotFound";
 import ProtectedRoute from "../components/ProtectedRoute";
+import RoomsPage from "../pages/RoomsPage";
 
 export default function AppRouter() {
     return (
         <AppShell>
             <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<Navigate to="/rooms" replace />} />
+
+                <Route path="/rooms" element={<RoomsPage />} />
+
+                {/* kept for now */}
+                <Route path="/home" element={<Home />} />
 
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
