@@ -14,6 +14,8 @@ import NewBookingPage from "../pages/NewBookingPage";
 import MyReviewsPage from "../pages/MyReviewsPage";
 import AdminRoute from "../components/AdminRoute";
 import AdminUsersPage from "../pages/admin/AdminUsersPage";
+import AdminBookingsPage from "../pages/admin/AdminBookingsPage";
+
 
 export default function AppRouter() {
     return (
@@ -40,6 +42,7 @@ export default function AppRouter() {
 
                 <Route element={<AdminRoute />}>
                     <Route path="/admin/users" element={<AdminUsersPage />} />
+                    <Route path="/admin/bookings" element={<AdminBookingsPage />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
