@@ -1,41 +1,41 @@
-import { apiClient } from "./client";
+import { apiDelete, apiGet, apiPatch, apiPost } from "./client";
 
 export function getAllBookings() {
-    return apiClient.get("/api/bookings");
+    return apiGet("/api/bookings");
 }
 
 export function getMyBookings() {
-    return apiClient.get("/api/bookings/my-bookings");
+    return apiGet("/api/bookings/my-bookings");
 }
 
 export function getBookingById(bookingId) {
-    return apiClient.get(`/api/bookings/${bookingId}`);
+    return apiGet(`/api/bookings/${bookingId}`);
 }
 
-export function getBookingsByUser(userId) {
-    return apiClient.get(`/api/bookings/user/${userId}`);
+export function getBookingsByUserId(userId) {
+    return apiGet(`/api/bookings/user/${userId}`);
 }
 
-export function getBookingsByRoom(roomId) {
-    return apiClient.get(`/api/bookings/room/${roomId}`);
+export function getBookingsByRoomId(roomId) {
+    return apiGet(`/api/bookings/room/${roomId}`);
 }
 
 export function getBookingsByStatus(status) {
-    return apiClient.get(`/api/bookings/status/${status}`);
+    return apiGet(`/api/bookings/status/${status}`);
 }
 
-export function createBooking(bookingRequest) {
-    return apiClient.post("/api/bookings", bookingRequest);
+export function createBooking(data) {
+    return apiPost("/api/bookings", data);
 }
 
 export function confirmBooking(bookingId) {
-    return apiClient.patch(`/api/bookings/${bookingId}/confirm`);
+    return apiPatch(`/api/bookings/${bookingId}/confirm`, {});
 }
 
 export function cancelBooking(bookingId) {
-    return apiClient.patch(`/api/bookings/${bookingId}/cancel`);
+    return apiPatch(`/api/bookings/${bookingId}/cancel`, {});
 }
 
 export function deleteBooking(bookingId) {
-    return apiClient.delete(`/api/bookings/${bookingId}`);
+    return apiDelete(`/api/bookings/${bookingId}`);
 }
