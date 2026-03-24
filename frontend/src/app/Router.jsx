@@ -9,6 +9,7 @@ import MyBookings from "../pages/MyBookings";
 import NotFound from "../pages/NotFound";
 import ProtectedRoute from "../components/ProtectedRoute";
 import RoomsPage from "../pages/RoomsPage";
+import RoomDetailPage from "../pages/RoomDetailPage";
 
 export default function AppRouter() {
     return (
@@ -17,6 +18,7 @@ export default function AppRouter() {
                 <Route path="/" element={<Navigate to="/rooms" replace />} />
 
                 <Route path="/rooms" element={<RoomsPage />} />
+                <Route path="/rooms/:roomId" element={<RoomDetailPage />} />
 
                 {/* kept for now */}
                 <Route path="/home" element={<Home />} />
