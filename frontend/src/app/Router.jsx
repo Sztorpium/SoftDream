@@ -10,6 +10,7 @@ import NotFound from "../pages/NotFound";
 import ProtectedRoute from "../components/ProtectedRoute";
 import RoomsPage from "../pages/RoomsPage";
 import RoomDetailPage from "../pages/RoomDetailPage";
+import NewBookingPage from "../pages/NewBookingPage";
 
 export default function AppRouter() {
     return (
@@ -30,6 +31,7 @@ export default function AppRouter() {
                 <Route element={<ProtectedRoute />}>
                     <Route path="/about" element={<About />} />
                     <Route path="/my-bookings" element={<MyBookings />} />
+                    <Route path="/bookings/new" element={<NewBookingPage />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
