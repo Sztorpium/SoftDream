@@ -1,53 +1,96 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+const DEFAULT_BASE_URL = "http://localhost:8080";
+
+function getBaseUrl() {
+    return import.meta.env.VITE_API_BASE_URL || DEFAULT_BASE_URL;
+}
+
+function readAuth() {
+    try {
+        const raw = localStorage.getItem("softdream_auth");
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
+}
 
 function getToken() {
-    return localStorage.getItem("token");
+    const auth = readAuth();
+    return auth?.token ?? null;
 }
 
 async function request(path, options = {}) {
+    const baseUrl = getBaseUrl();
     const token = getToken();
 
     const headers = {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(options.headers ?? {}),
     };
 
-    const response = await fetch(`${BASE_URL}${path}`, {
+    if (options.body !== undefined && !headers["Content-Type"]) {
+        headers["Content-Type"] = "application/json";
+    }
+
+    if (token) {
+        headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${baseUrl}${path}`, {
         ...options,
         headers,
     });
 
+    // 204 No Content
+    if (response.status === 204) {
+        return null;
+    }
+
+    const contentType = response.headers.get("content-type") || "";
+    const isJson = contentType.includes("application/json");
+
     if (!response.ok) {
-        let message;
+        let message = response.statusText;
+
         try {
-            const body = await response.json();
-            message =
-                body?.message ??
-                (Array.isArray(body?.errors) ? body.errors.join(", ") : null) ??
-                response.statusText;
+            if (isJson) {
+                const body = await response.json();
+                message =
+                    body?.message ??
+                    body?.error ??
+                    (Array.isArray(body?.errors) ? body.errors.join(", ") : null) ??
+                    message;
+            } else {
+                const text = await response.text();
+                if (text) message = text;
+            }
         } catch {
-            message = response.statusText;
+            // keep message
         }
+
         const error = new Error(message || `HTTP ${response.status}`);
         error.status = response.status;
         throw error;
     }
 
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-        return response.json();
-    }
-    return null;
+    if (!isJson) return null;
+    return response.json();
 }
 
-export const apiClient = {
-    get: (path, options) => request(path, { method: "GET", ...options }),
-    post: (path, body, options) =>
-        request(path, { method: "POST", body: JSON.stringify(body), ...options }),
-    put: (path, body, options) =>
-        request(path, { method: "PUT", body: JSON.stringify(body), ...options }),
-    patch: (path, body, options) =>
-        request(path, { method: "PATCH", body: JSON.stringify(body), ...options }),
-    delete: (path, options) => request(path, { method: "DELETE", ...options }),
-};
+export function apiGet(path) {
+    return request(path, { method: "GET" });
+}
+
+export function apiPost(path, data) {
+    return request(path, { method: "POST", body: JSON.stringify(data ?? {}) });
+}
+
+export function apiPut(path, data) {
+    return request(path, { method: "PUT", body: JSON.stringify(data ?? {}) });
+}
+
+export function apiPatch(path, data) {
+    return request(path, { method: "PATCH", body: JSON.stringify(data ?? {}) });
+}
+
+export function apiDelete(path) {
+    return request(path, { method: "DELETE" });
+}
