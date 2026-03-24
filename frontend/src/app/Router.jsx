@@ -11,6 +11,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import RoomsPage from "../pages/RoomsPage";
 import RoomDetailPage from "../pages/RoomDetailPage";
 import NewBookingPage from "../pages/NewBookingPage";
+import MyReviewsPage from "../pages/MyReviewsPage";
 
 export default function AppRouter() {
     return (
@@ -32,6 +33,7 @@ export default function AppRouter() {
                     <Route path="/about" element={<About />} />
                     <Route path="/my-bookings" element={<MyBookingsPage />} />
                     <Route path="/bookings/new" element={<NewBookingPage />} />
+                    <Route path="/my-reviews" element={<MyReviewsPage />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
