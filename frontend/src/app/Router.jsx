@@ -5,7 +5,7 @@ import Home from "../pages/Home";
 import About from "../pages/About";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
-import MyBookings from "../pages/MyBookings";
+import MyBookingsPage from "../pages/MyBookingsPage";
 import NotFound from "../pages/NotFound";
 import ProtectedRoute from "../components/ProtectedRoute";
 import RoomsPage from "../pages/RoomsPage";
@@ -30,7 +30,7 @@ export default function AppRouter() {
                 {/* Protected routes */}
                 <Route element={<ProtectedRoute />}>
                     <Route path="/about" element={<About />} />
-                    <Route path="/my-bookings" element={<MyBookings />} />
+                    <Route path="/my-bookings" element={<MyBookingsPage />} />
                     <Route path="/bookings/new" element={<NewBookingPage />} />
                 </Route>
 
