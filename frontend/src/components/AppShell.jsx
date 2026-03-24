@@ -1,10 +1,17 @@
 import * as React from "react";
 import { AppBar, Box, Button, Container, Link, Toolbar, Typography } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
-import { useAuth } from "../auth/AuthContext";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function AppShell({ children }) {
-    const { isAuthenticated, logout, user } = useAuth();
+    const navigate = useNavigate();
+    const { user, logout } = useAuth();
+    const isAuthenticated = Boolean(user);
+
+    function onLogout() {
+        logout();
+        navigate("/login");
+    }
 
     return (
         <Box sx={{ minHeight: "100vh" }}>
@@ -59,7 +66,7 @@ export default function AppShell({ children }) {
                             <Typography variant="body2" sx={{ opacity: 0.9 }}>
                                 {user?.username}
                             </Typography>
-                            <Button color="inherit" size="small" onClick={logout}>
+                            <Button color="inherit" size="small" onClick={onLogout}>
                                 Kilépés
                             </Button>
                         </>
