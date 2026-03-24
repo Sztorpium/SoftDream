@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 
 export default function AppShell({ children }) {
     const navigate = useNavigate();
-    const { user, logout } = useAuth();
+    const { user, isAdmin, logout } = useAuth();
     const isAuthenticated = Boolean(user);
 
     function onLogout() {
@@ -16,22 +16,75 @@ export default function AppShell({ children }) {
     return (
         <Box sx={{ minHeight: "100vh" }}>
             <AppBar position="static">
-                <Toolbar sx={{ gap: 2 }}>
+                <Toolbar sx={{ gap: 2, flexWrap: "wrap" }}>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         SoftDream
                     </Typography>
 
                     <Link
                         component={RouterLink}
-                        to="/"
+                        to="/rooms"
                         color="inherit"
                         underline="hover"
                         sx={{ fontWeight: 500 }}
                     >
-                        Home
+                        Szobák
                     </Link>
 
-                    {!isAuthenticated ? (
+                    {isAuthenticated ? (
+                        <>
+                            <Link
+                                component={RouterLink}
+                                to="/my-bookings"
+                                color="inherit"
+                                underline="hover"
+                                sx={{ fontWeight: 500 }}
+                            >
+                                Foglalásaim
+                            </Link>
+
+                            <Link
+                                component={RouterLink}
+                                to="/my-reviews"
+                                color="inherit"
+                                underline="hover"
+                                sx={{ fontWeight: 500 }}
+                            >
+                                Értékeléseim
+                            </Link>
+
+                            {isAdmin ? (
+                                <>
+                                    <Link
+                                        component={RouterLink}
+                                        to="/admin/users"
+                                        color="inherit"
+                                        underline="hover"
+                                        sx={{ fontWeight: 500 }}
+                                    >
+                                        Admin Users
+                                    </Link>
+                                    <Link
+                                        component={RouterLink}
+                                        to="/admin/bookings"
+                                        color="inherit"
+                                        underline="hover"
+                                        sx={{ fontWeight: 500 }}
+                                    >
+                                        Admin Bookings
+                                    </Link>
+                                </>
+                            ) : null}
+
+                            <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                                {user?.username}
+                            </Typography>
+
+                            <Button color="inherit" size="small" onClick={onLogout}>
+                                Kilépés
+                            </Button>
+                        </>
+                    ) : (
                         <>
                             <Link
                                 component={RouterLink}
@@ -51,24 +104,6 @@ export default function AppShell({ children }) {
                             >
                                 Regisztráció
                             </Link>
-                        </>
-                    ) : (
-                        <>
-                            <Link
-                                component={RouterLink}
-                                to="/my-bookings"
-                                color="inherit"
-                                underline="hover"
-                                sx={{ fontWeight: 500 }}
-                            >
-                                Foglalásaim
-                            </Link>
-                            <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                                {user?.username}
-                            </Typography>
-                            <Button color="inherit" size="small" onClick={onLogout}>
-                                Kilépés
-                            </Button>
                         </>
                     )}
                 </Toolbar>
