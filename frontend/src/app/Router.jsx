@@ -25,6 +25,7 @@ export default function AppRouter() {
 
                 <Route path="/rooms" element={<RoomsPage />} />
                 <Route path="/rooms/:roomId" element={<RoomDetailPage />} />
+                <Route path="/about" element={<About />} />
 
                 {/* kept for now */}
                 <Route path="/home" element={<Home />} />
@@ -34,10 +35,9 @@ export default function AppRouter() {
 
                 {/* Protected routes */}
                 <Route element={<ProtectedRoute />}>
-                    <Route path="/about" element={<About />} />
                     <Route path="/my-bookings" element={<MyBookingsPage />} />
-                    <Route path="/bookings/new" element={<NewBookingPage />} />
                     <Route path="/my-reviews" element={<MyReviewsPage />} />
+                    <Route path="/bookings/new" element={<NewBookingPage />} />
                 </Route>
 
                 <Route element={<AdminRoute />}>
