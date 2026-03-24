@@ -12,6 +12,8 @@ import RoomsPage from "../pages/RoomsPage";
 import RoomDetailPage from "../pages/RoomDetailPage";
 import NewBookingPage from "../pages/NewBookingPage";
 import MyReviewsPage from "../pages/MyReviewsPage";
+import AdminRoute from "../components/AdminRoute";
+import AdminUsersPage from "../pages/admin/AdminUsersPage";
 
 export default function AppRouter() {
     return (
@@ -34,6 +36,10 @@ export default function AppRouter() {
                     <Route path="/my-bookings" element={<MyBookingsPage />} />
                     <Route path="/bookings/new" element={<NewBookingPage />} />
                     <Route path="/my-reviews" element={<MyReviewsPage />} />
+                </Route>
+
+                <Route element={<AdminRoute />}>
+                    <Route path="/admin/users" element={<AdminUsersPage />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
