@@ -67,11 +67,11 @@ INSERT INTO users (username, email, phone, created_at) VALUES
 -- Jelszó: admin123
 -- Jelszó: user123
 INSERT INTO user_auth (user_id, password_hash, role_id) VALUES
-                                                            (1, '$2a$10$slYQmyNdGzin7olVN3p5Be0DWHtzbqgFmC7ZzD3Z2Z8K5p9C5xWPG', 1),  -- admin_user / admin123
-                                                            (2, '$2a$10$slYQmyNdGzin7olVN3p5Be0DWHtzbqgFmC7ZzD3Z2Z8K5p9C5xWPG', 2),  -- john_doe / admin123
-                                                            (3, '$2a$10$slYQmyNdGzin7olVN3p5Be0DWHtzbqgFmC7ZzD3Z2Z8K5p9C5xWPG', 2),  -- jane_smith / admin123
-                                                            (4, '$2a$10$slYQmyNdGzin7olVN3p5Be0DWHtzbqgFmC7ZzD3Z2Z8K5p9C5xWPG', 2),  -- peter_kovacs / admin123
-                                                            (5, '$2a$10$slYQmyNdGzin7olVN3p5Be0DWHtzbqgFmC7ZzD3Z2Z8K5p9C5xWPG', 2);  -- maria_szabo / admin123
+                                                            (1, '$2a$10$nHsRk/tRgY4iJr.7QKTkZefdZlnN5emF7oXj7nHtSt/RCU1GxpWo6', 1),  -- admin_user / admin123
+                                                            (2, '$2a$10$5lYSwu5.wAIEaTcOTdzxQeDTOQZNHKcwLr8Nu/GPIKV1XcbU4Ai9i', 2),  -- john_doe / user123
+                                                            (3, '$2a$10$5lYSwu5.wAIEaTcOTdzxQeDTOQZNHKcwLr8Nu/GPIKV1XcbU4Ai9i', 2),  -- jane_smith / user123
+                                                            (4, '$2a$10$5lYSwu5.wAIEaTcOTdzxQeDTOQZNHKcwLr8Nu/GPIKV1XcbU4Ai9i', 2),  -- peter_kovacs / user123
+                                                            (5, '$2a$10$5lYSwu5.wAIEaTcOTdzxQeDTOQZNHKcwLr8Nu/GPIKV1XcbU4Ai9i', 2);  -- maria_szabo / user123
 
 -- ========================================
 -- REVIEWS - Értékelések
