@@ -2,8 +2,8 @@
 -- ROLES - Jogosultságok
 -- ========================================
 INSERT INTO roles (name, description) VALUES
-('ADMIN', 'Rendszer adminisztrátor - teljes hozzáférés'),
-('USER', 'Normál felhasználó - szobafoglalás és értékelés');
+                                          ('ADMIN', 'Rendszer adminisztrátor - teljes hozzáférés'),
+                                          ('USER', 'Normál felhasználó - szobafoglalás és értékelés');
 
 -- ========================================
 -- ROOM STATUS - Szoba státuszok
@@ -53,7 +53,6 @@ INSERT INTO rooms (room_number, floor, room_status_id, room_type_id, max_guests)
 -- ========================================
 -- USERS - Felhasználók
 -- ========================================
--- Jelszó: admin123 (BCrypt: $2a$10$...)
 INSERT INTO users (username, email, phone, created_at) VALUES
                                                            ('admin_user', 'admin@softdream.hu', '+36201234567', NOW()),
                                                            ('john_doe', 'john.doe@gmail.com', '+36301234567', NOW()),
@@ -64,14 +63,19 @@ INSERT INTO users (username, email, phone, created_at) VALUES
 -- ========================================
 -- USER AUTH - Jelszavak (BCrypt kódolt)
 -- ========================================
--- Jelszó: admin123
--- Jelszó: user123
+-- Jelszó: admin123 (BCrypt)
+-- Jelszó: user123 (BCrypt)
 INSERT INTO user_auth (user_id, password_hash, role_id) VALUES
-                                                            (1, '$2a$10$slYQmyNdGzin7olVN3p5Be0DWHtzbqgFmC7ZzD3Z2Z8K5p9C5xWPG', 1),  -- admin_user / admin123
-                                                            (2, '$2a$10$slYQmyNdGzin7olVN3p5Be0DWHtzbqgFmC7ZzD3Z2Z8K5p9C5xWPG', 2),  -- john_doe / admin123
-                                                            (3, '$2a$10$slYQmyNdGzin7olVN3p5Be0DWHtzbqgFmC7ZzD3Z2Z8K5p9C5xWPG', 2),  -- jane_smith / admin123
-                                                            (4, '$2a$10$slYQmyNdGzin7olVN3p5Be0DWHtzbqgFmC7ZzD3Z2Z8K5p9C5xWPG', 2),  -- peter_kovacs / admin123
-                                                            (5, '$2a$10$slYQmyNdGzin7olVN3p5Be0DWHtzbqgFmC7ZzD3Z2Z8K5p9C5xWPG', 2);  -- maria_szabo / admin123
+-- admin_user / admin123 / ADMIN
+(1, '$2a$10$nHsRk/tRgY4iJr.7QKTkZefdZlnN5emF7oXj7nHtSt/RCU1GxpWo6', 1),
+-- john_doe / user123 / USER
+(2, '$2a$10$5lYSwu5.wAIEaTcOTdzxQeDTOQZNHKcwLr8Nu/GPIKV1XcbU4Ai9i', 2),
+-- jane_smith / user123 / USER
+(3, '$2a$10$5lYSwu5.wAIEaTcOTdzxQeDTOQZNHKcwLr8Nu/GPIKV1XcbU4Ai9i', 2),
+-- peter_kovacs / user123 / USER
+(4, '$2a$10$5lYSwu5.wAIEaTcOTdzxQeDTOQZNHKcwLr8Nu/GPIKV1XcbU4Ai9i', 2),
+-- maria_szabo / user123 / USER
+(5, '$2a$10$5lYSwu5.wAIEaTcOTdzxQeDTOQZNHKcwLr8Nu/GPIKV1XcbU4Ai9i', 2);
 
 -- ========================================
 -- REVIEWS - Értékelések
@@ -81,3 +85,17 @@ INSERT INTO reviews (user_id, room_id, rating, comment, created_at) VALUES
                                                                         (3, 5, 4, 'Jó szoba, kicsit zsúfolt volt, de az ár érte megfelel.', NOW()),
                                                                         (4, 1, 5, 'Egyágyas szobák ritkán ilyen jók. Nagyobb mint vártam!', NOW()),
                                                                         (2, 5, 4, 'Hármas szoba jó áron. Ajánlom!', NOW());
+
+-- ========================================
+-- BOOKINGS - Foglalások (Konkrét dátumokkal)
+-- ========================================
+INSERT INTO bookings (user_id, room_id, check_in, check_out, status, created_at) VALUES
+-- john_doe foglalásai
+(2, 1, '2026-03-30', '2026-04-01', 'PENDING', NOW()),
+(2, 3, '2026-04-04', '2026-04-07', 'CONFIRMED', NOW()),
+
+-- jane_smith foglalásai
+(3, 5, '2026-03-27', '2026-03-29', 'CONFIRMED', NOW()),
+
+-- peter_kovacs foglalásai
+(4, 2, '2026-04-02', '2026-04-04', 'PENDING', NOW());
