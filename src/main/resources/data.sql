@@ -87,15 +87,15 @@ INSERT INTO reviews (user_id, room_id, rating, comment, created_at) VALUES
                                                                         (2, 5, 4, 'Hármas szoba jó áron. Ajánlom!', NOW());
 
 -- ========================================
--- BOOKINGS - Foglalások (Test adatok)
+-- BOOKINGS - Foglalások (Konkrét dátumokkal)
 -- ========================================
 INSERT INTO bookings (user_id, room_id, check_in, check_out, status, created_at) VALUES
 -- john_doe foglalásai
-(2, 1, DATE_ADD(CURDATE(), INTERVAL 5 DAY), DATE_ADD(CURDATE(), INTERVAL 7 DAY), 'PENDING', NOW()),
-(2, 3, DATE_ADD(CURDATE(), INTERVAL 10 DAY), DATE_ADD(CURDATE(), INTERVAL 13 DAY), 'CONFIRMED', NOW()),
+(2, 1, '2026-03-30', '2026-04-01', 'PENDING', NOW()),
+(2, 3, '2026-04-04', '2026-04-07', 'CONFIRMED', NOW()),
 
 -- jane_smith foglalásai
-(3, 5, DATE_ADD(CURDATE(), INTERVAL 2 DAY), DATE_ADD(CURDATE(), INTERVAL 4 DAY), 'CONFIRMED', NOW()),
+(3, 5, '2026-03-27', '2026-03-29', 'CONFIRMED', NOW()),
 
 -- peter_kovacs foglalásai
-(4, 2, DATE_ADD(CURDATE(), INTERVAL 8 DAY), DATE_ADD(CURDATE(), INTERVAL 10 DAY), 'PENDING', NOW());
+(4, 2, '2026-04-02', '2026-04-04', 'PENDING', NOW());
