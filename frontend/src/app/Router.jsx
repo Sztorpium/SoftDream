@@ -2,7 +2,7 @@ import * as React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import AppShell from "../components/AppShell";
 import Home from "../pages/Home";
-import About from "../pages/About";
+import AboutPage from "../pages/AboutPage";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import MyBookingsPage from "../pages/MyBookingsPage";
@@ -25,7 +25,7 @@ export default function AppRouter() {
 
                 <Route path="/rooms" element={<RoomsPage />} />
                 <Route path="/rooms/:roomId" element={<RoomDetailPage />} />
-                <Route path="/about" element={<About />} />
+                <Route path="/about" element={<AboutPage />} />
 
                 {/* kept for now */}
                 <Route path="/home" element={<Home />} />
