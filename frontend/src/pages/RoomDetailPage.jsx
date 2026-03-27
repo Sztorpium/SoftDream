@@ -14,6 +14,7 @@ import {
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { getRoomById } from "../api/rooms";
 import { getAverageRating, getReviewsByRoomId } from "../api/reviews";
+import RatingStars from "../components/RatingStars";
 
 export default function RoomDetailPage() {
     const { roomId } = useParams();
@@ -38,7 +39,6 @@ export default function RoomDetailPage() {
                     getReviewsByRoomId(roomId),
                     getAverageRating(roomId),
                 ]);
-
                 if (!alive) return;
 
                 setRoom(roomData ?? null);
@@ -66,6 +66,11 @@ export default function RoomDetailPage() {
         };
     }, [roomId]);
 
+    function formatPrice(price) {
+        if (price == null) return "—";
+        return new Intl.NumberFormat("hu-HU", { style: "currency", currency: "HUF" }).format(Number(price));
+    }
+
     return (
         <Container sx={{ py: 3 }} maxWidth="md">
             <Stack spacing={2}>
@@ -83,50 +88,66 @@ export default function RoomDetailPage() {
                     <>
                         <Card variant="outlined">
                             <CardContent>
-                                <Stack spacing={1.2}>
-                                    <Typography variant="h4" component="h1">
+                                <Stack spacing={1.8}>
+                                    <Typography variant="h4" component="h1" fontWeight={800}>
                                         {room.name ?? `Szoba #${room.id ?? room.roomId ?? roomId}`}
                                     </Typography>
 
-                                    {room.description ? (
+                                    {room.description && (
                                         <Typography variant="body1" sx={{ opacity: 0.9 }}>
                                             {room.description}
                                         </Typography>
-                                    ) : null}
+                                    )}
 
-                                    <Divider />
+                                    <Divider light />
 
-                                    <Stack spacing={0.5}>
-                                        {room.roomNumber != null ? (
-                                            <Typography variant="body2">
-                                                Szobaszám: {room.roomNumber}
+                                    <Stack
+                                        direction={{ xs: "column", sm: "row" }}
+                                        spacing={2}
+                                        alignItems={{ sm: "center" }}
+                                        justifyContent="space-between"
+                                    >
+                                        <Stack spacing={0.2}>
+                                            {room.roomNumber != null && (
+                                                <Typography variant="body2">
+                                                    <b>Szobaszám:</b> {room.roomNumber}
+                                                </Typography>
+                                            )}
+                                            {room.type?.name ? (
+                                                <Typography variant="body2">
+                                                    <b>Típus:</b> {room.type.name}
+                                                </Typography>
+                                            ) : room.roomType ? (
+                                                <Typography variant="body2">
+                                                    <b>Típus:</b> {room.roomType}
+                                                </Typography>
+                                            ) : null}
+                                            {room.status && (
+                                                <Typography variant="body2">
+                                                    <b>Státusz:</b> {room.status}
+                                                </Typography>
+                                            )}
+                                        </Stack>
+                                        <Box>
+                                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                                {formatPrice(room.pricePerNight)}
+                                                <Typography component="span" variant="body2" sx={{ opacity: 0.7 }}>
+                                                    {" "}
+                                                    / éj
+                                                </Typography>
                                             </Typography>
-                                        ) : null}
-                                        {room.type?.name ? (
-                                            <Typography variant="body2">
-                                                Típus: {room.type.name}
-                                            </Typography>
-                                        ) : room.roomType ? (
-                                            <Typography variant="body2">
-                                                Típus: {room.roomType}
-                                            </Typography>
-                                        ) : null}
-                                        {room.pricePerNight != null ? (
-                                            <Typography variant="body2">
-                                                Ár / éj: {room.pricePerNight}
-                                            </Typography>
-                                        ) : null}
-                                        {room.status ? (
-                                            <Typography variant="body2">
-                                                Státusz: {room.status}
-                                            </Typography>
-                                        ) : null}
-                                        {avgRating != null ? (
-                                            <Typography variant="body2">
-                                                Átlagos értékelés: {avgRating}
-                                            </Typography>
-                                        ) : null}
+                                        </Box>
                                     </Stack>
+
+                                    {/* Average rating with stars */}
+                                    {avgRating != null && (
+                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, pt: 1 }}>
+                                            <RatingStars value={avgRating} size={24} />
+                                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                                {avgRating.toFixed(1)}/5
+                                            </Typography>
+                                        </Box>
+                                    )}
 
                                     <Box sx={{ pt: 1 }}>
                                         <Button
@@ -146,7 +167,6 @@ export default function RoomDetailPage() {
                                 <Typography variant="h6" gutterBottom>
                                     Értékelések
                                 </Typography>
-
                                 {reviews.length === 0 ? (
                                     <Typography variant="body2" sx={{ opacity: 0.8 }}>
                                         Ehhez a szobához még nincs értékelés.
@@ -158,20 +178,25 @@ export default function RoomDetailPage() {
                                                 key={r.id ?? r.reviewId ?? JSON.stringify(r)}
                                                 sx={{ borderBottom: "1px solid rgba(0,0,0,0.08)", pb: 1 }}
                                             >
-                                                <Typography variant="subtitle2">
-                                                    {r.username ?? r.user?.username ?? "Felhasználó"}
-                                                    {r.rating != null ? ` — ${r.rating}/5` : ""}
-                                                </Typography>
-                                                {r.comment ? (
+                                                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                                    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                                                        {r.username ?? r.user?.username ?? "Felhasználó"}
+                                                    </Typography>
+                                                    <RatingStars value={r.rating} />
+                                                    <Typography variant="body2" sx={{ opacity: 0.7 }}>
+                                                        {r.rating != null ? `${r.rating}/5` : ""}
+                                                    </Typography>
+                                                </Box>
+                                                {r.comment && (
                                                     <Typography variant="body2" sx={{ opacity: 0.9 }}>
                                                         {r.comment}
                                                     </Typography>
-                                                ) : null}
-                                                {r.createdAt ? (
+                                                )}
+                                                {r.createdAt && (
                                                     <Typography variant="caption" sx={{ opacity: 0.7 }}>
                                                         {String(r.createdAt)}
                                                     </Typography>
-                                                ) : null}
+                                                )}
                                             </Box>
                                         ))}
                                     </Stack>
