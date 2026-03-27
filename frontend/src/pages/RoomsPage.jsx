@@ -1,117 +1,243 @@
 import * as React from "react";
 import {
-    Alert,
     Box,
     Button,
     Card,
     CardActions,
     CardContent,
+    Chip,
     CircularProgress,
     Container,
     Grid,
+    MenuItem,
     Stack,
+    TextField,
     Typography,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { getAllRooms } from "../api/rooms";
+import RatingStars from "../components/RatingStars";
+
+function formatPrice(v) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return "—";
+    return new Intl.NumberFormat("hu-HU", { style: "currency", currency: "HUF" }).format(n);
+}
+
+function getRoomType(room) {
+    // adapt if you have a `type` field; fallback from name/category
+    return room.type ?? room.roomType ?? room.category ?? "";
+}
 
 export default function RoomsPage() {
     const [rooms, setRooms] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState("");
 
+    // filters
+    const [q, setQ] = React.useState("");
+    const [type, setType] = React.useState("ALL");
+    const [maxPrice, setMaxPrice] = React.useState(""); // number or empty
+    const [sort, setSort] = React.useState("RECOMMENDED"); // PRICE_ASC / PRICE_DESC
+
     React.useEffect(() => {
-        let alive = true;
+        let cancelled = false;
+        setLoading(true);
+        setError("");
 
-        async function load() {
-            setLoading(true);
-            setError("");
-            try {
-                const data = await getAllRooms();
-                if (!alive) return;
-                setRooms(Array.isArray(data) ? data : []);
-            } catch (err) {
-                if (!alive) return;
-                setError(err?.message || "Nem sikerült betölteni a szobákat.");
-            } finally {
-                if (alive) setLoading(false);
-            }
-        }
+        getAllRooms()
+            .then((data) => {
+                if (!cancelled) setRooms(Array.isArray(data) ? data : []);
+            })
+            .catch((err) => {
+                if (!cancelled) setError(err?.message || "Nem sikerült betölteni a szobákat.");
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false);
+            });
 
-        load();
         return () => {
-            alive = false;
+            cancelled = true;
         };
     }, []);
 
+    const roomTypes = React.useMemo(() => {
+        const set = new Set();
+        rooms.forEach((r) => {
+            const t = String(getRoomType(r) || "").trim();
+            if (t) set.add(t);
+        });
+        return ["ALL", ...Array.from(set).sort((a, b) => a.localeCompare(b))];
+    }, [rooms]);
+
+    const filtered = React.useMemo(() => {
+        const qLower = q.trim().toLowerCase();
+        const mp = maxPrice === "" ? null : Number(maxPrice);
+
+        let list = rooms.filter((r) => {
+            const name = String(r.name ?? r.title ?? "").toLowerCase();
+            const desc = String(r.description ?? "").toLowerCase();
+            const matchesQ = !qLower || name.includes(qLower) || desc.includes(qLower);
+
+            const t = String(getRoomType(r) || "");
+            const matchesType = type === "ALL" || t === type;
+
+            const price = Number(r.pricePerNight ?? r.price ?? r.nightlyPrice);
+            const matchesPrice = mp == null || (!Number.isNaN(price) && price <= mp);
+
+            return matchesQ && matchesType && matchesPrice;
+        });
+
+        if (sort === "PRICE_ASC") {
+            list = list.slice().sort((a, b) => (Number(a.pricePerNight ?? a.price ?? 0) || 0) - (Number(b.pricePerNight ?? b.price ?? 0) || 0));
+        } else if (sort === "PRICE_DESC") {
+            list = list.slice().sort((a, b) => (Number(b.pricePerNight ?? b.price ?? 0) || 0) - (Number(a.pricePerNight ?? a.price ?? 0) || 0));
+        }
+
+        return list;
+    }, [rooms, q, type, maxPrice, sort]);
+
     return (
-        <Container sx={{ py: 3 }} maxWidth="lg">
+        <Container sx={{ py: 3 }}>
             <Stack spacing={2}>
                 <Box>
-                    <Typography variant="h4" component="h1" gutterBottom>
+                    <Typography variant="h4" component="h1">
                         Szobák
                     </Typography>
                     <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                        Válassz szobát a részletek megtekintéséhez.
+                        Keress, szűrj és válassz szobát.
                     </Typography>
                 </Box>
 
-                {error ? <Alert severity="error">{error}</Alert> : null}
+                {/* Filters */}
+                <Card variant="outlined">
+                    <CardContent>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} md={5}>
+                                <TextField
+                                    label="Keresés"
+                                    value={q}
+                                    onChange={(e) => setQ(e.target.value)}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={3}>
+                                <TextField
+                                    label="Típus"
+                                    value={type}
+                                    onChange={(e) => setType(e.target.value)}
+                                    select
+                                    fullWidth
+                                >
+                                    {roomTypes.map((t) => (
+                                        <MenuItem key={t} value={t}>
+                                            {t === "ALL" ? "Összes" : t}
+                                        </MenuItem>
+                                    ))}
+                                </TextField>
+                            </Grid>
+                            <Grid item xs={12} md={2}>
+                                <TextField
+                                    label="Max ár / éj"
+                                    value={maxPrice}
+                                    onChange={(e) => setMaxPrice(e.target.value)}
+                                    type="number"
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={2}>
+                                <TextField
+                                    label="Rendezés"
+                                    value={sort}
+                                    onChange={(e) => setSort(e.target.value)}
+                                    select
+                                    fullWidth
+                                >
+                                    <MenuItem value="RECOMMENDED">Ajánlott</MenuItem>
+                                    <MenuItem value="PRICE_ASC">Ár ↑</MenuItem>
+                                    <MenuItem value="PRICE_DESC">Ár ↓</MenuItem>
+                                </TextField>
+                            </Grid>
+                        </Grid>
 
+                        <Box sx={{ mt: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
+                            <Chip label={`Összes: ${rooms.length}`} variant="outlined" />
+                            <Chip label={`Találat: ${filtered.length}`} color="primary" variant="outlined" />
+                            <Button size="small" onClick={() => { setQ(""); setType("ALL"); setMaxPrice(""); setSort("RECOMMENDED"); }}>
+                                Reset
+                            </Button>
+                        </Box>
+                    </CardContent>
+                </Card>
+
+                {/* List */}
                 {loading ? (
                     <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
                         <CircularProgress />
                     </Box>
+                ) : error ? (
+                    <Typography color="error">{error}</Typography>
+                ) : filtered.length === 0 ? (
+                    <Typography sx={{ opacity: 0.8 }}>Nincs találat a szűrőkre.</Typography>
                 ) : (
                     <Grid container spacing={2}>
-                        {rooms.map((room) => (
-                            <Grid key={room.id ?? room.roomId ?? JSON.stringify(room)} item xs={12} sm={6} md={4}>
-                                <Card variant="outlined">
-                                    <CardContent>
-                                        <Typography variant="h6" gutterBottom>
-                                            {room.name ?? `Szoba #${room.id ?? room.roomId}`}
-                                        </Typography>
+                        {filtered.map((r) => {
+                            const id = r.id ?? r.roomId;
+                            const price = r.pricePerNight ?? r.price ?? r.nightlyPrice;
+                            const rating = r.avgRating ?? r.ratingAvg ?? r.rating ?? 0;
 
-                                        <Stack spacing={0.5}>
-                                            {room.roomNumber != null ? (
-                                                <Typography variant="body2">
-                                                    Szobaszám: {room.roomNumber}
-                                                </Typography>
-                                            ) : null}
-                                            {room.type?.name ? (
-                                                <Typography variant="body2">
-                                                    Típus: {room.type.name}
-                                                </Typography>
-                                            ) : room.roomType ? (
-                                                <Typography variant="body2">
-                                                    Típus: {room.roomType}
-                                                </Typography>
-                                            ) : null}
-                                            {room.pricePerNight != null ? (
-                                                <Typography variant="body2">
-                                                    Ár / éj: {room.pricePerNight}
-                                                </Typography>
-                                            ) : null}
-                                            {room.status ? (
-                                                <Typography variant="body2">
-                                                    Státusz: {room.status}
-                                                </Typography>
-                                            ) : null}
-                                        </Stack>
-                                    </CardContent>
+                            return (
+                                <Grid item key={id ?? JSON.stringify(r)} xs={12} sm={6} md={4}>
+                                    <Card variant="outlined" sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+                                        <CardContent sx={{ flexGrow: 1 }}>
+                                            <Stack spacing={1}>
+                                                <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1 }}>
+                                                    <Typography variant="h6" sx={{ fontWeight: 900 }}>
+                                                        {r.name ?? `Szoba #${id ?? "?"}`}
+                                                    </Typography>
+                                                    <Chip
+                                                        size="small"
+                                                        label={getRoomType(r) || "Room"}
+                                                        variant="outlined"
+                                                    />
+                                                </Box>
 
-                                    <CardActions>
-                                        <Button
-                                            component={RouterLink}
-                                            to={`/rooms/${room.id ?? room.roomId}`}
-                                            size="small"
-                                        >
-                                            Részletek
-                                        </Button>
-                                    </CardActions>
-                                </Card>
-                            </Grid>
-                        ))}
+                                                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                                    <RatingStars value={rating} />
+                                                    <Typography variant="body2" sx={{ opacity: 0.7 }}>
+                                                        {Number(rating) ? Number(rating).toFixed(1) : "—"}
+                                                    </Typography>
+                                                </Box>
+
+                                                <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                                                    {r.description ? String(r.description).slice(0, 120) : " "}
+                                                    {r.description && String(r.description).length > 120 ? "…" : ""}
+                                                </Typography>
+
+                                                <Typography variant="h6" sx={{ fontWeight: 900, pt: 1 }}>
+                                                    {formatPrice(price)}{" "}
+                                                    <Typography component="span" variant="body2" sx={{ opacity: 0.7 }}>
+                                                        / éj
+                                                    </Typography>
+                                                </Typography>
+                                            </Stack>
+                                        </CardContent>
+
+                                        <CardActions sx={{ px: 2, pb: 2 }}>
+                                            <Button
+                                                component={RouterLink}
+                                                to={`/rooms/${id}`}
+                                                variant="contained"
+                                                fullWidth
+                                                disabled={id == null}
+                                            >
+                                                Részletek
+                                            </Button>
+                                        </CardActions>
+                                    </Card>
+                                </Grid>
+                            );
+                        })}
                     </Grid>
                 )}
             </Stack>
