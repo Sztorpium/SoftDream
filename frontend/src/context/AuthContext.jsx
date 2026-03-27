@@ -30,7 +30,7 @@ export function AuthProvider({ children }) {
         setLoading(false);
     }, []);
 
-    const isAdmin = user?.role === "ROLE_ADMIN";
+    const isAdmin = user?.role === "ADMIN";
 
     const persistAuth = React.useCallback((authResponse) => {
         const userInfo = {

@@ -19,15 +19,14 @@ import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Footer from "./Footer";
 
-function NavLink({ to, children, onClick }) {
+function NavLink({ to, children, onClick, admin }) {
     return (
         <Link
             component={RouterLink}
             to={to}
-            color="inherit"
             underline="hover"
-            sx={{ fontWeight: 600 }}
             onClick={onClick}
+            sx={{ fontWeight: 600, color: admin ? "error.main" : "inherit" }}
         >
             {children}
         </Link>
@@ -58,8 +57,8 @@ export default function AppShell({ children }) {
     ];
 
     const adminLinks = [
-        { label: "Admin Users", to: "/admin/users" },
-        { label: "Admin Bookings", to: "/admin/bookings" },
+        { label: "Admin Users", to: "/admin/users", admin: true },
+        { label: "Admin Bookings", to: "/admin/bookings", admin: true },
     ];
 
     const guestLinks = [
@@ -116,7 +115,7 @@ export default function AppShell({ children }) {
                                 {isAdmin ? (
                                     <>
                                         {adminLinks.map((l) => (
-                                            <NavLink key={l.to} to={l.to}>
+                                            <NavLink key={l.to} to={l.to} admin={l.admin}>
                                                 {l.label}
                                             </NavLink>
                                         ))}
@@ -190,6 +189,7 @@ export default function AppShell({ children }) {
                                 component={RouterLink}
                                 to={l.to}
                                 onClick={() => setOpen(false)}
+                                sx={l.admin ? { color: "error.main" } : undefined}
                             >
                                 <ListItemText primary={l.label} />
                             </ListItemButton>
