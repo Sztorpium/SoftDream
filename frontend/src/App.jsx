@@ -1,17 +1,14 @@
 import * as React from "react";
-import * as ReactDOM from "react-dom/client";
-import { CssBaseline, ThemeProvider } from "@mui/material";
 import { BrowserRouter } from "react-router-dom";
-import App from "./App";
-import { theme } from "./app/theme";
+import AppRouter from "./app/Router";
+import { AuthProvider } from "./context/AuthContext";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+export default function App() {
+  return (
+    <AuthProvider>
       <BrowserRouter>
-        <App />
+        <AppRouter />
       </BrowserRouter>
-    </ThemeProvider>
-  </React.StrictMode>
-);
+    </AuthProvider>
+  );
+}
