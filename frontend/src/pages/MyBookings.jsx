@@ -26,9 +26,57 @@ const STATUS_COLOR = {
     CANCELLED: "error",
 };
 
-function isCheckOutPast(checkOut) {
+const REVIEWABLE_STATUSES = new Set(["CONFIRMED", "COMPLETED", "FINISHED"]);
+
+function normalizeStatus(status) {
+    return String(status ?? "")
+        .trim()
+        .toUpperCase();
+}
+
+function parseDateSafe(value) {
+    if (!value) return null;
+    if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+
+    const raw = String(value).trim();
+    const parsed = new Date(raw);
+    if (!Number.isNaN(parsed.getTime())) return parsed;
+
+    const dotFormat = raw.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+    if (dotFormat) {
+        const [, d, m, y] = dotFormat;
+        const normalized = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+        const date = new Date(normalized);
+        return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    return null;
+}
+
+function getBookingCheckOut(booking) {
+    return (
+        booking?.checkOut ??
+        booking?.checkout ??
+        booking?.checkOutDate ??
+        booking?.endDate ??
+        null
+    );
+}
+
+function getBookingCheckIn(booking) {
+    return booking?.checkIn ?? booking?.checkin ?? booking?.checkInDate ?? booking?.startDate ?? "-";
+}
+
+function getBookingRoomId(booking) {
+    return booking?.roomId ?? booking?.room?.id ?? booking?.room?.roomId ?? null;
+}
+
+function canWriteReview(booking) {
+    const status = normalizeStatus(booking?.status);
+    if (!REVIEWABLE_STATUSES.has(status)) return false;
+    const checkOut = parseDateSafe(getBookingCheckOut(booking));
     if (!checkOut) return false;
-    return new Date(checkOut) < new Date();
+    return checkOut < new Date();
 }
 
 export default function MyBookings() {
@@ -81,7 +129,8 @@ export default function MyBookings() {
             setReviewError("Kérjük, adj meg egy értékelést (1–5 csillag).");
             return;
         }
-        const roomId = reviewDialog?.roomId ?? reviewDialog?.room?.id;
+        const roomId = getBookingRoomId(reviewDialog);
+        const bookingId = reviewDialog?.id ?? reviewDialog?.bookingId;
         if (!roomId) {
             setReviewError("Nem sikerült azonosítani a szobát.");
             return;
@@ -89,7 +138,12 @@ export default function MyBookings() {
         setReviewSubmitting(true);
         setReviewError("");
         try {
-            await createReview({ roomId, rating, comment: comment.trim() || undefined });
+            await createReview({
+                roomId,
+                bookingId,
+                rating,
+                comment: comment.trim() || undefined,
+            });
             setReviewSuccess("Értékelés sikeresen elküldve!");
         } catch (err) {
             setReviewError(err?.message || "Nem sikerült elküldeni az értékelést.");
@@ -121,8 +175,10 @@ export default function MyBookings() {
             {!loading && !error && bookings.length > 0 && (
                 <Stack spacing={2}>
                     {bookings.map((booking) => {
-                        const canReview =
-                            booking.status === "CONFIRMED" && isCheckOutPast(booking.checkOut);
+                        const canReview = canWriteReview(booking);
+                        const roomId = getBookingRoomId(booking);
+                        const checkIn = getBookingCheckIn(booking);
+                        const checkOut = getBookingCheckOut(booking) ?? "-";
                         return (
                             <Paper key={booking.id} sx={{ p: 2 }}>
                                 <Stack
@@ -137,11 +193,11 @@ export default function MyBookings() {
                                             Foglalás #{booking.id}
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
-                                            Szoba: {booking.roomId ?? booking.room?.id ?? "–"}
+                                            Szoba: {roomId ?? "-"}
                                         </Typography>
                                         <Divider sx={{ my: 0.5 }} />
                                         <Typography variant="body2">
-                                            {booking.checkIn} → {booking.checkOut}
+                                            {checkIn} → {checkOut}
                                         </Typography>
                                     </Box>
                                     <Stack direction="row" alignItems="center" gap={1}>
@@ -169,7 +225,7 @@ export default function MyBookings() {
             <Dialog open={!!reviewDialog} onClose={closeReviewDialog} maxWidth="sm" fullWidth>
                 <DialogTitle>
                     Értékelés – Szoba:{" "}
-                    {reviewDialog?.roomId ?? reviewDialog?.room?.id ?? "–"}
+                    {getBookingRoomId(reviewDialog) ?? "-"}
                 </DialogTitle>
                 <DialogContent>
                     <Stack spacing={2} sx={{ mt: 1 }}>
