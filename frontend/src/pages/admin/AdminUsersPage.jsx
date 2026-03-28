@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
 import {
     Alert,
     Box,
@@ -15,6 +16,7 @@ import { useAuth } from "../../context/AuthContext";
 
 export default function AdminUsersPage() {
     const { user: currentUser } = useAuth();
+    const navigate = useNavigate();
     const [users, setUsers] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState("");
@@ -136,16 +138,27 @@ export default function AdminUsersPage() {
                                             ) : null}
                                         </Box>
 
-                                        {canDelete(u) ? (
-                                            <Button
-                                                color="error"
-                                                size="small"
-                                                onClick={() => onDelete(id, u.username)}
-                                                disabled={deletingId === id}
-                                            >
-                                                {deletingId === id ? "Törlés..." : "Törlés"}
-                                            </Button>
-                                        ) : null}
+                                        <Stack direction="row" gap={1}>
+                                            {id != null && (
+                                                <Button
+                                                    size="small"
+                                                    variant="outlined"
+                                                    onClick={() => navigate(`/admin/users/${id}`)}
+                                                >
+                                                    Részletek
+                                                </Button>
+                                            )}
+                                            {canDelete(u) ? (
+                                                <Button
+                                                    color="error"
+                                                    size="small"
+                                                    onClick={() => onDelete(id, u.username)}
+                                                    disabled={deletingId === id}
+                                                >
+                                                    {deletingId === id ? "Törlés..." : "Törlés"}
+                                                </Button>
+                                            ) : null}
+                                        </Stack>
                                     </Stack>
                                 </Paper>
                             );
