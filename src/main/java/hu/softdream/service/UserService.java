@@ -2,6 +2,7 @@ package hu.softdream.service;
 
 import hu.softdream.dto.response.UserResponse;
 import hu.softdream.entity.User;
+import hu.softdream.exception.BadRequestException;
 import hu.softdream.exception.ResourceNotFoundException;
 import hu.softdream.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,10 +34,17 @@ public class UserService {
         return convertToResponse(user);
     }
 
-    public void deleteUser(Integer userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("A felhasználó nem található a megadott azonosítóval: " + userId);
+    public void deleteUser(Integer userId, Integer requestingUserId) {
+        User target = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("A felhasználó nem található a megadott azonosítóval: " + userId));
+        if (userId.equals(requestingUserId)) {
+            throw new BadRequestException("Saját magát nem törölheti.");
         }
+        String targetRole = target.getUserAuth() != null ? target.getUserAuth().getRole().getName() : null;
+        if ("ADMIN".equals(targetRole)) {
+            throw new BadRequestException("Más admin felhasználót nem törölhet.");
+        }
+
         userRepository.deleteById(userId);
     }
 
