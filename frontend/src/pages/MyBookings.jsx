@@ -26,7 +26,7 @@ const STATUS_COLOR = {
     CANCELLED: "error",
 };
 
-const REVIEWABLE_STATUSES = new Set(["CONFIRMED", "COMPLETED", "FINISHED"]);
+const REVIEWABLE_STATUSES = new Set(["PENDING", "CONFIRMED", "COMPLETED", "FINISHED"]);
 
 function normalizeStatus(status) {
     return String(status ?? "")
@@ -180,7 +180,7 @@ export default function MyBookings() {
                         const checkIn = getBookingCheckIn(booking);
                         const checkOut = getBookingCheckOut(booking) ?? "-";
                         return (
-                            <Paper key={booking.id} sx={{ p: 2 }}>
+                            <Paper key={booking.bookingId ?? booking.id} sx={{ p: 2 }}>
                                 <Stack
                                     direction="row"
                                     justifyContent="space-between"
