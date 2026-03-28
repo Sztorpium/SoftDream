@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -19,5 +20,7 @@ public class ReviewResponse {
     private String roomNumber;
     private Integer rating;
     private String comment;
+    private LocalDate checkIn;
+    private LocalDate checkOut;
     private LocalDateTime createdAt;
 }

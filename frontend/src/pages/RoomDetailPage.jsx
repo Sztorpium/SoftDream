@@ -192,6 +192,11 @@ export default function RoomDetailPage() {
                                                         {r.comment}
                                                     </Typography>
                                                 )}
+                                                {(r.checkIn || r.checkOut) && (
+                                                    <Typography variant="caption" sx={{ opacity: 0.75 }}>
+                                                        Szállás: {r.checkIn ?? "?"} – {r.checkOut ?? "?"}
+                                                    </Typography>
+                                                )}
                                                 {r.createdAt && (
                                                     <Typography variant="caption" sx={{ opacity: 0.7 }}>
                                                         {String(r.createdAt)}

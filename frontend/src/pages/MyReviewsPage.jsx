@@ -86,6 +86,12 @@ export default function MyReviewsPage() {
                                         </Typography>
                                     ) : null}
 
+                                    {(r.checkIn || r.checkOut) ? (
+                                        <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                                            Szállás: {r.checkIn ?? "?"} – {r.checkOut ?? "?"}
+                                        </Typography>
+                                    ) : null}
+
                                     <Stack direction="row" justifyContent="flex-end">
                                         <Button
                                             color="error"
