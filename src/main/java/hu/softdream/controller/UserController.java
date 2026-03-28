@@ -1,6 +1,7 @@
 package hu.softdream.controller;
 
 import hu.softdream.dto.response.UserResponse;
+import hu.softdream.security.CustomUserDetails;
 import hu.softdream.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,8 +45,10 @@ public class UserController {
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete user (Admin only)")
-    public ResponseEntity<Void> deleteUser(@PathVariable Integer userId) {
-        userService.deleteUser(userId);
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Integer userId,
+            @AuthenticationPrincipal CustomUserDetails principal) {
+        userService.deleteUser(userId, principal.getUserId());
         return ResponseEntity.noContent().build();
     }
 }

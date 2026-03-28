@@ -7,15 +7,19 @@ import {
     Container,
     Paper,
     Stack,
+    TextField,
     Typography,
 } from "@mui/material";
 import { deleteUser, getAllUsers } from "../../api/users";
+import { useAuth } from "../../context/AuthContext";
 
 export default function AdminUsersPage() {
+    const { user: currentUser } = useAuth();
     const [users, setUsers] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState("");
     const [deletingId, setDeletingId] = React.useState(null);
+    const [search, setSearch] = React.useState("");
 
     const load = React.useCallback(async () => {
         setLoading(true);
@@ -52,6 +56,31 @@ export default function AdminUsersPage() {
         }
     }
 
+    const filteredUsers = React.useMemo(() => {
+        const q = search.trim().toLowerCase();
+        if (!q) return users;
+        return users.filter((u) => {
+            const id = String(u.id ?? u.userId ?? "");
+            const name = (u.username ?? "").toLowerCase();
+            const email = (u.email ?? "").toLowerCase();
+            const role = (u.role ?? "").toLowerCase();
+            return (
+                id.includes(q) ||
+                name.includes(q) ||
+                email.includes(q) ||
+                role.includes(q)
+            );
+        });
+    }, [users, search]);
+
+    function canDelete(u) {
+        const id = u.id ?? u.userId;
+        if (id == null) return false;
+        if (Number(id) === Number(currentUser?.userId)) return false;
+        if ((u.role ?? "").toUpperCase() === "ADMIN") return false;
+        return true;
+    }
+
     return (
         <Container sx={{ py: 3 }} maxWidth="md">
             <Stack spacing={2}>
@@ -59,17 +88,26 @@ export default function AdminUsersPage() {
                     Admin – Users
                 </Typography>
 
+                <TextField
+                    placeholder="Keresés: id, név, e-mail, státusz..."
+                    size="small"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+
                 {error ? <Alert severity="error">{error}</Alert> : null}
 
                 {loading ? (
                     <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
                         <CircularProgress />
                     </Box>
-                ) : users.length === 0 ? (
-                    <Typography color="text.secondary">Nincs felhasználó.</Typography>
+                ) : filteredUsers.length === 0 ? (
+                    <Typography color="text.secondary">
+                        {search ? "Nincs találat." : "Nincs felhasználó."}
+                    </Typography>
                 ) : (
                     <Stack spacing={2}>
-                        {users.map((u) => {
+                        {filteredUsers.map((u) => {
                             const id = u.id ?? u.userId;
                             return (
                                 <Paper key={id ?? JSON.stringify(u)} sx={{ p: 2 }}>
@@ -98,7 +136,7 @@ export default function AdminUsersPage() {
                                             ) : null}
                                         </Box>
 
-                                        {id != null ? (
+                                        {canDelete(u) ? (
                                             <Button
                                                 color="error"
                                                 size="small"
