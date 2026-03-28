@@ -58,6 +58,13 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getReviewsByUserId(userDetails.getUserId()));
     }
 
+    @GetMapping("/user/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get reviews by user ID (Admin only)")
+    public ResponseEntity<List<ReviewResponse>> getReviewsByUserId(@PathVariable Integer userId) {
+        return ResponseEntity.ok(reviewService.getReviewsByUserId(userId));
+    }
+
     @PostMapping
     @Operation(summary = "Create a new review")
     public ResponseEntity<ReviewResponse> createReview(
