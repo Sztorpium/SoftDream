@@ -15,6 +15,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     List<Booking> findByUser_UserId(Integer userId);
     List<Booking> findByRoom_RoomId(Integer roomId);
     List<Booking> findByStatus(BookingStatus status);
+    List<Booking> findByUser_UserIdAndRoom_RoomId(Integer userId, Integer roomId);
 
     @Query("SELECT b FROM Booking b WHERE b.room.roomId = :roomId AND " +
             "((b.checkIn <= :checkOut AND b.checkOut >= :checkIn)) AND " +

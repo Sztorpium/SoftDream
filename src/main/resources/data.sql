@@ -91,7 +91,7 @@ INSERT INTO reviews (user_id, room_id, rating, comment, created_at) VALUES
 -- ========================================
 INSERT INTO bookings (user_id, room_id, check_in, check_out, status, created_at) VALUES
 -- john_doe foglalásai
-(2, 1, '2026-03-30', '2026-04-01', 'PENDING', NOW()),
+(2, 1, '2026-03-25', '2026-03-26', 'PENDING', NOW()),
 (2, 3, '2026-04-04', '2026-04-07', 'CONFIRMED', NOW()),
 
 -- jane_smith foglalásai
