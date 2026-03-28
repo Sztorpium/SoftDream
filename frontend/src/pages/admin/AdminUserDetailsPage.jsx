@@ -206,6 +206,11 @@ export default function AdminUserDetailsPage() {
                                                             {r.comment}
                                                         </Typography>
                                                     )}
+                                                    {(r.checkIn || r.checkOut) && (
+                                                        <Typography variant="body2" sx={{ opacity: 0.8, mt: 0.5 }}>
+                                                            Szállás: {r.checkIn ?? "?"} – {r.checkOut ?? "?"}
+                                                        </Typography>
+                                                    )}
                                                 </Box>
                                                 {id != null && (
                                                     <Button
