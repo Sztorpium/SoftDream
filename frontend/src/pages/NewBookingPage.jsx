@@ -79,7 +79,17 @@ export default function NewBookingPage() {
         });
     }
 
-    const canSubmit = Boolean(roomId && checkIn && checkOut) && !isSubmitting;
+    // Returns true if the [from, to) range overlaps with any existing booking.
+    // Used to prevent "surrounding" a booked period with a new booking.
+    function rangeOverlapsBooking(from, to) {
+        if (!from || !to) return false;
+        return bookedDates.some(({ checkIn: bIn, checkOut: bOut }) => {
+            return dayjs(bIn).isBefore(to) && dayjs(bOut).isAfter(from);
+        });
+    }
+
+    const rangeConflict = rangeOverlapsBooking(checkIn, checkOut);
+    const canSubmit = Boolean(roomId && checkIn && checkOut) && !isSubmitting && !rangeConflict;
 
     async function onSubmit(e) {
         e.preventDefault();
@@ -159,12 +169,17 @@ export default function NewBookingPage() {
                             onChange={(val) => {
                                 setCheckIn(val);
                                 setSubmitError("");
-                                if (checkOut && val && !checkOut.isAfter(val)) {
-                                    setCheckOut(null);
+                                if (checkOut && val) {
+                                    if (!checkOut.isAfter(val) || rangeOverlapsBooking(val, checkOut)) {
+                                        setCheckOut(null);
+                                    }
                                 }
                             }}
                             minDate={today}
-                            shouldDisableDate={(date) => isDateBooked(date)}
+                            shouldDisableDate={(date) =>
+                                isDateBooked(date) ||
+                                (checkOut ? rangeOverlapsBooking(date, checkOut) : false)
+                            }
                             slotProps={{ textField: { required: true, fullWidth: true } }}
                         />
 
@@ -176,7 +191,10 @@ export default function NewBookingPage() {
                                 setSubmitError("");
                             }}
                             minDate={checkIn ? checkIn.add(1, "day") : today.add(1, "day")}
-                            shouldDisableDate={(date) => isDateBooked(date)}
+                            shouldDisableDate={(date) =>
+                                isDateBooked(date) ||
+                                (checkIn ? rangeOverlapsBooking(checkIn, date) : false)
+                            }
                             slotProps={{ textField: { required: true, fullWidth: true } }}
                         />
                     </LocalizationProvider>
