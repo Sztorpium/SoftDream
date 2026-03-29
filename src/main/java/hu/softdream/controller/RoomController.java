@@ -1,6 +1,8 @@
 package hu.softdream.controller;
 
+import hu.softdream.dto.response.BookedDatesResponse;
 import hu.softdream.dto.response.RoomResponse;
+import hu.softdream.service.BookingService;
 import hu.softdream.service.RoomService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,6 +21,7 @@ import java.util.List;
 public class RoomController {
 
     private final RoomService roomService;
+    private final BookingService bookingService;
 
     @GetMapping
     @Operation(summary = "Get all rooms")
@@ -51,5 +54,11 @@ public class RoomController {
     @Operation(summary = "Get rooms by status")
     public ResponseEntity<List<RoomResponse>> getRoomsByStatus(@PathVariable String status) {
         return ResponseEntity.ok(roomService.getRoomsByStatus(status));
+    }
+
+    @GetMapping("/{roomId}/booked-dates")
+    @Operation(summary = "Get booked date ranges for a room")
+    public ResponseEntity<List<BookedDatesResponse>> getBookedDatesForRoom(@PathVariable Integer roomId) {
+        return ResponseEntity.ok(bookingService.getBookedDatesForRoom(roomId));
     }
 }
