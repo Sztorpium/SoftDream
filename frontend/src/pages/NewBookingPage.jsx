@@ -3,6 +3,7 @@ import {
     Alert,
     Box,
     Button,
+    Chip,
     CircularProgress,
     Container,
     Paper,
@@ -12,7 +13,7 @@ import {
 } from "@mui/material";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { createBooking } from "../api/bookings";
-import { getRoomById } from "../api/rooms";
+import { getRoomById, getRoomBookedDates } from "../api/rooms";
 
 export default function NewBookingPage() {
     const navigate = useNavigate();
@@ -23,6 +24,8 @@ export default function NewBookingPage() {
     const [room, setRoom] = React.useState(null);
     const [loadingRoom, setLoadingRoom] = React.useState(Boolean(roomId));
     const [roomError, setRoomError] = React.useState("");
+
+    const [bookedDates, setBookedDates] = React.useState([]);
 
     const [checkIn, setCheckIn] = React.useState("");
     const [checkOut, setCheckOut] = React.useState("");
@@ -38,15 +41,20 @@ export default function NewBookingPage() {
                 setRoom(null);
                 setLoadingRoom(false);
                 setRoomError("");
+                setBookedDates([]);
                 return;
             }
 
             setLoadingRoom(true);
             setRoomError("");
             try {
-                const data = await getRoomById(roomId);
+                const [roomData, dates] = await Promise.all([
+                    getRoomById(roomId),
+                    getRoomBookedDates(roomId),
+                ]);
                 if (!alive) return;
-                setRoom(data ?? null);
+                setRoom(roomData ?? null);
+                setBookedDates(Array.isArray(dates) ? dates : []);
             } catch (err) {
                 if (!alive) return;
                 setRoomError(err?.message || "Nem sikerült betölteni a szobát.");
@@ -61,7 +69,17 @@ export default function NewBookingPage() {
         };
     }, [roomId]);
 
-    const canSubmit = Boolean(roomId && checkIn && checkOut) && !isSubmitting;
+    function hasConflict(ci, co) {
+        if (!ci || !co) return false;
+        const ciDate = new Date(ci);
+        const coDate = new Date(co);
+        return bookedDates.some(({ checkIn: bIn, checkOut: bOut }) => {
+            return ciDate < new Date(bOut) && coDate > new Date(bIn);
+        });
+    }
+
+    const conflict = hasConflict(checkIn, checkOut);
+    const canSubmit = Boolean(roomId && checkIn && checkOut) && !isSubmitting && !conflict;
 
     async function onSubmit(e) {
         e.preventDefault();
@@ -83,6 +101,8 @@ export default function NewBookingPage() {
             setIsSubmitting(false);
         }
     }
+
+    const today = new Date().toISOString().split("T")[0];
 
     return (
         <Container sx={{ py: 3 }} maxWidth="sm">
@@ -111,6 +131,31 @@ export default function NewBookingPage() {
                         </Alert>
                     )}
 
+                    {bookedDates.length > 0 && (
+                        <Box>
+                            <Typography variant="subtitle2" gutterBottom>
+                                Nem elérhető időszakok:
+                            </Typography>
+                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                                {bookedDates.map((d, i) => (
+                                    <Chip
+                                        key={i}
+                                        label={`${d.checkIn} – ${d.checkOut}`}
+                                        color="error"
+                                        size="small"
+                                        variant="outlined"
+                                    />
+                                ))}
+                            </Box>
+                        </Box>
+                    )}
+
+                    {conflict && (
+                        <Alert severity="warning">
+                            A kiválasztott dátumok ütköznek egy már foglalt időszakkal. Kérjük, válasszon más dátumokat.
+                        </Alert>
+                    )}
+
                     {submitError ? <Alert severity="error">{submitError}</Alert> : null}
 
                     <TextField
@@ -119,6 +164,7 @@ export default function NewBookingPage() {
                         value={checkIn}
                         onChange={(e) => setCheckIn(e.target.value)}
                         InputLabelProps={{ shrink: true }}
+                        inputProps={{ min: today }}
                         required
                         fullWidth
                     />
@@ -129,6 +175,7 @@ export default function NewBookingPage() {
                         value={checkOut}
                         onChange={(e) => setCheckOut(e.target.value)}
                         InputLabelProps={{ shrink: true }}
+                        inputProps={{ min: checkIn || today }}
                         required
                         fullWidth
                     />

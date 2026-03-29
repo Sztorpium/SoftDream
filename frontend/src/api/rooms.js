@@ -20,3 +20,7 @@ export function getRoomsByType(roomTypeId) {
 export function getRoomsByStatus(status) {
     return apiGet(`/api/rooms/status/${status}`);
 }
+
+export function getRoomBookedDates(roomId) {
+    return apiGet(`/api/rooms/${roomId}/booked-dates`);
+}

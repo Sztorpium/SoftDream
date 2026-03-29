@@ -1,6 +1,7 @@
 package hu.softdream.service;
 
 import hu.softdream.dto.request.BookingRequest;
+import hu.softdream.dto.response.BookedDatesResponse;
 import hu.softdream.dto.response.BookingResponse;
 import hu.softdream.entity.Booking;
 import hu.softdream.entity.Room;
@@ -47,6 +48,16 @@ public class BookingService {
     public List<BookingResponse> getBookingsByRoomId(Integer roomId) {
         return bookingRepository.findByRoom_RoomId(roomId).stream()
                 .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<BookedDatesResponse> getBookedDatesForRoom(Integer roomId) {
+        return bookingRepository.findByRoom_RoomId(roomId).stream()
+                .filter(b -> b.getStatus() == BookingStatus.CONFIRMED || b.getStatus() == BookingStatus.PENDING)
+                .map(b -> BookedDatesResponse.builder()
+                        .checkIn(b.getCheckIn())
+                        .checkOut(b.getCheckOut())
+                        .build())
                 .collect(Collectors.toList());
     }
 
