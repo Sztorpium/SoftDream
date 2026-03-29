@@ -8,9 +8,12 @@ import {
     Container,
     Paper,
     Stack,
-    TextField,
     Typography,
 } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { createBooking } from "../api/bookings";
 import { getRoomById, getRoomBookedDates } from "../api/rooms";
@@ -27,8 +30,8 @@ export default function NewBookingPage() {
 
     const [bookedDates, setBookedDates] = React.useState([]);
 
-    const [checkIn, setCheckIn] = React.useState("");
-    const [checkOut, setCheckOut] = React.useState("");
+    const [checkIn, setCheckIn] = React.useState(null);
+    const [checkOut, setCheckOut] = React.useState(null);
 
     const [submitError, setSubmitError] = React.useState("");
     const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -69,17 +72,14 @@ export default function NewBookingPage() {
         };
     }, [roomId]);
 
-    function hasConflict(ci, co) {
-        if (!ci || !co) return false;
-        const ciDate = new Date(ci);
-        const coDate = new Date(co);
+    function isDateBooked(date) {
         return bookedDates.some(({ checkIn: bIn, checkOut: bOut }) => {
-            return ciDate < new Date(bOut) && coDate > new Date(bIn);
+            return date.isAfter(dayjs(bIn).subtract(1, "day")) &&
+                date.isBefore(dayjs(bOut));
         });
     }
 
-    const conflict = hasConflict(checkIn, checkOut);
-    const canSubmit = Boolean(roomId && checkIn && checkOut) && !isSubmitting && !conflict;
+    const canSubmit = Boolean(roomId && checkIn && checkOut) && !isSubmitting;
 
     async function onSubmit(e) {
         e.preventDefault();
@@ -91,8 +91,8 @@ export default function NewBookingPage() {
         try {
             await createBooking({
                 roomId: Number(roomId),
-                checkIn,
-                checkOut,
+                checkIn: checkIn.format("YYYY-MM-DD"),
+                checkOut: checkOut.format("YYYY-MM-DD"),
             });
             navigate("/my-bookings", { replace: true });
         } catch (err) {
@@ -102,7 +102,7 @@ export default function NewBookingPage() {
         }
     }
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = dayjs();
 
     return (
         <Container sx={{ py: 3 }} maxWidth="sm">
@@ -150,35 +150,36 @@ export default function NewBookingPage() {
                         </Box>
                     )}
 
-                    {conflict && (
-                        <Alert severity="warning">
-                            A kiválasztott dátumok ütköznek egy már foglalt időszakkal. Kérjük, válasszon más dátumokat.
-                        </Alert>
-                    )}
-
                     {submitError ? <Alert severity="error">{submitError}</Alert> : null}
 
-                    <TextField
-                        label="Check-in"
-                        type="date"
-                        value={checkIn}
-                        onChange={(e) => setCheckIn(e.target.value)}
-                        InputLabelProps={{ shrink: true }}
-                        inputProps={{ min: today }}
-                        required
-                        fullWidth
-                    />
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                            label="Check-in"
+                            value={checkIn}
+                            onChange={(val) => {
+                                setCheckIn(val);
+                                setSubmitError("");
+                                if (checkOut && val && !checkOut.isAfter(val)) {
+                                    setCheckOut(null);
+                                }
+                            }}
+                            minDate={today}
+                            shouldDisableDate={(date) => isDateBooked(date)}
+                            slotProps={{ textField: { required: true, fullWidth: true } }}
+                        />
 
-                    <TextField
-                        label="Check-out"
-                        type="date"
-                        value={checkOut}
-                        onChange={(e) => setCheckOut(e.target.value)}
-                        InputLabelProps={{ shrink: true }}
-                        inputProps={{ min: checkIn || today }}
-                        required
-                        fullWidth
-                    />
+                        <DatePicker
+                            label="Check-out"
+                            value={checkOut}
+                            onChange={(val) => {
+                                setCheckOut(val);
+                                setSubmitError("");
+                            }}
+                            minDate={checkIn ? checkIn.add(1, "day") : today.add(1, "day")}
+                            shouldDisableDate={(date) => isDateBooked(date)}
+                            slotProps={{ textField: { required: true, fullWidth: true } }}
+                        />
+                    </LocalizationProvider>
 
                     <Button type="submit" variant="contained" disabled={!canSubmit}>
                         {isSubmitting ? "Mentés..." : "Foglalás létrehozása"}
