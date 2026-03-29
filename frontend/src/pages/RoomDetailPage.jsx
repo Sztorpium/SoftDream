@@ -5,6 +5,7 @@ import {
     Button,
     Card,
     CardContent,
+    CardMedia,
     CircularProgress,
     Container,
     Divider,
@@ -15,6 +16,7 @@ import { Link as RouterLink, useParams } from "react-router-dom";
 import { getRoomById } from "../api/rooms";
 import { getAverageRating, getReviewsByRoomId } from "../api/reviews";
 import RatingStars from "../components/RatingStars";
+import { getRoomImage } from "../utils/RoomImages";
 
 export default function RoomDetailPage() {
     const { roomId } = useParams();
@@ -87,6 +89,13 @@ export default function RoomDetailPage() {
                 ) : room ? (
                     <>
                         <Card variant="outlined">
+                            <CardMedia
+                                component="img"
+                                height="320"
+                                image={getRoomImage(room.id ?? room.roomId ?? roomId)}
+                                alt={room.name ?? `Szoba #${room.id ?? room.roomId ?? roomId}`}
+                                sx={{ objectFit: "cover" }}
+                            />
                             <CardContent>
                                 <Stack spacing={1.8}>
                                     <Typography variant="h4" component="h1" fontWeight={800}>

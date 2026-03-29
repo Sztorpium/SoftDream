@@ -5,6 +5,7 @@ import {
     Card,
     CardActions,
     CardContent,
+    CardMedia,
     Chip,
     CircularProgress,
     Container,
@@ -17,6 +18,7 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import { getAllRooms } from "../api/rooms";
 import RatingStars from "../components/RatingStars";
+import { getRoomImage } from "../utils/RoomImages";
 
 function formatPrice(v) {
     const n = Number(v);
@@ -189,6 +191,13 @@ export default function RoomsPage() {
                             return (
                                 <Grid item key={id ?? JSON.stringify(r)} xs={12} sm={6} md={4}>
                                     <Card variant="outlined" sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+                                        <CardMedia
+                                            component="img"
+                                            height="180"
+                                            image={getRoomImage(id)}
+                                            alt={r.name ?? `Szoba #${id ?? "?"}`}
+                                            sx={{ objectFit: "cover" }}
+                                        />
                                         <CardContent sx={{ flexGrow: 1 }}>
                                             <Stack spacing={1}>
                                                 <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1 }}>
