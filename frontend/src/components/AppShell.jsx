@@ -48,7 +48,7 @@ export default function AppShell({ children }) {
 
     const commonLinks = [
         { label: "Szobák", to: "/rooms" },
-        { label: "About", to: "/about" },
+        { label: "Rólunk", to: "/about" },
     ];
 
     const authedLinks = [
