@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import { getMyBookings } from "../api/bookings";
 import { createReview } from "../api/reviews";
+import styles from "./MyBookings.module.css";
 
 const STATUS_COLOR = {
     CONFIRMED: "success",
@@ -154,13 +155,13 @@ export default function MyBookings() {
     }
 
     return (
-        <Container sx={{ py: 3 }} maxWidth="md">
+        <Container className={styles.page} maxWidth="md">
             <Typography variant="h4" component="h1" gutterBottom>
                 Foglalásaim
             </Typography>
 
             {loading && (
-                <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+                <Box className={styles.loadingBox}>
                     <CircularProgress />
                 </Box>
             )}
@@ -181,7 +182,7 @@ export default function MyBookings() {
                         const checkIn = getBookingCheckIn(booking);
                         const checkOut = getBookingCheckOut(booking) ?? "-";
                         return (
-                            <Paper key={booking.bookingId ?? booking.id} sx={{ p: 2 }}>
+                            <Paper key={booking.bookingId ?? booking.id} className={styles.bookingCard}>
                                 <Stack
                                     direction="row"
                                     justifyContent="space-between"
@@ -190,7 +191,7 @@ export default function MyBookings() {
                                     gap={1}
                                 >
                                     <Box>
-                                        <Typography variant="subtitle1" fontWeight={600}>
+                                        <Typography variant="subtitle1" className={styles.bookingTitle}>
                                             Foglalás #{booking.id}
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
