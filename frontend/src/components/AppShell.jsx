@@ -74,7 +74,7 @@ export default function AppShell({ children }) {
     ];
 
     return (
-        <Box className={styles.root} sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <Box className={styles.root}>
             <AppBar position="sticky" elevation={0} sx={{ borderBottom: "1px solid rgba(255,255,255,0.18)" }}>
                 <Toolbar sx={{ gap: 2 }}>
                     {/* Mobile hamburger */}
@@ -100,7 +100,7 @@ export default function AppShell({ children }) {
                     </Typography>
 
                     {/* Desktop links */}
-                    <Box className={styles.desktopNav} sx={{ display: { xs: "none", md: "flex" }, gap: 2, ml: 2, flexGrow: 1 }}>
+                    <Box className={styles.desktopNav} sx={{ display: { xs: "none", md: "flex" }, gap: 2 }}>
                         {commonLinks.map((l) => (
                             <NavLink key={l.to} to={l.to}>
                                 {l.label}
@@ -168,8 +168,8 @@ export default function AppShell({ children }) {
 
             {/* Mobile drawer */}
             <Drawer open={open} onClose={() => setOpen(false)}>
-                <Box className={styles.drawerBox} sx={{ width: 280 }} role="presentation">
-                    <Box className={styles.drawerHeader} sx={{ p: 2 }}>
+                <Box className={styles.drawerBox} role="presentation">
+                    <Box className={styles.drawerHeader}>
                         <Typography variant="h6" sx={{ fontWeight: 900 }}>
                             Menü
                         </Typography>
@@ -198,7 +198,7 @@ export default function AppShell({ children }) {
                         ))}
                     </List>
                     <Divider />
-                    <Box className={styles.drawerFooter} sx={{ p: 2 }}>
+                    <Box className={styles.drawerFooter}>
                         {isAuthenticated ? (
                             <Button fullWidth variant="outlined" color="error" onClick={() => { setOpen(false); onLogout(); }}>
                                 Kilépés
@@ -209,7 +209,7 @@ export default function AppShell({ children }) {
             </Drawer>
 
             {/* Main content */}
-            <Box className={styles.mainContent} sx={{ flexGrow: 1 }}>
+            <Box className={styles.mainContent}>
                 {children}
             </Box>
 

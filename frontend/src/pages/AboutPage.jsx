@@ -115,13 +115,7 @@ function StatCard({ icon, value, label }) {
             <CardContent>
                 <Avatar
                     className={styles.statAvatar}
-                    sx={{
-                        mx: "auto",
-                        mb: 1,
-                        bgcolor: "primary.main",
-                        width: 48,
-                        height: 48,
-                    }}
+                    sx={{ bgcolor: "primary.main" }}
                 >
                     {icon}
                 </Avatar>

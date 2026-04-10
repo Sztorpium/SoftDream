@@ -51,6 +51,11 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
+.itemMetaIndented {
+  opacity: 0.85;
+  margin-top: 4px;
+}
+
 .itemMeta {
   opacity: 0.85;
 }

@@ -206,12 +206,12 @@ export default function AdminUserDetailsPage() {
                                                         Értékelés: {r.rating ?? "–"} / 5
                                                     </Typography>
                                                     {r.comment && (
-                                                        <Typography variant="body2" sx={{ mt: 0.5 }}>
+                                                        <Typography variant="body2" className={styles.itemMetaIndented}>
                                                             {r.comment}
                                                         </Typography>
                                                     )}
                                                     {(r.checkIn || r.checkOut) && (
-                                                        <Typography variant="body2" className={styles.itemMeta} sx={{ mt: 0.5 }}>
+                                                        <Typography variant="body2" className={styles.itemMetaIndented}>
                                                             Szállás: {r.checkIn ?? "?"} – {r.checkOut ?? "?"}
                                                         </Typography>
                                                     )}
