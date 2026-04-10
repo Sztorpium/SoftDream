@@ -1,0 +1,26 @@
+.page {
+  padding: 32px 0;
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 16px 0;
+  }
+}
+
+.formPaper {
+  padding: 32px;
+  border-radius: 12px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+  .formPaper {
+    padding: 20px 16px;
+  }
+}
+
+.title {
+  font-weight: 800;
+}

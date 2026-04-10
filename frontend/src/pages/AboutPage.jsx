@@ -22,6 +22,7 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import PeopleIcon from "@mui/icons-material/People";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import NaturePeopleIcon from "@mui/icons-material/NaturePeople";
+import styles from "./AboutPage.module.css";
 
 const FEATURES = [
     {
@@ -88,19 +89,15 @@ function FeatureCard({ icon, title, text }) {
     return (
         <Card
             variant="outlined"
-            sx={{
-                height: "100%",
-                transition: "box-shadow 0.2s",
-                "&:hover": { boxShadow: 4 },
-            }}
+            className={styles.featureCard}
         >
             <CardContent>
                 <Stack spacing={1.5}>
                     <Box sx={{ color: "primary.main" }}>{icon}</Box>
-                    <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                    <Typography variant="h6" className={styles.featureTitle}>
                         {title}
                     </Typography>
-                    <Typography variant="body2" sx={{ opacity: 0.85, lineHeight: 1.7 }}>
+                    <Typography variant="body2" className={styles.featureText}>
                         {text}
                     </Typography>
                 </Stack>
@@ -113,16 +110,11 @@ function StatCard({ icon, value, label }) {
     return (
         <Card
             variant="outlined"
-            sx={{
-                textAlign: "center",
-                py: 3,
-                height: "100%",
-                background:
-                    "linear-gradient(135deg, rgba(25,118,210,0.06), rgba(124,77,255,0.06))",
-            }}
+            className={styles.statCard}
         >
             <CardContent>
                 <Avatar
+                    className={styles.statAvatar}
                     sx={{
                         mx: "auto",
                         mb: 1,
@@ -133,10 +125,10 @@ function StatCard({ icon, value, label }) {
                 >
                     {icon}
                 </Avatar>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: "primary.main" }}>
+                <Typography variant="h4" className={styles.statValue} sx={{ color: "primary.main" }}>
                     {value}
                 </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.75, fontWeight: 500 }}>
+                <Typography variant="body2" className={styles.statLabel}>
                     {label}
                 </Typography>
             </CardContent>
@@ -148,14 +140,15 @@ function ValueCard({ icon, title, text, borderColor }) {
     return (
         <Card
             variant="outlined"
+            className={styles.valueCard}
             sx={{ height: "100%", borderTop: "4px solid", borderColor }}
         >
             <CardContent>
                 <Box sx={{ mb: 1 }}>{icon}</Box>
-                <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>
+                <Typography variant="h6" className={styles.valueTitle}>
                     {title}
                 </Typography>
-                <Typography variant="body2" sx={{ opacity: 0.85, lineHeight: 1.7 }}>
+                <Typography variant="body2" className={styles.valueText}>
                     {text}
                 </Typography>
             </CardContent>
@@ -165,17 +158,14 @@ function ValueCard({ icon, title, text, borderColor }) {
 
 export default function AboutPage() {
     return (
-        <Container sx={{ py: 5 }} maxWidth="lg">
+        <Container className={styles.page} maxWidth="lg">
             <Stack spacing={6}>
 
                 {/* ── Hero ─────────────────────────────────────────── */}
                 <Box
+                    className={styles.hero}
                     sx={{
-                        borderRadius: 4,
                         p: { xs: 3, md: 6 },
-                        background:
-                            "linear-gradient(135deg, rgba(25,118,210,0.14), rgba(124,77,255,0.12))",
-                        border: "1px solid rgba(0,0,0,0.07)",
                         textAlign: { xs: "left", md: "center" },
                     }}
                 >
@@ -185,26 +175,16 @@ export default function AboutPage() {
                     </Typography>
                     <Typography
                         variant="h6"
-                        sx={{
-                            opacity: 0.8,
-                            maxWidth: 700,
-                            mx: "auto",
-                            fontWeight: 400,
-                            lineHeight: 1.7,
-                        }}
+                        className={styles.heroSubtitle}
+                        sx={{ mx: "auto" }}
                     >
                         Több mint 15 éve nyújtunk felejthetetlen szállásélményt vendégeinknek.
                         Fedezze fel prémium szobáinkat, és foglalja le álmai nyaralását néhány
                         kattintással!
                     </Typography>
                     <Box
-                        sx={{
-                            mt: 3,
-                            display: "flex",
-                            gap: 2,
-                            justifyContent: { xs: "flex-start", md: "center" },
-                            flexWrap: "wrap",
-                        }}
+                        className={styles.heroCtas}
+                        sx={{ justifyContent: { xs: "flex-start", md: "center" } }}
                     >
                         <Button
                             component={RouterLink}
@@ -272,12 +252,7 @@ export default function AboutPage() {
                                 component="img"
                                 src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&h=500&fit=crop&auto=format&q=80"
                                 alt="Hotel lobby"
-                                sx={{
-                                    width: "100%",
-                                    borderRadius: 3,
-                                    objectFit: "cover",
-                                    maxHeight: 300,
-                                }}
+                                className={styles.storyImage}
                             />
                         </Grid>
                     </Grid>
@@ -320,21 +295,15 @@ export default function AboutPage() {
 
                 {/* ── CTA ──────────────────────────────────────────── */}
                 <Box
-                    sx={{
-                        borderRadius: 4,
-                        p: { xs: 3, md: 5 },
-                        textAlign: "center",
-                        background:
-                            "linear-gradient(135deg, rgba(25,118,210,0.1), rgba(124,77,255,0.1))",
-                        border: "1px solid rgba(0,0,0,0.07)",
-                    }}
+                    className={styles.cta}
+                    sx={{ p: { xs: 3, md: 5 } }}
                 >
                     <Typography variant="h4" fontWeight={900} gutterBottom>
                         Készen áll a tökéletes pihenésre?
                     </Typography>
                     <Typography
                         variant="body1"
-                        sx={{ opacity: 0.8, mb: 3, maxWidth: 560, mx: "auto" }}
+                        className={styles.ctaSubtitle}
                     >
                         Ne habozzon – foglalja le szobáját még ma, és tapasztalja meg a
                         SoftDream egyedülálló vendéglátását!
@@ -344,7 +313,7 @@ export default function AboutPage() {
                         to="/rooms"
                         variant="contained"
                         size="large"
-                        sx={{ px: 5 }}
+                        className={styles.ctaButton}
                     >
                         Foglaljon most!
                     </Button>

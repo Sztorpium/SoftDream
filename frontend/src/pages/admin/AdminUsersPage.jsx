@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { deleteUser, getAllUsers } from "../../api/users";
 import { useAuth } from "../../context/AuthContext";
+import styles from "./AdminUsersPage.module.css";
 
 export default function AdminUsersPage() {
     const { user: currentUser } = useAuth();
@@ -84,8 +85,11 @@ export default function AdminUsersPage() {
     }
 
     return (
-        <Container sx={{ py: 3 }} maxWidth="md">
+        <Container className={styles.page} maxWidth="md">
             <Stack spacing={2}>
+                <div>
+                    <span className={styles.adminBadge}>Admin</span>
+                </div>
                 <Typography variant="h4" component="h1">
                     Admin – Users
                 </Typography>
@@ -100,7 +104,7 @@ export default function AdminUsersPage() {
                 {error ? <Alert severity="error">{error}</Alert> : null}
 
                 {loading ? (
-                    <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+                    <Box className={styles.loadingBox}>
                         <CircularProgress />
                     </Box>
                 ) : filteredUsers.length === 0 ? (
@@ -112,7 +116,7 @@ export default function AdminUsersPage() {
                         {filteredUsers.map((u) => {
                             const id = u.id ?? u.userId;
                             return (
-                                <Paper key={id ?? JSON.stringify(u)} sx={{ p: 2 }}>
+                                <Paper key={id ?? JSON.stringify(u)} className={styles.userCard}>
                                     <Stack
                                         direction={{ xs: "column", sm: "row" }}
                                         justifyContent="space-between"
@@ -122,17 +126,17 @@ export default function AdminUsersPage() {
                                         <Box>
                                             <Typography fontWeight={800}>
                                                 {u.username ?? "—"}{" "}
-                                                <Typography component="span" sx={{ opacity: 0.7 }}>
+                                                <Typography component="span" className={styles.userIdText}>
                                                     #{id ?? "?"}
                                                 </Typography>
                                             </Typography>
                                             {u.email ? (
-                                                <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                                                <Typography variant="body2" className={styles.userMeta}>
                                                     {u.email}
                                                 </Typography>
                                             ) : null}
                                             {u.role ? (
-                                                <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                                                <Typography variant="body2" className={styles.userMeta}>
                                                     Role: {u.role}
                                                 </Typography>
                                             ) : null}

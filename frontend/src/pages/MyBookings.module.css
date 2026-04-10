@@ -1,0 +1,28 @@
+.page {
+  padding: 32px 0;
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 16px 0;
+  }
+}
+
+.loadingBox {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.bookingCard {
+  padding: 16px;
+  transition: box-shadow 0.2s ease;
+}
+
+.bookingCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.bookingTitle {
+  font-weight: 600;
+}

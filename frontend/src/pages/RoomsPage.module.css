@@ -1,0 +1,92 @@
+.page {
+  padding: 32px 0;
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 16px 0;
+  }
+}
+
+.pageSubtitle {
+  opacity: 0.8;
+}
+
+/* Filter card */
+.filterCard {
+  margin-bottom: 8px;
+}
+
+.chipRow {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Loading state */
+.loadingBox {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+/* Room card */
+.roomCard {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.roomCard:hover {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
+}
+
+.roomCardImg {
+  object-fit: cover;
+}
+
+.roomCardContent {
+  flex-grow: 1;
+}
+
+.roomHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.roomName {
+  font-weight: 900;
+}
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ratingText {
+  opacity: 0.7;
+}
+
+.roomDesc {
+  opacity: 0.85;
+}
+
+.priceText {
+  font-weight: 900;
+  padding-top: 8px;
+}
+
+.priceUnit {
+  opacity: 0.7;
+}
+
+.roomActions {
+  padding: 0 16px 16px;
+}

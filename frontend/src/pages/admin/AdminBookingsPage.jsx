@@ -16,6 +16,7 @@ import {
     deleteBooking,
     getAllBookings,
 } from "../../api/bookings";
+import styles from "./AdminBookingsPage.module.css";
 
 const STATUS_COLOR = {
     CONFIRMED: "success",
@@ -92,8 +93,11 @@ export default function AdminBookingsPage() {
     }
 
     return (
-        <Container sx={{ py: 3 }} maxWidth="md">
+        <Container className={styles.page} maxWidth="md">
             <Stack spacing={2}>
+                <div>
+                    <span className={styles.adminBadge}>Admin</span>
+                </div>
                 <Typography variant="h4" component="h1">
                     Admin – Bookings
                 </Typography>
@@ -101,7 +105,7 @@ export default function AdminBookingsPage() {
                 {error ? <Alert severity="error">{error}</Alert> : null}
 
                 {loading ? (
-                    <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+                    <Box className={styles.loadingBox}>
                         <CircularProgress />
                     </Box>
                 ) : bookings.length === 0 ? (
@@ -114,7 +118,7 @@ export default function AdminBookingsPage() {
                             const disabled = actingId === id;
 
                             return (
-                                <Paper key={id ?? JSON.stringify(b)} sx={{ p: 2 }}>
+                                <Paper key={id ?? JSON.stringify(b)} className={styles.bookingCard}>
                                     <Stack spacing={1}>
                                         <Stack
                                             direction={{ xs: "column", sm: "row" }}
@@ -126,11 +130,11 @@ export default function AdminBookingsPage() {
                                                 <Typography fontWeight={800}>
                                                     Foglalás #{id ?? "?"}
                                                 </Typography>
-                                                <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                                                <Typography variant="body2" className={styles.bookingMeta}>
                                                     User: {b.userId ?? b.user?.id ?? "–"} | Room:{" "}
                                                     {b.roomId ?? b.room?.id ?? "–"}
                                                 </Typography>
-                                                <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                                                <Typography variant="body2" className={styles.bookingMeta}>
                                                     {b.checkIn ?? "?"} → {b.checkOut ?? "?"}
                                                 </Typography>
                                             </Box>

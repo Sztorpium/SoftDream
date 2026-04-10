@@ -18,7 +18,8 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import { getAllRooms } from "../api/rooms";
 import RatingStars from "../components/RatingStars";
-import { getRoomImage } from "../utils/RoomImages";
+import { getRoomImage } from "../utils/roomImages";
+import styles from "./RoomsPage.module.css";
 
 function formatPrice(v) {
     const n = Number(v);
@@ -100,19 +101,19 @@ export default function RoomsPage() {
     }, [rooms, q, type, maxPrice, sort]);
 
     return (
-        <Container sx={{ py: 3 }}>
+        <Container className={styles.page}>
             <Stack spacing={2}>
                 <Box>
                     <Typography variant="h4" component="h1">
                         Szobák
                     </Typography>
-                    <Typography variant="body2" sx={{ opacity: 0.8 }}>
+                    <Typography variant="body2" className={styles.pageSubtitle}>
                         Keress, szűrj és válassz szobát.
                     </Typography>
                 </Box>
 
                 {/* Filters */}
-                <Card variant="outlined">
+                <Card variant="outlined" className={styles.filterCard}>
                     <CardContent>
                         <Grid container spacing={2}>
                             <Grid item xs={12} md={5}>
@@ -162,7 +163,7 @@ export default function RoomsPage() {
                             </Grid>
                         </Grid>
 
-                        <Box sx={{ mt: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
+                        <Box className={styles.chipRow}>
                             <Chip label={`Összes: ${rooms.length}`} variant="outlined" />
                             <Chip label={`Találat: ${filtered.length}`} color="primary" variant="outlined" />
                             <Button size="small" onClick={() => { setQ(""); setType("ALL"); setMaxPrice(""); setSort("RECOMMENDED"); }}>
@@ -174,7 +175,7 @@ export default function RoomsPage() {
 
                 {/* List */}
                 {loading ? (
-                    <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+                    <Box className={styles.loadingBox}>
                         <CircularProgress />
                     </Box>
                 ) : error ? (
@@ -190,18 +191,18 @@ export default function RoomsPage() {
 
                             return (
                                 <Grid item key={id ?? JSON.stringify(r)} xs={12} sm={6} md={4}>
-                                    <Card variant="outlined" sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+                                    <Card variant="outlined" className={styles.roomCard}>
                                         <CardMedia
                                             component="img"
                                             height="180"
                                             image={getRoomImage(id)}
                                             alt={r.name ?? `Szoba #${id ?? "?"}`}
-                                            sx={{ objectFit: "cover" }}
+                                            className={styles.roomCardImg}
                                         />
-                                        <CardContent sx={{ flexGrow: 1 }}>
+                                        <CardContent className={styles.roomCardContent}>
                                             <Stack spacing={1}>
-                                                <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1 }}>
-                                                    <Typography variant="h6" sx={{ fontWeight: 900 }}>
+                                                <Box className={styles.roomHeaderRow}>
+                                                    <Typography variant="h6" className={styles.roomName}>
                                                         {r.name ?? `Szoba #${id ?? "?"}`}
                                                     </Typography>
                                                     <Chip
@@ -211,28 +212,28 @@ export default function RoomsPage() {
                                                     />
                                                 </Box>
 
-                                                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                                <Box className={styles.ratingRow}>
                                                     <RatingStars value={rating} />
-                                                    <Typography variant="body2" sx={{ opacity: 0.7 }}>
+                                                    <Typography variant="body2" className={styles.ratingText}>
                                                         {Number(rating) ? Number(rating).toFixed(1) : "—"}
                                                     </Typography>
                                                 </Box>
 
-                                                <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                                                <Typography variant="body2" className={styles.roomDesc}>
                                                     {r.description ? String(r.description).slice(0, 120) : " "}
                                                     {r.description && String(r.description).length > 120 ? "…" : ""}
                                                 </Typography>
 
-                                                <Typography variant="h6" sx={{ fontWeight: 900, pt: 1 }}>
+                                                <Typography variant="h6" className={styles.priceText}>
                                                     {formatPrice(price)}{" "}
-                                                    <Typography component="span" variant="body2" sx={{ opacity: 0.7 }}>
+                                                    <Typography component="span" variant="body2" className={styles.priceUnit}>
                                                         / éj
                                                     </Typography>
                                                 </Typography>
                                             </Stack>
                                         </CardContent>
 
-                                        <CardActions sx={{ px: 2, pb: 2 }}>
+                                        <CardActions className={styles.roomActions}>
                                             <Button
                                                 component={RouterLink}
                                                 to={`/rooms/${id}`}

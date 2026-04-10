@@ -1,0 +1,33 @@
+.root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand {
+  font-weight: 900;
+  letter-spacing: 0.2px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.desktopNav {
+  flex-grow: 1;
+  margin-left: 16px;
+}
+
+.drawerBox {
+  width: 280px;
+}
+
+.drawerHeader {
+  padding: 16px;
+}
+
+.drawerFooter {
+  padding: 16px;
+}
+
+.mainContent {
+  flex-grow: 1;
+}

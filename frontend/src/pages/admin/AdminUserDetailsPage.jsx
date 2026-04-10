@@ -15,6 +15,7 @@ import {
 import { getUserById } from "../../api/users";
 import { getBookingsByUserId, deleteBooking } from "../../api/bookings";
 import { getReviewsByUserId, deleteReview } from "../../api/reviews";
+import styles from "./AdminUserDetailsPage.module.css";
 const STATUS_COLOR = {
     CONFIRMED: "success",
     PENDING: "warning",
@@ -80,9 +81,12 @@ export default function AdminUserDetailsPage() {
         }
     }
     return (
-        <Container sx={{ py: 3 }} maxWidth="md">
+        <Container className={styles.page} maxWidth="md">
             <Stack spacing={3}>
-                <Stack direction="row" alignItems="center" gap={2}>
+                <div>
+                    <span className={styles.adminBadge}>Admin</span>
+                </div>
+                <Stack className={styles.pageHeader} direction="row" alignItems="center" gap={2}>
                     <Button variant="outlined" size="small" onClick={() => navigate("/admin/users")}>
                         ← Vissza
                     </Button>
@@ -92,17 +96,17 @@ export default function AdminUserDetailsPage() {
                 </Stack>
                 {error ? <Alert severity="error">{error}</Alert> : null}
                 {loading ? (
-                    <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+                    <Box className={styles.loadingBox}>
                         <CircularProgress />
                     </Box>
                 ) : (
                     <>
                         {/* User info */}
                         {user && (
-                            <Paper sx={{ p: 2 }}>
+                            <Paper className={styles.infoCard}>
                                 <Typography variant="h6" gutterBottom>
                                     {user.username ?? "—"}{" "}
-                                    <Typography component="span" sx={{ opacity: 0.7 }}>
+                                    <Typography component="span" className={styles.itemIdText}>
                                         #{user.userId ?? user.id ?? "?"}
                                     </Typography>
                                 </Typography>
@@ -130,7 +134,7 @@ export default function AdminUserDetailsPage() {
                                     const id = b.bookingId ?? b.id;
                                     const status = b.status ?? "—";
                                     return (
-                                        <Paper key={id ?? JSON.stringify(b)} sx={{ p: 2 }}>
+                                        <Paper key={id ?? JSON.stringify(b)} className={styles.itemCard}>
                                             <Stack
                                                 direction={{ xs: "column", sm: "row" }}
                                                 justifyContent="space-between"
@@ -141,10 +145,10 @@ export default function AdminUserDetailsPage() {
                                                     <Typography fontWeight={700}>
                                                         Foglalás #{id ?? "?"}
                                                     </Typography>
-                                                    <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                                                    <Typography variant="body2" className={styles.itemMeta}>
                                                         Szoba: {b.roomNumber ?? b.roomId ?? "–"}
                                                     </Typography>
-                                                    <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                                                    <Typography variant="body2" className={styles.itemMeta}>
                                                         {b.checkIn ?? "?"} → {b.checkOut ?? "?"}
                                                     </Typography>
                                                 </Box>
@@ -184,7 +188,7 @@ export default function AdminUserDetailsPage() {
                                 {reviews.map((r) => {
                                     const id = r.reviewId ?? r.id;
                                     return (
-                                        <Paper key={id ?? JSON.stringify(r)} sx={{ p: 2 }}>
+                                        <Paper key={id ?? JSON.stringify(r)} className={styles.itemCard}>
                                             <Stack
                                                 direction={{ xs: "column", sm: "row" }}
                                                 justifyContent="space-between"
@@ -194,11 +198,11 @@ export default function AdminUserDetailsPage() {
                                                 <Box>
                                                     <Typography fontWeight={700}>
                                                         Értékelés #{id ?? "?"}{" "}
-                                                        <Typography component="span" sx={{ opacity: 0.7 }}>
+                                                        <Typography component="span" className={styles.itemIdText}>
                                                             – Szoba: {r.roomNumber ?? r.roomId ?? "–"}
                                                         </Typography>
                                                     </Typography>
-                                                    <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                                                    <Typography variant="body2" className={styles.itemMeta}>
                                                         Értékelés: {r.rating ?? "–"} / 5
                                                     </Typography>
                                                     {r.comment && (
@@ -207,7 +211,7 @@ export default function AdminUserDetailsPage() {
                                                         </Typography>
                                                     )}
                                                     {(r.checkIn || r.checkOut) && (
-                                                        <Typography variant="body2" sx={{ opacity: 0.8, mt: 0.5 }}>
+                                                        <Typography variant="body2" className={styles.itemMeta} sx={{ mt: 0.5 }}>
                                                             Szállás: {r.checkIn ?? "?"} – {r.checkOut ?? "?"}
                                                         </Typography>
                                                     )}

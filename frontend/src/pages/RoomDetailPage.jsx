@@ -16,7 +16,8 @@ import { Link as RouterLink, useParams } from "react-router-dom";
 import { getRoomById } from "../api/rooms";
 import { getAverageRating, getReviewsByRoomId } from "../api/reviews";
 import RatingStars from "../components/RatingStars";
-import { getRoomImage } from "../utils/RoomImages";
+import { getRoomImage } from "../utils/roomImages";
+import styles from "./RoomDetailPage.module.css";
 
 export default function RoomDetailPage() {
     const { roomId } = useParams();
@@ -74,7 +75,7 @@ export default function RoomDetailPage() {
     }
 
     return (
-        <Container sx={{ py: 3 }} maxWidth="md">
+        <Container className={styles.page} maxWidth="md">
             <Stack spacing={2}>
                 <Button component={RouterLink} to="/rooms" size="small">
                     ← Vissza a szobákhoz
@@ -83,18 +84,18 @@ export default function RoomDetailPage() {
                 {error ? <Alert severity="error">{error}</Alert> : null}
 
                 {loading ? (
-                    <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+                    <Box className={styles.loadingBox}>
                         <CircularProgress />
                     </Box>
                 ) : room ? (
                     <>
-                        <Card variant="outlined">
+                        <Card variant="outlined" className={styles.roomCard}>
                             <CardMedia
                                 component="img"
                                 height="320"
                                 image={getRoomImage(room.id ?? room.roomId ?? roomId)}
                                 alt={room.name ?? `Szoba #${room.id ?? room.roomId ?? roomId}`}
-                                sx={{ objectFit: "cover" }}
+                                className={styles.roomImg}
                             />
                             <CardContent>
                                 <Stack spacing={1.8}>
@@ -103,7 +104,7 @@ export default function RoomDetailPage() {
                                     </Typography>
 
                                     {room.description && (
-                                        <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                                        <Typography variant="body1" className={styles.roomDescription}>
                                             {room.description}
                                         </Typography>
                                     )}
@@ -138,9 +139,9 @@ export default function RoomDetailPage() {
                                             )}
                                         </Stack>
                                         <Box>
-                                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                            <Typography variant="body2" className={styles.priceText}>
                                                 {formatPrice(room.pricePerNight)}
-                                                <Typography component="span" variant="body2" sx={{ opacity: 0.7 }}>
+                                                <Typography component="span" variant="body2" className={styles.priceUnit}>
                                                     {" "}
                                                     / éj
                                                 </Typography>
@@ -150,7 +151,7 @@ export default function RoomDetailPage() {
 
                                     {/* Average rating with stars */}
                                     {avgRating != null && (
-                                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, pt: 1 }}>
+                                        <Box className={styles.ratingRow}>
                                             <RatingStars value={avgRating} size={24} />
                                             <Typography variant="body2" sx={{ fontWeight: 700 }}>
                                                 {avgRating.toFixed(1)}/5
@@ -171,7 +172,7 @@ export default function RoomDetailPage() {
                             </CardContent>
                         </Card>
 
-                        <Card variant="outlined">
+                        <Card variant="outlined" className={styles.reviewsCard}>
                             <CardContent>
                                 <Typography variant="h6" gutterBottom>
                                     Értékelések
@@ -185,29 +186,29 @@ export default function RoomDetailPage() {
                                         {reviews.map((r) => (
                                             <Box
                                                 key={r.id ?? r.reviewId ?? JSON.stringify(r)}
-                                                sx={{ borderBottom: "1px solid rgba(0,0,0,0.08)", pb: 1 }}
+                                                className={styles.reviewItem}
                                             >
-                                                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                                    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                                                <Box className={styles.reviewHeader}>
+                                                    <Typography variant="subtitle2" className={styles.reviewUsername}>
                                                         {r.username ?? r.user?.username ?? "Felhasználó"}
                                                     </Typography>
                                                     <RatingStars value={r.rating} />
-                                                    <Typography variant="body2" sx={{ opacity: 0.7 }}>
+                                                    <Typography variant="body2" className={styles.reviewRating}>
                                                         {r.rating != null ? `${r.rating}/5` : ""}
                                                     </Typography>
                                                 </Box>
                                                 {r.comment && (
-                                                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                                                    <Typography variant="body2" className={styles.reviewComment}>
                                                         {r.comment}
                                                     </Typography>
                                                 )}
                                                 {(r.checkIn || r.checkOut) && (
-                                                    <Typography variant="caption" sx={{ opacity: 0.75 }}>
+                                                    <Typography variant="caption" className={styles.reviewCaption}>
                                                         Szállás: {r.checkIn ?? "?"} – {r.checkOut ?? "?"}
                                                     </Typography>
                                                 )}
                                                 {r.createdAt && (
-                                                    <Typography variant="caption" sx={{ opacity: 0.7 }}>
+                                                    <Typography variant="caption" className={styles.reviewCaption}>
                                                         {String(r.createdAt)}
                                                     </Typography>
                                                 )}
