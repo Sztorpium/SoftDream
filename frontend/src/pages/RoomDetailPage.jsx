@@ -16,7 +16,7 @@ import { Link as RouterLink, useParams } from "react-router-dom";
 import { getRoomById } from "../api/rooms";
 import { getAverageRating, getReviewsByRoomId } from "../api/reviews";
 import RatingStars from "../components/RatingStars";
-import { getRoomImage } from "../utils/RoomImages";
+import { getRoomImage } from "../utils/roomImages";
 import styles from "./RoomDetailPage.module.css";
 
 export default function RoomDetailPage() {
