@@ -1,23 +1,25 @@
 import * as React from "react";
 import { Container, Button, Stack, Typography } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import styles from "./NotFound.module.css";
 
 export default function NotFound() {
     return (
-        <Container sx={{ py: 3 }}>
-            <Stack spacing={2}>
-                <Typography variant="h4" component="h1">
+        <Container className={styles.page}>
+            <Stack spacing={2} alignItems="center">
+                <Typography className={styles.errorCode} aria-hidden="true">
                     404
                 </Typography>
-                <Typography variant="body1" color="text.secondary">
+                <Typography variant="h4" component="h1" className={styles.title}>
+                    Page Not Found
+                </Typography>
+                <Typography variant="body1" color="text.secondary" className={styles.subtitle}>
                     The page you are looking for does not exist.
                 </Typography>
 
-                <div>
-                    <Button variant="contained" component={RouterLink} to="/">
-                        Back to Home
-                    </Button>
-                </div>
+                <Button variant="contained" component={RouterLink} to="/">
+                    Back to Home
+                </Button>
             </Stack>
         </Container>
     );
