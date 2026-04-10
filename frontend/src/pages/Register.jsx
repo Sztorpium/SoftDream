@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import styles from "./Register.module.css";
 
 export default function Register() {
     const navigate = useNavigate();
@@ -78,10 +79,10 @@ export default function Register() {
     }
 
     return (
-        <Container sx={{ py: 3 }} maxWidth="sm">
-            <Paper sx={{ p: 3 }}>
+        <Container className={styles.page} maxWidth="sm">
+            <Paper className={styles.formPaper}>
                 <Stack spacing={2} component="form" onSubmit={onSubmit} noValidate>
-                    <Typography variant="h4" component="h1">
+                    <Typography variant="h4" component="h1" className={styles.title}>
                         Regisztráció
                     </Typography>
 
