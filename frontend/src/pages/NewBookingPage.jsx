@@ -17,6 +17,7 @@ import dayjs from "dayjs";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { createBooking } from "../api/bookings";
 import { getRoomById, getRoomBookedDates } from "../api/rooms";
+import styles from "./NewBookingPage.module.css";
 
 export default function NewBookingPage() {
     const navigate = useNavigate();
@@ -114,8 +115,8 @@ export default function NewBookingPage() {
     const today = dayjs();
 
     return (
-        <Container sx={{ py: 3 }} maxWidth="sm">
-            <Paper sx={{ p: 3 }}>
+        <Container className={styles.page} maxWidth="sm">
+            <Paper className={styles.formPaper}>
                 <Stack spacing={2} component="form" onSubmit={onSubmit} noValidate>
                     <Typography variant="h4" component="h1">
                         Új foglalás
@@ -123,7 +124,7 @@ export default function NewBookingPage() {
 
                     {roomId ? (
                         loadingRoom ? (
-                            <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+                            <Box className={styles.loadingBox}>
                                 <CircularProgress size={22} />
                             </Box>
                         ) : roomError ? (
@@ -145,7 +146,7 @@ export default function NewBookingPage() {
                             <Typography variant="subtitle2" gutterBottom>
                                 Nem elérhető időszakok:
                             </Typography>
-                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                            <Box className={styles.bookedDatesBox}>
                                 {bookedDates.map((d, i) => (
                                     <Chip
                                         key={i}
