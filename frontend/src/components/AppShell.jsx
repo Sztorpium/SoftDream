@@ -90,7 +90,7 @@ export default function AppShell({ children }) {
                     <Typography
                         variant="h6"
                         component={RouterLink}
-                        to="/rooms"
+                        to="/about"
                         style={{ color: "inherit", textDecoration: "none" }}
                         sx={{ fontWeight: 900, letterSpacing: 0.2 }}
                     >
