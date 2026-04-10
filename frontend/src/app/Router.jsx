@@ -22,7 +22,7 @@ export default function AppRouter() {
     return (
         <AppShell>
             <Routes>
-                <Route path="/" element={<Navigate to="/rooms" replace />} />
+                <Route path="/" element={<Navigate to="/about" replace />} />
 
                 <Route path="/rooms" element={<RoomsPage />} />
                 <Route path="/rooms/:roomId" element={<RoomDetailPage />} />
