@@ -60,6 +60,7 @@
 /* Feature cards */
 .featureCard {
   height: 100%;
+  text-align: center;
   transition: box-shadow 0.2s ease, transform 0.15s ease;
 }
 
@@ -80,6 +81,7 @@
 /* Value cards */
 .valueCard {
   height: 100%;
+  text-align: center;
   transition: box-shadow 0.2s ease, transform 0.15s ease;
 }
 
@@ -101,6 +103,7 @@
 /* Section titles */
 .sectionTitle {
   font-weight: 900;
+  text-align: center;
 }
 
 /* Story image */

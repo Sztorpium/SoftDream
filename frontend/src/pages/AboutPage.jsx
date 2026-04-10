@@ -212,7 +212,7 @@ export default function AboutPage() {
 
                 {/* ── Story ────────────────────────────────────────── */}
                 <Box>
-                    <Typography variant="h4" fontWeight={900} gutterBottom>
+                    <Typography variant="h4" fontWeight={900} gutterBottom className={styles.sectionTitle}>
                         A mi történetünk
                     </Typography>
                     <Divider sx={{ mb: 2 }} />
@@ -254,7 +254,7 @@ export default function AboutPage() {
 
                 {/* ── Features ─────────────────────────────────────── */}
                 <Box>
-                    <Typography variant="h4" fontWeight={900} gutterBottom>
+                    <Typography variant="h4" fontWeight={900} gutterBottom className={styles.sectionTitle}>
                         Miért válasszon minket?
                     </Typography>
                     <Divider sx={{ mb: 3 }} />
@@ -269,7 +269,7 @@ export default function AboutPage() {
 
                 {/* ── Values ───────────────────────────────────────── */}
                 <Box>
-                    <Typography variant="h4" fontWeight={900} gutterBottom>
+                    <Typography variant="h4" fontWeight={900} gutterBottom className={styles.sectionTitle}>
                         Értékeink
                     </Typography>
                     <Divider sx={{ mb: 3 }} />

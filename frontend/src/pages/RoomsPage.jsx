@@ -101,9 +101,9 @@ export default function RoomsPage() {
     }, [rooms, q, type, maxPrice, sort]);
 
     return (
-        <Container className={styles.page}>
+        <Container className={styles.page} maxWidth="lg">
             <Stack spacing={2}>
-                <Box>
+                <Box sx={{ textAlign: "center" }}>
                     <Typography variant="h4" component="h1">
                         Szobák
                     </Typography>
