@@ -18,6 +18,7 @@ import {
 import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Footer from "./Footer";
+import styles from "./AppShell.module.css";
 
 function NavLink({ to, children, onClick, admin }) {
     return (
@@ -73,7 +74,7 @@ export default function AppShell({ children }) {
     ];
 
     return (
-        <Box sx={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <Box className={styles.root}>
             <AppBar position="sticky" elevation={0} sx={{ borderBottom: "1px solid rgba(255,255,255,0.18)" }}>
                 <Toolbar sx={{ gap: 2 }}>
                     {/* Mobile hamburger */}
@@ -91,6 +92,7 @@ export default function AppShell({ children }) {
                         variant="h6"
                         component={RouterLink}
                         to="/about"
+                        className={styles.brand}
                         style={{ color: "inherit", textDecoration: "none" }}
                         sx={{ fontWeight: 900, letterSpacing: 0.2 }}
                     >
@@ -98,7 +100,7 @@ export default function AppShell({ children }) {
                     </Typography>
 
                     {/* Desktop links */}
-                    <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2, ml: 2, flexGrow: 1 }}>
+                    <Box className={styles.desktopNav} sx={{ display: { xs: "none", md: "flex" }, gap: 2 }}>
                         {commonLinks.map((l) => (
                             <NavLink key={l.to} to={l.to}>
                                 {l.label}
@@ -166,8 +168,8 @@ export default function AppShell({ children }) {
 
             {/* Mobile drawer */}
             <Drawer open={open} onClose={() => setOpen(false)}>
-                <Box sx={{ width: 280 }} role="presentation">
-                    <Box sx={{ p: 2 }}>
+                <Box className={styles.drawerBox} role="presentation">
+                    <Box className={styles.drawerHeader}>
                         <Typography variant="h6" sx={{ fontWeight: 900 }}>
                             Menü
                         </Typography>
@@ -196,7 +198,7 @@ export default function AppShell({ children }) {
                         ))}
                     </List>
                     <Divider />
-                    <Box sx={{ p: 2 }}>
+                    <Box className={styles.drawerFooter}>
                         {isAuthenticated ? (
                             <Button fullWidth variant="outlined" color="error" onClick={() => { setOpen(false); onLogout(); }}>
                                 Kilépés
@@ -207,7 +209,7 @@ export default function AppShell({ children }) {
             </Drawer>
 
             {/* Main content */}
-            <Box sx={{ flexGrow: 1 }}>
+            <Box className={styles.mainContent}>
                 {children}
             </Box>
 
