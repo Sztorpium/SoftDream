@@ -10,6 +10,7 @@ import {
     Typography,
 } from "@mui/material";
 import { deleteReview, getMyReviews } from "../api/reviews";
+import styles from "./MyReviewsPage.module.css";
 
 export default function MyReviewsPage() {
     const [reviews, setReviews] = React.useState([]);
@@ -51,7 +52,7 @@ export default function MyReviewsPage() {
     }
 
     return (
-        <Container sx={{ py: 3 }} maxWidth="md">
+        <Container className={styles.page} maxWidth="md">
             <Stack spacing={2}>
                 <Typography variant="h4" component="h1">
                     Értékeléseim
@@ -60,7 +61,7 @@ export default function MyReviewsPage() {
                 {error ? <Alert severity="error">{error}</Alert> : null}
 
                 {loading ? (
-                    <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+                    <Box className={styles.loadingBox}>
                         <CircularProgress />
                     </Box>
                 ) : reviews.length === 0 ? (
@@ -68,9 +69,9 @@ export default function MyReviewsPage() {
                 ) : (
                     <Stack spacing={2}>
                         {reviews.map((r) => (
-                            <Paper key={r.id ?? r.reviewId ?? JSON.stringify(r)} sx={{ p: 2 }}>
+                            <Paper key={r.id ?? r.reviewId ?? JSON.stringify(r)} className={styles.reviewCard}>
                                 <Stack spacing={0.5}>
-                                    <Typography variant="subtitle1" fontWeight={700}>
+                                    <Typography variant="subtitle1" className={styles.reviewRoomTitle}>
                                         Szoba: {r.roomId ?? r.room?.id ?? "–"}
                                     </Typography>
 
@@ -81,7 +82,7 @@ export default function MyReviewsPage() {
                                     ) : null}
 
                                     {r.comment ? (
-                                        <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                                        <Typography variant="body2" className={styles.reviewComment}>
                                             {r.comment}
                                         </Typography>
                                     ) : null}
