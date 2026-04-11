@@ -13,6 +13,8 @@ import hu.softdream.repository.BookingRepository;
 import hu.softdream.repository.RoomRepository;
 import hu.softdream.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,15 +29,17 @@ public class BookingService {
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
 
-    public List<BookingResponse> getAllBookings() {
-        return bookingRepository.findAll().stream()
-                .map(this::convertToResponse)
-                .collect(Collectors.toList());
+    public Page<BookingResponse> getAllBookings(Pageable pageable) {
+        return bookingRepository.findAll(pageable)
+                .map(this::convertToResponse);
     }
 
-    public BookingResponse getBookingById(Integer bookingId) {
+    public BookingResponse getBookingById(Integer bookingId, Integer requestingUserId, boolean isAdmin) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("A foglalás nem található a megadott azonosítóval: " + bookingId));
+        if (!isAdmin && !booking.getUser().getUserId().equals(requestingUserId)) {
+            throw new BadRequestException("Nincs jogosultsága megtekinteni ezt a foglalást.");
+        }
         return convertToResponse(booking);
     }
 
@@ -120,8 +124,14 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingResponse cancelBooking(Integer bookingId) {
-        return updateBookingStatus(bookingId, BookingStatus.CANCELLED);
+    public BookingResponse cancelBooking(Integer bookingId, Integer requestingUserId, boolean isAdmin) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("A foglalás nem található a megadott azonosítóval: " + bookingId));
+        if (!isAdmin && !booking.getUser().getUserId().equals(requestingUserId)) {
+            throw new BadRequestException("Nincs jogosultsága lemondani ezt a foglalást.");
+        }
+        booking.setStatus(BookingStatus.CANCELLED);
+        return convertToResponse(bookingRepository.save(booking));
     }
 
     public void deleteBooking(Integer bookingId) {

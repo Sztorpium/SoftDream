@@ -10,6 +10,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,8 +33,8 @@ public class BookingController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get all bookings (Admin only)")
-    public ResponseEntity<List<BookingResponse>> getAllBookings() {
-        return ResponseEntity.ok(bookingService.getAllBookings());
+    public ResponseEntity<Page<BookingResponse>> getAllBookings(@PageableDefault(size = 20, sort = "createdAt") Pageable pageable) {
+        return ResponseEntity.ok(bookingService.getAllBookings(pageable));
     }
 
     @GetMapping("/my-bookings")
@@ -43,9 +46,13 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    @Operation(summary = "Get booking by ID")
-    public ResponseEntity<BookingResponse> getBookingById(@PathVariable Integer bookingId) {
-        return ResponseEntity.ok(bookingService.getBookingById(bookingId));
+    @Operation(summary = "Get booking by ID (admin or owner)")
+    public ResponseEntity<BookingResponse> getBookingById(
+            @PathVariable Integer bookingId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        boolean isAdmin = "ADMIN".equals(userDetails.getRole());
+        return ResponseEntity.ok(bookingService.getBookingById(bookingId, userDetails.getUserId(), isAdmin));
     }
 
     @GetMapping("/user/{userId}")
@@ -86,9 +93,13 @@ public class BookingController {
     }
 
     @PatchMapping("/{bookingId}/cancel")
-    @Operation(summary = "Cancel booking")
-    public ResponseEntity<BookingResponse> cancelBooking(@PathVariable Integer bookingId) {
-        return ResponseEntity.ok(bookingService.cancelBooking(bookingId));
+    @Operation(summary = "Cancel booking (admin or owner)")
+    public ResponseEntity<BookingResponse> cancelBooking(
+            @PathVariable Integer bookingId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        boolean isAdmin = "ADMIN".equals(userDetails.getRole());
+        return ResponseEntity.ok(bookingService.cancelBooking(bookingId, userDetails.getUserId(), isAdmin));
     }
 
     @DeleteMapping("/{bookingId}")

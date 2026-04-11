@@ -81,7 +81,6 @@ INSERT INTO reviews (user_id, room_id, rating, comment, created_at) VALUES
 -- BOOKINGS - Foglalások
 -- ========================================
 INSERT INTO bookings (user_id, room_id, check_in, check_out, status, created_at) VALUES
-<<<<<<< HEAD
 -- john_doe foglalásai
 (2, 1, '2026-03-25', '2026-03-26', 'PENDING', NOW()),
 (2, 3, '2026-04-04', '2026-04-07', 'CONFIRMED', NOW()),
@@ -91,9 +90,4 @@ INSERT INTO bookings (user_id, room_id, check_in, check_out, status, created_at)
 
 -- peter_kovacs foglalásai
 (4, 2, '2026-04-02', '2026-04-04', 'PENDING', NOW());
-=======
-                                                                                     (2, 1, '2026-03-25', '2026-03-26', 'PENDING',   NOW()),
-                                                                                     (2, 3, '2026-04-04', '2026-04-07', 'CONFIRMED', NOW()),
-                                                                                     (3, 5, '2026-03-27', '2026-03-29', 'CONFIRMED', NOW()),
-                                                                                     (4, 2, '2026-04-02', '2026-04-04', 'PENDING',   NOW());
->>>>>>> c2cddf2 (BUGFIX)
+

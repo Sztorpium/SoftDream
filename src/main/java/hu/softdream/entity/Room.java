@@ -1,10 +1,7 @@
 package hu.softdream.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -38,8 +35,12 @@ public class Room {
     private Integer maxGuests;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private List<Booking> bookings;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private List<Review> reviews;
 }
