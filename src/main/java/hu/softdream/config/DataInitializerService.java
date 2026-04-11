@@ -4,6 +4,7 @@ import hu.softdream.entity.*;
 import hu.softdream.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,11 +19,17 @@ import java.util.List;
  * Inserts reference data (roles, room statuses, room types, rooms) and an
  * admin user only when each table is still empty, making it safe for both
  * fresh deployments and repeated restarts.
+ *
+ * <p>Configure the admin password via the {@code ADMIN_PASSWORD} environment variable.
+ * The default value is only for local development and <strong>must be changed</strong>
+ * before deploying to any non-development environment.
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class DataInitializerService implements ApplicationRunner {
+
+    private static final String DEFAULT_ADMIN_PASSWORD = "admin123";
 
     private final RoleRepository roleRepository;
     private final RoomStatusRepository roomStatusRepository;
@@ -32,14 +39,39 @@ public class DataInitializerService implements ApplicationRunner {
     private final UserAuthRepository userAuthRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /** Admin password for the seeded admin account. Set ADMIN_PASSWORD env var in production. */
+    @Value("${ADMIN_PASSWORD:" + DEFAULT_ADMIN_PASSWORD + "}")
+    private String adminPassword;
+
+    /** Mail username – empty means mail is disabled/unconfigured. */
+    @Value("${MAIL_USERNAME:}")
+    private String mailUsername;
+
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
+        warnIfDefaultAdminPassword();
+        warnIfMailUnconfigured();
         initRoles();
         initRoomStatuses();
         initRoomTypes();
         initRooms();
         initAdminUser();
+    }
+
+    private void warnIfDefaultAdminPassword() {
+        if (DEFAULT_ADMIN_PASSWORD.equals(adminPassword)) {
+            log.warn("*** SECURITY WARNING: Admin password is set to the default value '{}'. " +
+                    "Set the ADMIN_PASSWORD environment variable before deploying to production! ***",
+                    DEFAULT_ADMIN_PASSWORD);
+        }
+    }
+
+    private void warnIfMailUnconfigured() {
+        if (mailUsername == null || mailUsername.isBlank()) {
+            log.warn("Mail credentials not configured (MAIL_USERNAME is empty). " +
+                    "Email features will not work. Set MAIL_USERNAME and MAIL_PASSWORD env vars to enable mail.");
+        }
     }
 
     private void initRoles() {
@@ -133,7 +165,7 @@ public class DataInitializerService implements ApplicationRunner {
 
         UserAuth adminAuth = UserAuth.builder()
                 .user(adminUser)
-                .passwordHash(passwordEncoder.encode("admin123"))
+                .passwordHash(passwordEncoder.encode(adminPassword))
                 .role(adminRole)
                 .build();
         userAuthRepository.save(adminAuth);
