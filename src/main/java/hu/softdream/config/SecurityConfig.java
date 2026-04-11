@@ -27,6 +27,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.http.HttpMethod;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -57,12 +59,20 @@ public class SecurityConfig {
                             .requestMatchers("/api/auth/**").permitAll()
 
                             // ========================================
-                            // PUBLIC ENDPOINTS - Rooms & Reviews
+                            // PUBLIC ENDPOINTS - Rooms (GET only)
                             // ========================================
-                            .requestMatchers("/rooms/**").permitAll()
-                            .requestMatchers("/api/rooms/**").permitAll()
-                            .requestMatchers("/reviews/**").permitAll()
-                            .requestMatchers("/api/reviews/**").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/rooms/**").permitAll()
+                            .requestMatchers(HttpMethod.GET, "/api/rooms/**").permitAll()
+
+                            // ========================================
+                            // PUBLIC ENDPOINTS - Reviews (GET only, my-reviews requires auth)
+                            // ========================================
+
+                            .requestMatchers(HttpMethod.GET, "/reviews/**").permitAll()
+                            // IMPORTANT: this rule must come before the general GET permit below,
+                            // so that /api/reviews/my-reviews requires authentication.
+                            .requestMatchers("/api/reviews/my-reviews").authenticated()
+                            .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
 
                             // ========================================
                             // PUBLIC ENDPOINTS - Swagger/OpenAPI/Documentation

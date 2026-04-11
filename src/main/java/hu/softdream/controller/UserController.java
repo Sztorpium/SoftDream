@@ -1,6 +1,7 @@
 package hu.softdream.controller;
 
 import hu.softdream.dto.response.UserResponse;
+import hu.softdream.exception.BadRequestException;
 import hu.softdream.security.CustomUserDetails;
 import hu.softdream.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +25,8 @@ import java.util.List;
 @Tag(name = "Users", description = "User management APIs")
 public class UserController {
 
+    private static final String ROLE_ADMIN = "ADMIN";
+
     private final UserService userService;
 
     @GetMapping
@@ -35,14 +38,26 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    @Operation(summary = "Get user by ID")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Integer userId) {
+    @Operation(summary = "Get user by ID (admin or own data)")
+    public ResponseEntity<UserResponse> getUserById(
+            @PathVariable Integer userId,
+            @AuthenticationPrincipal CustomUserDetails principal) {
+        boolean isAdmin = ROLE_ADMIN.equals(principal.getRole());
+        if (!isAdmin && !principal.getUserId().equals(userId)) {
+            throw new BadRequestException("Nincs jogosultsága megtekinteni ezt a felhasználót.");
+        }
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
     @GetMapping("/username/{username}")
-    @Operation(summary = "Get user by username")
-    public ResponseEntity<UserResponse> getUserByUsername(@PathVariable String username) {
+    @Operation(summary = "Get user by username (admin or own data)")
+    public ResponseEntity<UserResponse> getUserByUsername(
+            @PathVariable String username,
+            @AuthenticationPrincipal CustomUserDetails principal) {
+        boolean isAdmin = ROLE_ADMIN.equals(principal.getRole());
+        if (!isAdmin && !principal.getUsername().equals(username)) {
+            throw new BadRequestException("Nincs jogosultsága megtekinteni ezt a felhasználót.");
+        }
         return ResponseEntity.ok(userService.getUserByUsername(username));
     }
 
