@@ -2,8 +2,10 @@ package hu.softdream.config;
 
 import hu.softdream.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -33,95 +35,108 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
+    private final Environment environment;
+
+    /** Comma-separated allowed CORS origins; set CORS_ALLOWED_ORIGINS env var in production. */
+    @Value("${cors.allowed-origins}")
+    private String allowedOriginsRaw;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        boolean isDevProfile = Arrays.asList(environment.getActiveProfiles()).contains("dev");
+
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        // ========================================
-                        // PUBLIC ENDPOINTS - Authentication
-                        // ========================================
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
+                .authorizeHttpRequests(auth -> {
+                    auth
+                            // ========================================
+                            // PUBLIC ENDPOINTS - Authentication
+                            // ========================================
+                            .requestMatchers("/auth/**").permitAll()
+                            .requestMatchers("/api/auth/**").permitAll()
 
-                        // ========================================
-                        // PUBLIC ENDPOINTS - Rooms & Reviews
-                        // ========================================
-                        .requestMatchers("/rooms/**").permitAll()
-                        .requestMatchers("/api/rooms/**").permitAll()
-                        .requestMatchers("/reviews/**").permitAll()
-                        .requestMatchers("/api/reviews/**").permitAll()
+                            // ========================================
+                            // PUBLIC ENDPOINTS - Rooms & Reviews
+                            // ========================================
+                            .requestMatchers("/rooms/**").permitAll()
+                            .requestMatchers("/api/rooms/**").permitAll()
+                            .requestMatchers("/reviews/**").permitAll()
+                            .requestMatchers("/api/reviews/**").permitAll()
 
-                        // ========================================
-                        // PUBLIC ENDPOINTS - Swagger/OpenAPI/Documentation
-                        // ========================================
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/api-docs/**",
-                                "/swagger-resources/**",
-                                "/configuration/**",
-                                "/webjars/**"
-                        ).permitAll()
+                            // ========================================
+                            // PUBLIC ENDPOINTS - Swagger/OpenAPI/Documentation
+                            // ========================================
+                            .requestMatchers(
+                                    "/swagger-ui/**",
+                                    "/swagger-ui.html",
+                                    "/v3/api-docs/**",
+                                    "/api-docs/**",
+                                    "/swagger-resources/**",
+                                    "/configuration/**",
+                                    "/webjars/**"
+                            ).permitAll()
 
-                        // ========================================
-                        // PUBLIC ENDPOINTS - H2 Console (Development)
-                        // ========================================
-                        .requestMatchers("/h2-console/**").permitAll()
+                            // ========================================
+                            // PUBLIC ENDPOINTS - Actuator Health Check only
+                            // ========================================
+                            .requestMatchers("/actuator/health").permitAll()
+                            .requestMatchers("/actuator/**").hasRole("ADMIN");
 
-                        // ========================================
-                        // PUBLIC ENDPOINTS - Actuator Health Check
-                        // ========================================
-                        .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers("/actuator/health").permitAll()
+                    // ========================================
+                    // H2 Console - Development profile only
+                    // ========================================
+                    if (isDevProfile) {
+                        auth.requestMatchers("/h2-console/**").permitAll();
+                    }
 
-                        // ========================================
-                        // PROTECTED ENDPOINTS - Bookings (Authenticated Users)
-                        // ========================================
-                        .requestMatchers("/api/bookings/**").authenticated()
-                        .requestMatchers("/api/users/**").authenticated()
+                    auth
+                            // ========================================
+                            // PROTECTED ENDPOINTS - Bookings (Authenticated Users)
+                            // ========================================
+                            .requestMatchers("/api/bookings/**").authenticated()
+                            .requestMatchers("/api/users/**").authenticated()
 
-                        // ========================================
-                        // ADMIN ENDPOINTS
-                        // ========================================
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                            // ========================================
+                            // ADMIN ENDPOINTS
+                            // ========================================
+                            .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        // ========================================
-                        // ALL OTHER ENDPOINTS - Require Authentication
-                        // ========================================
-                        .anyRequest().authenticated()
-                )
+                            // ========================================
+                            // ALL OTHER ENDPOINTS - Require Authentication
+                            // ========================================
+                            .anyRequest().authenticated();
+                })
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                // H2 Console frame support (development only)
-                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
+                // Disable X-Frame-Options only in dev (needed for H2 Console iframe)
+                .headers(headers -> {
+                    if (!isDevProfile) {
+                        headers.frameOptions(frameOptions -> frameOptions.deny());
+                    } else {
+                        headers.frameOptions(frameOptions -> frameOptions.disable());
+                    }
+                });
 
         return http.build();
     }
 
     /**
-     * CORS Configuration - Frontend hozzáférésének engedélyezése
+     * CORS Configuration - origins loaded from application properties.
+     * Override via CORS_ALLOWED_ORIGINS environment variable in production.
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Frontend URL-ek (fejlesztéshez)
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:3000",      // React
-                "http://localhost:5173",      // Vite
-                "http://localhost:4200",      // Angular
-                "http://localhost:8080",      // Backend (testing)
-                "http://127.0.0.1:3000",
-                "http://127.0.0.1:5173",
-                "http://127.0.0.1:4200"
-        ));
+        List<String> allowedOrigins = Arrays.stream(allowedOriginsRaw.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+        configuration.setAllowedOrigins(allowedOrigins);
 
         configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"
