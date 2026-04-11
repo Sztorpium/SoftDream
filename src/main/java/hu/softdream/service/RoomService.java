@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,34 +27,46 @@ public class RoomService {
     private final RoomStatusRepository roomStatusRepository;
     private final ReviewRepository reviewRepository;
 
+    @Transactional(readOnly = true)
     public List<RoomResponse> getAllRooms() {
-        return roomRepository.findAll().stream()
-                .map(this::convertToResponse)
+        List<Room> rooms = roomRepository.findAll();
+        Map<Integer, Double> avgRatings = fetchAverageRatings(rooms);
+        return rooms.stream()
+                .map(room -> buildRoomResponse(room, avgRatings.get(room.getRoomId())))
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public RoomResponse getRoomById(Integer roomId) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("A szoba nem található a megadott azonosítóval: " + roomId));
         return convertToResponse(room);
     }
 
+    @Transactional(readOnly = true)
     public List<RoomResponse> getAvailableRooms(LocalDate checkIn, LocalDate checkOut) {
-        List<Room> availableRooms = roomRepository.findAvailableRooms(checkIn, checkOut);
-        return availableRooms.stream()
-                .map(this::convertToResponse)
+        List<Room> rooms = roomRepository.findAvailableRooms(checkIn, checkOut);
+        Map<Integer, Double> avgRatings = fetchAverageRatings(rooms);
+        return rooms.stream()
+                .map(room -> buildRoomResponse(room, avgRatings.get(room.getRoomId())))
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<RoomResponse> getRoomsByType(Integer roomTypeId) {
-        return roomRepository.findByRoomType_RoomTypeId(roomTypeId).stream()
-                .map(this::convertToResponse)
+        List<Room> rooms = roomRepository.findByRoomType_RoomTypeId(roomTypeId);
+        Map<Integer, Double> avgRatings = fetchAverageRatings(rooms);
+        return rooms.stream()
+                .map(room -> buildRoomResponse(room, avgRatings.get(room.getRoomId())))
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<RoomResponse> getRoomsByStatus(String status) {
-        return roomRepository.findByRoomStatus_Name(status).stream()
-                .map(this::convertToResponse)
+        List<Room> rooms = roomRepository.findByRoomStatus_Name(status);
+        Map<Integer, Double> avgRatings = fetchAverageRatings(rooms);
+        return rooms.stream()
+                .map(room -> buildRoomResponse(room, avgRatings.get(room.getRoomId())))
                 .collect(Collectors.toList());
     }
 
@@ -98,9 +111,27 @@ public class RoomService {
         roomRepository.deleteById(roomId);
     }
 
+    /**
+     * Batch-fetches average ratings for the given rooms in a single query, avoiding the N+1 problem.
+     */
+    private Map<Integer, Double> fetchAverageRatings(List<Room> rooms) {
+        if (rooms.isEmpty()) {
+            return Map.of();
+        }
+        List<Integer> roomIds = rooms.stream().map(Room::getRoomId).collect(Collectors.toList());
+        return reviewRepository.findAverageRatingsByRoomIds(roomIds).stream()
+                .collect(Collectors.toMap(
+                        arr -> (Integer) arr[0],
+                        arr -> (Double) arr[1]
+                ));
+    }
+
     private RoomResponse convertToResponse(Room room) {
         Double avgRating = reviewRepository.findAverageRatingByRoomId(room.getRoomId());
+        return buildRoomResponse(room, avgRating);
+    }
 
+    private RoomResponse buildRoomResponse(Room room, Double avgRating) {
         return RoomResponse.builder()
                 .roomId(room.getRoomId())
                 .roomNumber(room.getRoomNumber())
