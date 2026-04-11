@@ -149,7 +149,7 @@ public class DataInitializerService implements ApplicationRunner {
     }
 
     private void initAdminUser() {
-        if (userRepository.existsByUsername("admin_user")) {
+        if (userRepository.existsByUsername("admin_user") || userRepository.existsByEmail("admin@softdream.hu")) {
             return;
         }
         log.info("Seeding admin user...");
