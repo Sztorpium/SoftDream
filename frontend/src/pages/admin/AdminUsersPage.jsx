@@ -6,6 +6,7 @@ import {
     Button,
     CircularProgress,
     Container,
+    Pagination,
     Paper,
     Stack,
     TextField,
@@ -15,6 +16,8 @@ import { deleteUser, getAllUsers } from "../../api/users";
 import { useAuth } from "../../context/AuthContext";
 import styles from "./AdminUsersPage.module.css";
 
+const PAGE_SIZE = 20;
+
 export default function AdminUsersPage() {
     const { user: currentUser } = useAuth();
     const navigate = useNavigate();
@@ -23,13 +26,16 @@ export default function AdminUsersPage() {
     const [error, setError] = React.useState("");
     const [deletingId, setDeletingId] = React.useState(null);
     const [search, setSearch] = React.useState("");
+    const [page, setPage] = React.useState(0);
+    const [totalPages, setTotalPages] = React.useState(0);
 
-    const load = React.useCallback(async () => {
+    const load = React.useCallback(async (p = 0) => {
         setLoading(true);
         setError("");
         try {
-            const data = await getAllUsers();
-            setUsers(Array.isArray(data) ? data : []);
+            const data = await getAllUsers({ page: p, size: PAGE_SIZE });
+            setUsers(Array.isArray(data?.content) ? data.content : []);
+            setTotalPages(data?.totalPages ?? 0);
         } catch (err) {
             setError(err?.message || "Nem sikerült betölteni a felhasználókat.");
         } finally {
@@ -38,8 +44,8 @@ export default function AdminUsersPage() {
     }, []);
 
     React.useEffect(() => {
-        load();
-    }, [load]);
+        load(page);
+    }, [load, page]);
 
     async function onDelete(userId, username) {
         const ok = window.confirm(
@@ -51,7 +57,7 @@ export default function AdminUsersPage() {
         setError("");
         try {
             await deleteUser(userId);
-            await load();
+            await load(page);
         } catch (err) {
             setError(err?.message || "Nem sikerült törölni a felhasználót.");
         } finally {
@@ -95,7 +101,7 @@ export default function AdminUsersPage() {
                 </Typography>
 
                 <TextField
-                    placeholder="Keresés: id, név, e-mail, státusz..."
+                    placeholder="Keresés az aktuális oldalon: id, név, e-mail, státusz..."
                     size="small"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
@@ -167,6 +173,17 @@ export default function AdminUsersPage() {
                                 </Paper>
                             );
                         })}
+
+                        {totalPages > 1 && (
+                            <Box display="flex" justifyContent="center" pt={1}>
+                                <Pagination
+                                    count={totalPages}
+                                    page={page + 1}
+                                    onChange={(_, p) => { setPage(p - 1); setSearch(""); }}
+                                    color="primary"
+                                />
+                            </Box>
+                        )}
                     </Stack>
                 )}
             </Stack>

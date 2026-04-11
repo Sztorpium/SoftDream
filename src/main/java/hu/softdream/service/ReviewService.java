@@ -76,6 +76,15 @@ public class ReviewService {
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new ResourceNotFoundException("A szoba nem található a megadott azonosítóval: " + request.getRoomId()));
 
+        boolean hasBooking = bookingRepository.findByUser_UserIdAndRoom_RoomId(userId, request.getRoomId())
+                .stream()
+                .anyMatch(b -> b.getStatus() == hu.softdream.entity.enums.BookingStatus.CONFIRMED
+                        || b.getStatus() == hu.softdream.entity.enums.BookingStatus.CANCELLED);
+        if (!hasBooking) {
+            throw new hu.softdream.exception.BadRequestException(
+                    "Csak olyan szobát értékelhet, amelyben már megszállt.");
+        }
+
         Review review = Review.builder()
                 .user(user)
                 .room(room)

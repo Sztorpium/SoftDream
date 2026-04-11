@@ -1,7 +1,7 @@
 import { apiDelete, apiGet, apiPatch, apiPost } from "./client";
 
-export function getAllBookings() {
-    return apiGet("/api/bookings");
+export function getAllBookings({ page = 0, size = 20 } = {}) {
+    return apiGet(`/api/bookings?page=${page}&size=${size}&sort=createdAt,desc`);
 }
 
 export function getMyBookings() {

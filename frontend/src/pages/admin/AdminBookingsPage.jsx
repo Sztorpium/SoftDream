@@ -6,6 +6,7 @@ import {
     Chip,
     CircularProgress,
     Container,
+    Pagination,
     Paper,
     Stack,
     Typography,
@@ -24,18 +25,23 @@ const STATUS_COLOR = {
     CANCELLED: "error",
 };
 
+const PAGE_SIZE = 20;
+
 export default function AdminBookingsPage() {
     const [bookings, setBookings] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState("");
     const [actingId, setActingId] = React.useState(null);
+    const [page, setPage] = React.useState(0);
+    const [totalPages, setTotalPages] = React.useState(0);
 
-    const load = React.useCallback(async () => {
+    const load = React.useCallback(async (p = 0) => {
         setLoading(true);
         setError("");
         try {
-            const data = await getAllBookings();
-            setBookings(Array.isArray(data) ? data : []);
+            const data = await getAllBookings({ page: p, size: PAGE_SIZE });
+            setBookings(Array.isArray(data?.content) ? data.content : []);
+            setTotalPages(data?.totalPages ?? 0);
         } catch (err) {
             setError(err?.message || "Nem sikerült betölteni a foglalásokat.");
         } finally {
@@ -44,15 +50,15 @@ export default function AdminBookingsPage() {
     }, []);
 
     React.useEffect(() => {
-        load();
-    }, [load]);
+        load(page);
+    }, [load, page]);
 
     async function onConfirm(id) {
         setActingId(id);
         setError("");
         try {
             await confirmBooking(id);
-            await load();
+            await load(page);
         } catch (err) {
             setError(err?.message || "Nem sikerült megerősíteni a foglalást.");
         } finally {
@@ -68,7 +74,7 @@ export default function AdminBookingsPage() {
         setError("");
         try {
             await cancelBooking(id);
-            await load();
+            await load(page);
         } catch (err) {
             setError(err?.message || "Nem sikerült lemondani a foglalást.");
         } finally {
@@ -84,7 +90,7 @@ export default function AdminBookingsPage() {
         setError("");
         try {
             await deleteBooking(id);
-            await load();
+            await load(page);
         } catch (err) {
             setError(err?.message || "Nem sikerült törölni a foglalást.");
         } finally {
@@ -180,6 +186,17 @@ export default function AdminBookingsPage() {
                                 </Paper>
                             );
                         })}
+
+                        {totalPages > 1 && (
+                            <Box display="flex" justifyContent="center" pt={1}>
+                                <Pagination
+                                    count={totalPages}
+                                    page={page + 1}
+                                    onChange={(_, p) => setPage(p - 1)}
+                                    color="primary"
+                                />
+                            </Box>
+                        )}
                     </Stack>
                 )}
             </Stack>

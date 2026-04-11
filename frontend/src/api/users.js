@@ -1,7 +1,7 @@
 import { apiDelete, apiGet } from "./client";
 
-export function getAllUsers() {
-    return apiGet("/api/users");
+export function getAllUsers({ page = 0, size = 20 } = {}) {
+    return apiGet(`/api/users?page=${page}&size=${size}&sort=createdAt,desc`);
 }
 
 export function getUserById(userId) {

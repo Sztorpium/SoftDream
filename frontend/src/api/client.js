@@ -44,6 +44,14 @@ async function request(path, options = {}) {
         return null;
     }
 
+    // 401 Unauthorized – token expired or invalid; notify the app to log out
+    if (response.status === 401) {
+        window.dispatchEvent(new Event("auth:unauthorized"));
+        const error = new Error("Munkamenete lejárt. Kérem, jelentkezzen be újra.");
+        error.status = 401;
+        throw error;
+    }
+
     const contentType = response.headers.get("content-type") || "";
     const isJson = contentType.includes("application/json");
 
