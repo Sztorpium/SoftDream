@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Users", description = "User management APIs")
 public class UserController {
 
+    private static final String ROLE_ADMIN = "ADMIN";
+
     private final UserService userService;
 
     @GetMapping
@@ -38,7 +40,7 @@ public class UserController {
     public ResponseEntity<UserResponse> getUserById(
             @PathVariable Integer userId,
             @AuthenticationPrincipal CustomUserDetails principal) {
-        boolean isAdmin = "ADMIN".equals(principal.getRole());
+        boolean isAdmin = ROLE_ADMIN.equals(principal.getRole());
         if (!isAdmin && !principal.getUserId().equals(userId)) {
             throw new BadRequestException("Nincs jogosultsága megtekinteni ezt a felhasználót.");
         }
@@ -50,7 +52,7 @@ public class UserController {
     public ResponseEntity<UserResponse> getUserByUsername(
             @PathVariable String username,
             @AuthenticationPrincipal CustomUserDetails principal) {
-        boolean isAdmin = "ADMIN".equals(principal.getRole());
+        boolean isAdmin = ROLE_ADMIN.equals(principal.getRole());
         if (!isAdmin && !principal.getUsername().equals(username)) {
             throw new BadRequestException("Nincs jogosultsága megtekinteni ezt a felhasználót.");
         }

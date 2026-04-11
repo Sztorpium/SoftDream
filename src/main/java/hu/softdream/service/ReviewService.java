@@ -37,10 +37,12 @@ public class ReviewService {
             return List.of();
         }
         // Fetch only bookings relevant to the reviews (avoids loading the entire bookings table)
-        List<Integer> userIds = reviews.stream()
-                .map(r -> r.getUser().getUserId()).distinct().collect(Collectors.toList());
-        List<Integer> roomIds = reviews.stream()
-                .map(r -> r.getRoom().getRoomId()).distinct().collect(Collectors.toList());
+        List<Integer> userIds = new java.util.ArrayList<>();
+        List<Integer> roomIds = new java.util.ArrayList<>();
+        for (Review r : reviews) {
+            userIds.add(r.getUser().getUserId());
+            roomIds.add(r.getRoom().getRoomId());
+        }
         Map<String, Booking> bookingMap = buildBookingMap(
                 bookingRepository.findByUserIdsAndRoomIds(userIds, roomIds));
         return reviews.stream()

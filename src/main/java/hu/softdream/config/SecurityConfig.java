@@ -68,7 +68,8 @@ public class SecurityConfig {
                             // PUBLIC ENDPOINTS - Reviews (GET only, my-reviews requires auth)
                             // ========================================
                             .requestMatchers(HttpMethod.GET, "/reviews/**").permitAll()
-                            // my-reviews requires authentication (must come before the general GET permit)
+                            // IMPORTANT: this rule must come before the general GET permit below,
+                            // so that /api/reviews/my-reviews requires authentication.
                             .requestMatchers("/api/reviews/my-reviews").authenticated()
                             .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
 
