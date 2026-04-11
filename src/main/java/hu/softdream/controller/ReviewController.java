@@ -76,12 +76,13 @@ public class ReviewController {
     }
 
     @PutMapping("/{reviewId}")
-    @Operation(summary = "Update review")
+    @Operation(summary = "Update review (owner only)")
     public ResponseEntity<ReviewResponse> updateReview(
             @PathVariable Integer reviewId,
-            @Valid @RequestBody ReviewRequest request
+            @Valid @RequestBody ReviewRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return ResponseEntity.ok(reviewService.updateReview(reviewId, request));
+        return ResponseEntity.ok(reviewService.updateReview(reviewId, request, userDetails.getUserId()));
     }
 
     @DeleteMapping("/{reviewId}")

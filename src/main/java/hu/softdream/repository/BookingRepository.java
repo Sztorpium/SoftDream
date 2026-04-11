@@ -17,6 +17,10 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     List<Booking> findByStatus(BookingStatus status);
     List<Booking> findByUser_UserIdAndRoom_RoomId(Integer userId, Integer roomId);
 
+    @Query("SELECT b FROM Booking b WHERE b.user.userId IN :userIds AND b.room.roomId IN :roomIds")
+    List<Booking> findByUserIdsAndRoomIds(@Param("userIds") List<Integer> userIds,
+                                          @Param("roomIds") List<Integer> roomIds);
+
     @Query("SELECT b FROM Booking b WHERE b.room.roomId = :roomId AND " +
             "((b.checkIn <= :checkOut AND b.checkOut >= :checkIn)) AND " +
             "(b.status = hu.softdream.entity.enums.BookingStatus.CONFIRMED OR " +

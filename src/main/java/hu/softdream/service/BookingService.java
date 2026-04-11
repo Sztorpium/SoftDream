@@ -29,11 +29,13 @@ public class BookingService {
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
 
+    @Transactional(readOnly = true)
     public Page<BookingResponse> getAllBookings(Pageable pageable) {
         return bookingRepository.findAll(pageable)
                 .map(this::convertToResponse);
     }
 
+    @Transactional(readOnly = true)
     public BookingResponse getBookingById(Integer bookingId, Integer requestingUserId, boolean isAdmin) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("A foglalás nem található a megadott azonosítóval: " + bookingId));
@@ -43,18 +45,21 @@ public class BookingService {
         return convertToResponse(booking);
     }
 
+    @Transactional(readOnly = true)
     public List<BookingResponse> getBookingsByUserId(Integer userId) {
         return bookingRepository.findByUser_UserId(userId).stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<BookingResponse> getBookingsByRoomId(Integer roomId) {
         return bookingRepository.findByRoom_RoomId(roomId).stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<BookedDatesResponse> getBookedDatesForRoom(Integer roomId) {
         return bookingRepository.findByRoom_RoomId(roomId).stream()
                 .filter(b -> b.getStatus() == BookingStatus.CONFIRMED || b.getStatus() == BookingStatus.PENDING)
@@ -65,6 +70,7 @@ public class BookingService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<BookingResponse> getBookingsByStatus(BookingStatus status) {
         return bookingRepository.findByStatus(status).stream()
                 .map(this::convertToResponse)
