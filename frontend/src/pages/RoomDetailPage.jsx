@@ -103,7 +103,7 @@ export default function RoomDetailPage() {
     }
 
     return (
-        <Container className={styles.page} maxWidth="md">
+        <Container className={styles.page} maxWidth="lg">
             <Stack spacing={2} className={styles.content}>
                 <Button component={RouterLink} to="/rooms" size="small">
                     ← Vissza a szobákhoz

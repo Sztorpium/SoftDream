@@ -62,9 +62,9 @@
 
 .priceFilterBlock {
     padding: 8px 12px 6px;
-    border: 1px solid rgba(143, 95, 47, 0.25);
+    border: 1px solid rgba(125, 151, 201, 0.35);
     border-radius: 10px;
-    background: rgba(255, 249, 239, 0.7);
+    background: rgba(17, 27, 47, 0.78);
 }
 
 .priceControlRow {
@@ -83,10 +83,10 @@
 }
 
 .stateBox {
-    border: 1px dashed rgba(143, 95, 47, 0.3);
+    border: 1px dashed rgba(125, 151, 201, 0.38);
     border-radius: 12px;
     padding: 16px;
-    background: rgba(255, 249, 239, 0.5);
+    background: rgba(17, 27, 47, 0.55);
 }
 
 /* Loading state */
@@ -161,5 +161,5 @@
 
 .roomActions {
     padding: 0 16px 16px;
-    border-top: 1px solid rgba(143, 95, 47, 0.12);
+    border-top: 1px solid rgba(125, 151, 201, 0.2);
 }

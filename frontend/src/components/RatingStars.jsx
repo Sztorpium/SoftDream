@@ -8,8 +8,8 @@ export default function RatingStars({
     value = 0,
     outOf = 5,
     size = 16,
-    fullColor = "#b07a3f",
-    emptyColor = "rgba(94,79,63,0.55)",
+    fullColor = "#ffd166",
+    emptyColor = "rgba(173, 190, 223, 0.5)",
 }) {
     const v = Math.max(0, Math.min(outOf, Number(value) || 0));
     const full = Math.floor(v);

@@ -29,6 +29,7 @@ export default function AdminBookingsPage() {
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState("");
     const [actingId, setActingId] = React.useState(null);
+    const [actingAction, setActingAction] = React.useState(null);
 
     const load = React.useCallback(async () => {
         setLoading(true);
@@ -49,6 +50,7 @@ export default function AdminBookingsPage() {
 
     async function onConfirm(id) {
         setActingId(id);
+        setActingAction("confirm");
         setError("");
         try {
             await confirmBooking(id);
@@ -57,6 +59,7 @@ export default function AdminBookingsPage() {
             setError(err?.message || "Nem sikerült megerősíteni a foglalást.");
         } finally {
             setActingId(null);
+            setActingAction(null);
         }
     }
 
@@ -65,6 +68,7 @@ export default function AdminBookingsPage() {
         if (!ok) return;
 
         setActingId(id);
+        setActingAction("cancel");
         setError("");
         try {
             await cancelBooking(id);
@@ -73,6 +77,7 @@ export default function AdminBookingsPage() {
             setError(err?.message || "Nem sikerült lemondani a foglalást.");
         } finally {
             setActingId(null);
+            setActingAction(null);
         }
     }
 
@@ -81,6 +86,7 @@ export default function AdminBookingsPage() {
         if (!ok) return;
 
         setActingId(id);
+        setActingAction("delete");
         setError("");
         try {
             await deleteBooking(id);
@@ -89,11 +95,12 @@ export default function AdminBookingsPage() {
             setError(err?.message || "Nem sikerült törölni a foglalást.");
         } finally {
             setActingId(null);
+            setActingAction(null);
         }
     }
 
     return (
-        <Container className={styles.page} maxWidth="md">
+        <Container className={styles.page} maxWidth="lg">
             <Stack spacing={2} className={styles.content}>
                 <div>
                     <span className={styles.adminBadge}>Admin</span>
@@ -114,9 +121,10 @@ export default function AdminBookingsPage() {
                     <Stack spacing={2} className={styles.list}>
                         {bookings.map((b) => {
                             const id = b.id ?? b.bookingId;
-                            const status = b.status ?? "—";
+                            const status = String(b.status ?? "").toUpperCase() || "—";
                             const disabled = actingId === id;
-
+                            const canConfirm = status === "PENDING";
+                            const canCancel = status === "PENDING" || status === "CONFIRMED";
                             return (
                                 <Paper key={id ?? JSON.stringify(b)} className={styles.bookingCard}>
                                     <Stack spacing={1}>
@@ -145,26 +153,34 @@ export default function AdminBookingsPage() {
                                                 size="small"
                                             />
                                         </Stack>
-
                                         <Stack direction="row" gap={1} flexWrap="wrap" justifyContent="flex-end">
-                                            <Button
-                                                size="small"
-                                                variant="outlined"
-                                                onClick={() => onConfirm(id)}
-                                                disabled={disabled || id == null}
-                                            >
-                                                {disabled ? "..." : "Confirm"}
-                                            </Button>
+                                            {canConfirm ? (
+                                                <Button
+                                                    size="small"
+                                                    variant="contained"
+                                                    color="success"
+                                                    onClick={() => onConfirm(id)}
+                                                    disabled={disabled || id == null}
+                                                >
+                                                    {disabled && actingAction === "confirm"
+                                                        ? "Folyamatban..."
+                                                        : "Megerősítés"}
+                                                </Button>
+                                            ) : null}
 
-                                            <Button
-                                                size="small"
-                                                variant="outlined"
-                                                color="warning"
-                                                onClick={() => onCancel(id)}
-                                                disabled={disabled || id == null}
-                                            >
-                                                {disabled ? "..." : "Cancel"}
-                                            </Button>
+                                            {canCancel ? (
+                                                <Button
+                                                    size="small"
+                                                    variant="outlined"
+                                                    color="warning"
+                                                    onClick={() => onCancel(id)}
+                                                    disabled={disabled || id == null}
+                                                >
+                                                    {disabled && actingAction === "cancel"
+                                                        ? "Folyamatban..."
+                                                        : "Lemondás"}
+                                                </Button>
+                                            ) : null}
 
                                             <Button
                                                 size="small"
@@ -173,7 +189,9 @@ export default function AdminBookingsPage() {
                                                 onClick={() => onDelete(id)}
                                                 disabled={disabled || id == null}
                                             >
-                                                {disabled ? "..." : "Delete"}
+                                                {disabled && actingAction === "delete"
+                                                    ? "Folyamatban..."
+                                                    : "Törlés"}
                                             </Button>
                                         </Stack>
                                     </Stack>

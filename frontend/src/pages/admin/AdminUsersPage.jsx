@@ -85,7 +85,7 @@ export default function AdminUsersPage() {
     }
 
     return (
-        <Container className={styles.page} maxWidth="md">
+        <Container className={styles.page} maxWidth="lg">
             <Stack spacing={2} className={styles.content}>
                 <div>
                     <span className={styles.adminBadge}>Admin</span>
