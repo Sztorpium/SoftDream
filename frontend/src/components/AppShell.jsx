@@ -27,7 +27,7 @@ function NavLink({ to, children, onClick, admin }) {
             to={to}
             underline="hover"
             onClick={onClick}
-            sx={{ fontWeight: 600, color: admin ? "error.main" : "inherit" }}
+            sx={{ fontWeight: 600, color: admin ? "secondary.dark" : "inherit" }}
         >
             {children}
         </Link>
@@ -195,7 +195,7 @@ export default function AppShell({ children }) {
                                 component={RouterLink}
                                 to={l.to}
                                 onClick={() => setOpen(false)}
-                                sx={l.admin ? { color: "error.main" } : undefined}
+                                sx={l.admin ? { color: "secondary.dark" } : undefined}
                             >
                                 <ListItemText primary={l.label} />
                             </ListItemButton>

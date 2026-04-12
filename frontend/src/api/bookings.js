@@ -1,7 +1,13 @@
 import { apiDelete, apiGet, apiPatch, apiPost } from "./client";
 
+function unwrapCollection(payload) {
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.content)) return payload.content;
+    return [];
+}
+
 export function getAllBookings() {
-    return apiGet("/api/bookings");
+    return apiGet("/api/bookings").then(unwrapCollection);
 }
 
 export function getMyBookings() {

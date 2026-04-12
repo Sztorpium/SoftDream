@@ -11,6 +11,7 @@ import {
     Container,
     Grid,
     MenuItem,
+    Slider,
     Stack,
     TextField,
     Typography,
@@ -42,7 +43,7 @@ export default function RoomsPage() {
     // filters
     const [q, setQ] = React.useState("");
     const [type, setType] = React.useState("ALL");
-    const [maxPrice, setMaxPrice] = React.useState(""); // number or empty
+    const [maxPrice, setMaxPrice] = React.useState(null);
     const [sort, setSort] = React.useState("RECOMMENDED"); // PRICE_ASC / PRICE_DESC
 
     React.useEffect(() => {
@@ -114,6 +115,30 @@ export default function RoomsPage() {
         };
     }, [rooms]);
 
+    const maxAvailablePrice = React.useMemo(() => {
+        const prices = rooms
+            .map((r) => Number(r.pricePerNight ?? r.price ?? r.nightlyPrice ?? 0))
+            .filter((p) => Number.isFinite(p) && p > 0);
+        if (prices.length === 0) return 100;
+        return Math.max(...prices);
+    }, [rooms]);
+
+    const maxSliderValue = React.useMemo(() => {
+        const rounded = Math.ceil(maxAvailablePrice / 1000) * 1000;
+        return Math.max(10000, rounded);
+    }, [maxAvailablePrice]);
+
+    const displayedMaxPrice = maxPrice ?? maxSliderValue;
+
+    const activeFilterCount = React.useMemo(() => {
+        let count = 0;
+        if (q.trim() !== "") count += 1;
+        if (type !== "ALL") count += 1;
+        if (maxPrice != null) count += 1;
+        if (sort !== "RECOMMENDED") count += 1;
+        return count;
+    }, [q, type, maxPrice, sort]);
+
     const roomTypes = React.useMemo(() => {
         const set = new Set();
         rooms.forEach((r) => {
@@ -125,7 +150,7 @@ export default function RoomsPage() {
 
     const filtered = React.useMemo(() => {
         const qLower = q.trim().toLowerCase();
-        const mp = maxPrice === "" ? null : Number(maxPrice);
+        const mp = maxPrice == null ? null : Number(maxPrice);
 
         let list = rooms.filter((r) => {
             const name = String(r.name ?? r.title ?? "").toLowerCase();
@@ -158,66 +183,119 @@ export default function RoomsPage() {
                         Szobák
                     </Typography>
                     <Typography variant="body2" className={styles.pageSubtitle}>
-                        Keress, szűrj és válassz szobát.
+                        Böngéssz a szobák között, állítsd be a szűrőket, és találd meg a legjobb ajánlatot.
                     </Typography>
                 </Box>
 
                 {/* Filters */}
                 <Card variant="outlined" className={styles.filterCard}>
                     <CardContent>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} md={5}>
-                                <TextField
-                                    label="Keresés"
-                                    value={q}
-                                    onChange={(e) => setQ(e.target.value)}
-                                    fullWidth
-                                />
+                        <Grid container spacing={2} className={styles.filterGrid}>
+                            <Grid size={{ xs: 12, md: 4 }}>
+                                <Box className={styles.filterItem}>
+                                    <Typography variant="caption" className={styles.fieldLabel}>Keresés</Typography>
+                                    <TextField
+                                        value={q}
+                                        onChange={(e) => setQ(e.target.value)}
+                                        placeholder="pl. deluxe, panoráma, családi"
+                                        size="small"
+                                        fullWidth
+                                    />
+                                </Box>
                             </Grid>
-                            <Grid item xs={12} md={3}>
-                                <TextField
-                                    label="Típus"
-                                    value={type}
-                                    onChange={(e) => setType(e.target.value)}
-                                    select
-                                    fullWidth
-                                >
-                                    {roomTypes.map((t) => (
-                                        <MenuItem key={t} value={t}>
-                                            {t === "ALL" ? "Összes" : t}
-                                        </MenuItem>
-                                    ))}
-                                </TextField>
+                            <Grid size={{ xs: 12, md: 2 }}>
+                                <Box className={styles.filterItem}>
+                                    <Typography variant="caption" className={styles.fieldLabel}>Típus</Typography>
+                                    <TextField
+                                        value={type}
+                                        onChange={(e) => setType(e.target.value)}
+                                        select
+                                        size="small"
+                                        fullWidth
+                                    >
+                                        {roomTypes.map((t) => (
+                                            <MenuItem key={t} value={t}>
+                                                {t === "ALL" ? "Összes" : t}
+                                            </MenuItem>
+                                        ))}
+                                    </TextField>
+                                </Box>
                             </Grid>
-                            <Grid item xs={12} md={2}>
-                                <TextField
-                                    label="Max ár / éj"
-                                    value={maxPrice}
-                                    onChange={(e) => setMaxPrice(e.target.value)}
-                                    type="number"
-                                    fullWidth
-                                />
+                            <Grid size={{ xs: 12, md: 4 }}>
+                                <Box className={styles.filterItem}>
+                                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                                        <Typography variant="caption" className={styles.fieldLabel}>Max ár / éj</Typography>
+                                        <Typography variant="caption" className={styles.pricePreviewText}>
+                                            {formatPrice(displayedMaxPrice)}
+                                        </Typography>
+                                    </Stack>
+                                    <Box className={styles.priceFilterBlock}>
+                                        <Stack direction="row" spacing={1} alignItems="center" className={styles.priceControlRow}>
+                                            <Slider
+                                                min={0}
+                                                max={maxSliderValue}
+                                                step={1000}
+                                                value={displayedMaxPrice}
+                                                onChange={(_, value) => setMaxPrice(Number(value))}
+                                                valueLabelDisplay="auto"
+                                                valueLabelFormat={(value) => formatPrice(value)}
+                                                sx={{ flexGrow: 1 }}
+                                            />
+                                            <TextField
+                                                size="small"
+                                                type="number"
+                                                value={displayedMaxPrice}
+                                                onChange={(e) => {
+                                                    const raw = e.target.value;
+                                                    if (raw === "") {
+                                                        setMaxPrice(null);
+                                                        return;
+                                                    }
+                                                    const n = Number(raw);
+                                                    if (!Number.isFinite(n)) return;
+                                                    const clamped = Math.max(0, Math.min(maxSliderValue, n));
+                                                    setMaxPrice(clamped);
+                                                }}
+                                                inputProps={{ min: 0, max: maxSliderValue, step: 1000 }}
+                                                sx={{ width: 124 }}
+                                            />
+                                        </Stack>
+                                        <Typography variant="caption" className={styles.sliderHint}>
+                                            Tartomány: 0 – {formatPrice(maxSliderValue)}
+                                        </Typography>
+                                    </Box>
+                                </Box>
                             </Grid>
-                            <Grid item xs={12} md={2}>
-                                <TextField
-                                    label="Rendezés"
-                                    value={sort}
-                                    onChange={(e) => setSort(e.target.value)}
-                                    select
-                                    fullWidth
-                                >
-                                    <MenuItem value="RECOMMENDED">Ajánlott</MenuItem>
-                                    <MenuItem value="PRICE_ASC">Ár ↑</MenuItem>
-                                    <MenuItem value="PRICE_DESC">Ár ↓</MenuItem>
-                                </TextField>
+                            <Grid size={{ xs: 12, md: 2 }}>
+                                <Box className={styles.filterItem}>
+                                    <Typography variant="caption" className={styles.fieldLabel}>Rendezés</Typography>
+                                    <TextField
+                                        value={sort}
+                                        onChange={(e) => setSort(e.target.value)}
+                                        select
+                                        size="small"
+                                        fullWidth
+                                    >
+                                        <MenuItem value="RECOMMENDED">Ajánlott</MenuItem>
+                                        <MenuItem value="PRICE_ASC">Ár ↑</MenuItem>
+                                        <MenuItem value="PRICE_DESC">Ár ↓</MenuItem>
+                                    </TextField>
+                                </Box>
                             </Grid>
                         </Grid>
 
                         <Box className={styles.chipRow}>
                             <Chip label={`Összes: ${rooms.length}`} variant="outlined" />
                             <Chip label={`Találat: ${filtered.length}`} color="primary" variant="outlined" />
-                            <Button size="small" onClick={() => { setQ(""); setType("ALL"); setMaxPrice(""); setSort("RECOMMENDED"); }}>
-                                Reset
+                            {activeFilterCount > 0 && (
+                                <Chip label={`Aktív szűrők: ${activeFilterCount}`} color="secondary" variant="outlined" />
+                            )}
+                            <Button
+                                size="small"
+                                variant="outlined"
+                                onClick={() => { setQ(""); setType("ALL"); setMaxPrice(null); setSort("RECOMMENDED"); }}
+                            >
+                                Szűrők törlése
                             </Button>
                         </Box>
                     </CardContent>
@@ -229,9 +307,15 @@ export default function RoomsPage() {
                         <CircularProgress />
                     </Box>
                 ) : error ? (
-                    <Typography color="error">{error}</Typography>
+                    <Box className={styles.stateBox}>
+                        <Typography color="error" fontWeight={700}>Hiba történt</Typography>
+                        <Typography color="error">{error}</Typography>
+                    </Box>
                 ) : filtered.length === 0 ? (
-                    <Typography sx={{ opacity: 0.8 }}>Nincs találat a szűrőkre.</Typography>
+                    <Box className={styles.stateBox}>
+                        <Typography sx={{ fontWeight: 700 }}>Nincs találat</Typography>
+                        <Typography sx={{ opacity: 0.82 }}>Próbálj lazább szűrőket vagy töröld a beállításokat.</Typography>
+                    </Box>
                 ) : (
                     <Grid container spacing={2} className={`${styles.list} ${styles.roomGrid}`}>
                         {filtered.map((r) => {
@@ -244,7 +328,7 @@ export default function RoomsPage() {
                                     : (id != null ? roomAverageRatings[String(id)] : null);
 
                             return (
-                                <Grid item key={id ?? JSON.stringify(r)} xs={12} sm={6} md={4} className={styles.roomGridItem}>
+                                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={id ?? JSON.stringify(r)} className={styles.roomGridItem}>
                                     <Card variant="outlined" className={styles.roomCard}>
                                         <CardMedia
                                             component="img"
@@ -254,7 +338,7 @@ export default function RoomsPage() {
                                             className={styles.roomCardImg}
                                         />
                                         <CardContent className={styles.roomCardContent}>
-                                            <Stack spacing={1}>
+                                            <Stack spacing={1.2}>
                                                 <Box className={styles.roomHeaderRow}>
                                                     <Typography variant="h6" className={styles.roomName}>
                                                         {r.name ?? `Szoba #${id ?? "?"}`}
