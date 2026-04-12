@@ -16,8 +16,8 @@ import java.util.List;
 
 /**
  * Idempotent database seeder that runs on every application startup.
- * Inserts reference data (roles, room statuses, room types, rooms) and an
- * admin user only when each table is still empty, making it safe for both
+ * Inserts reference data (roles, room statuses, room types, rooms) and the
+ * demo authentication accounts only when needed, making it safe for both
  * fresh deployments and repeated restarts.
  *
  * <p>Configure the admin password via the {@code ADMIN_PASSWORD} environment variable.
@@ -57,6 +57,7 @@ public class DataInitializerService implements ApplicationRunner {
         initRoomTypes();
         initRooms();
         initAdminUser();
+        initDemoUsers();
     }
 
     private void warnIfDefaultAdminPassword() {
@@ -169,5 +170,34 @@ public class DataInitializerService implements ApplicationRunner {
                 .role(adminRole)
                 .build();
         userAuthRepository.save(adminAuth);
+    }
+
+    private void initDemoUsers() {
+        Role userRole = roleRepository.findByName("USER").orElseThrow();
+
+        seedUser("john_doe", "john.doe@gmail.com", "+36301234567", userRole, "user123");
+        seedUser("jane_smith", "jane.smith@gmail.com", "+36302234567", userRole, "user123");
+        seedUser("peter_kovacs", "peter.kovacs@gmail.com", "+36303234567", userRole, "user123");
+        seedUser("maria_szabo", "maria.szabo@gmail.com", "+36304234567", userRole, "user123");
+    }
+
+    private void seedUser(String username, String email, String phone, Role role, String rawPassword) {
+        if (userRepository.existsByUsername(username) || userRepository.existsByEmail(email)) {
+            return;
+        }
+
+        User user = User.builder()
+                .username(username)
+                .email(email)
+                .phone(phone)
+                .build();
+        userRepository.save(user);
+
+        UserAuth userAuth = UserAuth.builder()
+                .user(user)
+                .passwordHash(passwordEncoder.encode(rawPassword))
+                .role(role)
+                .build();
+        userAuthRepository.save(userAuth);
     }
 }
