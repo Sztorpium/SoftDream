@@ -94,7 +94,7 @@ export default function AdminBookingsPage() {
 
     return (
         <Container className={styles.page} maxWidth="md">
-            <Stack spacing={2}>
+            <Stack spacing={2} className={styles.content}>
                 <div>
                     <span className={styles.adminBadge}>Admin</span>
                 </div>
@@ -111,7 +111,7 @@ export default function AdminBookingsPage() {
                 ) : bookings.length === 0 ? (
                     <Typography color="text.secondary">Nincs foglalás.</Typography>
                 ) : (
-                    <Stack spacing={2}>
+                    <Stack spacing={2} className={styles.list}>
                         {bookings.map((b) => {
                             const id = b.id ?? b.bookingId;
                             const status = b.status ?? "—";

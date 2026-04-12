@@ -2,6 +2,16 @@
     padding: 32px 0;
 }
 
+.content {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.list {
+    width: 100%;
+}
+
 @media (max-width: 600px) {
     .page {
         padding: 16px 0;
@@ -15,6 +25,7 @@
 }
 
 .bookingCard {
+    width: 100%;
     padding: 16px;
     transition: box-shadow 0.2s ease;
 }

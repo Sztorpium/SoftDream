@@ -101,8 +101,8 @@ export default function RoomsPage() {
     }, [rooms, q, type, maxPrice, sort]);
 
     return (
-        <Container className={styles.page}>
-            <Stack spacing={2}>
+        <Container className={styles.page} maxWidth="xl">
+            <Stack spacing={2} className={styles.content}>
                 <Box>
                     <Typography variant="h4" component="h1">
                         Szobák
@@ -183,14 +183,14 @@ export default function RoomsPage() {
                 ) : filtered.length === 0 ? (
                     <Typography sx={{ opacity: 0.8 }}>Nincs találat a szűrőkre.</Typography>
                 ) : (
-                    <Grid container spacing={2}>
+                    <Grid container spacing={2} className={`${styles.list} ${styles.roomGrid}`}>
                         {filtered.map((r) => {
                             const id = r.id ?? r.roomId;
                             const price = r.pricePerNight ?? r.price ?? r.nightlyPrice;
                             const rating = r.avgRating ?? r.ratingAvg ?? r.rating ?? 0;
 
                             return (
-                                <Grid item key={id ?? JSON.stringify(r)} xs={12} sm={6} md={4}>
+                                <Grid item key={id ?? JSON.stringify(r)} xs={12} sm={6} md={4} className={styles.roomGridItem}>
                                     <Card variant="outlined" className={styles.roomCard}>
                                         <CardMedia
                                             component="img"

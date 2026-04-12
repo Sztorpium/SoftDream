@@ -201,9 +201,9 @@ export default function AboutPage() {
 
                 {/* ── Stats ────────────────────────────────────────── */}
                 <Box>
-                    <Grid container spacing={2}>
+                    <Grid container spacing={2} className={styles.cardGrid}>
                         {STATS.map((s) => (
-                            <Grid item xs={6} md={3} key={s.label}>
+                            <Grid item xs={6} md={3} key={s.label} className={styles.cardGridItem}>
                                 <StatCard icon={s.icon} value={s.value} label={s.label} />
                             </Grid>
                         ))}
@@ -258,9 +258,9 @@ export default function AboutPage() {
                         Miért válasszon minket?
                     </Typography>
                     <Divider sx={{ mb: 3 }} />
-                    <Grid container spacing={2}>
+                    <Grid container spacing={2} className={styles.cardGrid}>
                         {FEATURES.map((f) => (
-                            <Grid item xs={12} sm={6} md={4} key={f.title}>
+                            <Grid item xs={12} sm={6} md={4} key={f.title} className={styles.cardGridItem}>
                                 <FeatureCard icon={f.icon} title={f.title} text={f.text} />
                             </Grid>
                         ))}
@@ -273,9 +273,9 @@ export default function AboutPage() {
                         Értékeink
                     </Typography>
                     <Divider sx={{ mb: 3 }} />
-                    <Grid container spacing={2}>
+                    <Grid container spacing={2} className={styles.cardGrid}>
                         {VALUES.map((v) => (
-                            <Grid item xs={12} md={4} key={v.title}>
+                            <Grid item xs={12} md={4} key={v.title} className={styles.cardGridItem}>
                                 <ValueCard
                                     icon={v.icon}
                                     title={v.title}

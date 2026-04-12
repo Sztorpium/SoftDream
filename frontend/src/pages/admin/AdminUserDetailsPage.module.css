@@ -1,12 +1,25 @@
 .page {
     padding: 32px 0;
+}
+
+.content {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
     border-left: 4px solid rgba(211, 47, 47, 0.18);
     padding-left: 20px;
+}
+
+.list {
+    width: 100%;
 }
 
 @media (max-width: 600px) {
     .page {
         padding: 16px 0;
+    }
+
+    .content {
         padding-left: 12px;
     }
 }
@@ -38,11 +51,13 @@
 
 /* User info card */
 .infoCard {
+    width: 100%;
     padding: 16px;
 }
 
 /* Booking & Review items */
 .itemCard {
+    width: 100%;
     padding: 16px;
     transition: box-shadow 0.2s ease;
 }

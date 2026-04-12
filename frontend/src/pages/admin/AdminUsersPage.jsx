@@ -86,7 +86,7 @@ export default function AdminUsersPage() {
 
     return (
         <Container className={styles.page} maxWidth="md">
-            <Stack spacing={2}>
+            <Stack spacing={2} className={styles.content}>
                 <div>
                     <span className={styles.adminBadge}>Admin</span>
                 </div>
@@ -112,7 +112,7 @@ export default function AdminUsersPage() {
                         {search ? "Nincs találat." : "Nincs felhasználó."}
                     </Typography>
                 ) : (
-                    <Stack spacing={2}>
+                    <Stack spacing={2} className={styles.list}>
                         {filteredUsers.map((u) => {
                             const id = u.id ?? u.userId;
                             return (

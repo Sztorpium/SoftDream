@@ -27,8 +27,8 @@ const STATUS_COLOR = {
     CANCELLED: "error",
 };
 
-//only works when status is one of these and check-out date is in the past
-const REVIEWABLE_STATUSES = new Set(["PENDING", "CONFIRMED", "COMPLETED", "FINISHED"]);
+// review is allowed only for confirmed bookings and after checkout
+const REVIEWABLE_STATUSES = new Set(["CONFIRMED"]);
 
 function normalizeStatus(status) {
     return String(status ?? "")
@@ -156,27 +156,28 @@ export default function MyBookings() {
 
     return (
         <Container className={styles.page} maxWidth="md">
-            <Typography variant="h4" component="h1" gutterBottom>
-                Foglalásaim
-            </Typography>
+            <Stack spacing={2} className={styles.content}>
+                <Typography variant="h4" component="h1" gutterBottom>
+                    Foglalásaim
+                </Typography>
 
-            {loading && (
-                <Box className={styles.loadingBox}>
-                    <CircularProgress />
-                </Box>
-            )}
+                {loading && (
+                    <Box className={styles.loadingBox}>
+                        <CircularProgress />
+                    </Box>
+                )}
 
-            {!loading && error && (
-                <Typography color="error">{error}</Typography>
-            )}
+                {!loading && error && (
+                    <Typography color="error" align="center">{error}</Typography>
+                )}
 
-            {!loading && !error && bookings.length === 0 && (
-                <Typography color="text.secondary">Nincs aktív foglalás.</Typography>
-            )}
+                {!loading && !error && bookings.length === 0 && (
+                    <Typography color="text.secondary" align="center">Nincs aktív foglalás.</Typography>
+                )}
 
-            {!loading && !error && bookings.length > 0 && (
-                <Stack spacing={2}>
-                    {bookings.map((booking) => {
+                {!loading && !error && bookings.length > 0 && (
+                    <Stack spacing={2} className={styles.list}>
+                        {bookings.map((booking) => {
                         const canReview = canWriteReview(booking);
                         const roomId = getBookingRoomId(booking);
                         const checkIn = getBookingCheckIn(booking);
@@ -221,9 +222,10 @@ export default function MyBookings() {
                                 </Stack>
                             </Paper>
                         );
-                    })}
-                </Stack>
-            )}
+                        })}
+                    </Stack>
+                )}
+            </Stack>
             <Dialog open={!!reviewDialog} onClose={closeReviewDialog} maxWidth="sm" fullWidth>
                 <DialogTitle>
                     Értékelés – Szoba:{" "}

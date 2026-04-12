@@ -53,7 +53,7 @@ export default function MyReviewsPage() {
 
     return (
         <Container className={styles.page} maxWidth="md">
-            <Stack spacing={2}>
+            <Stack spacing={2} className={styles.content}>
                 <Typography variant="h4" component="h1">
                     Értékeléseim
                 </Typography>
@@ -65,9 +65,9 @@ export default function MyReviewsPage() {
                         <CircularProgress />
                     </Box>
                 ) : reviews.length === 0 ? (
-                    <Typography color="text.secondary">Még nincs értékelésed.</Typography>
+                    <Typography color="text.secondary" align="center">Még nincs értékelésed.</Typography>
                 ) : (
-                    <Stack spacing={2}>
+                    <Stack spacing={2} className={styles.list}>
                         {reviews.map((r) => (
                             <Paper key={r.id ?? r.reviewId ?? JSON.stringify(r)} className={styles.reviewCard}>
                                 <Stack spacing={0.5}>

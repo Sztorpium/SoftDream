@@ -82,7 +82,7 @@ export default function AdminUserDetailsPage() {
     }
     return (
         <Container className={styles.page} maxWidth="md">
-            <Stack spacing={3}>
+            <Stack spacing={3} className={styles.content}>
                 <div>
                     <span className={styles.adminBadge}>Admin</span>
                 </div>
@@ -129,7 +129,7 @@ export default function AdminUserDetailsPage() {
                         {bookings.length === 0 ? (
                             <Typography color="text.secondary">Nincs foglalás.</Typography>
                         ) : (
-                            <Stack spacing={2}>
+                            <Stack spacing={2} className={styles.list}>
                                 {bookings.map((b) => {
                                     const id = b.bookingId ?? b.id;
                                     const status = b.status ?? "—";
@@ -184,7 +184,7 @@ export default function AdminUserDetailsPage() {
                         {reviews.length === 0 ? (
                             <Typography color="text.secondary">Nincs értékelés.</Typography>
                         ) : (
-                            <Stack spacing={2}>
+                            <Stack spacing={2} className={styles.list}>
                                 {reviews.map((r) => {
                                     const id = r.reviewId ?? r.id;
                                     return (

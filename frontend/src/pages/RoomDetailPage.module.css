@@ -2,6 +2,12 @@
     padding: 32px 0;
 }
 
+.content {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
 @media (max-width: 600px) {
     .page {
         padding: 16px 0;
@@ -16,6 +22,7 @@
 
 /* Main room card */
 .roomCard {
+    width: 100%;
     transition: box-shadow 0.2s ease;
 }
 
@@ -44,10 +51,16 @@
 
 /* Reviews card */
 .reviewsCard {
+    width: 100%;
     transition: box-shadow 0.2s ease;
 }
 
+.reviewsList {
+    width: 100%;
+}
+
 .reviewItem {
+    width: 100%;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     padding-bottom: 8px;
 }

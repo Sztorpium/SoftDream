@@ -76,7 +76,7 @@ export default function RoomDetailPage() {
 
     return (
         <Container className={styles.page} maxWidth="md">
-            <Stack spacing={2}>
+            <Stack spacing={2} className={styles.content}>
                 <Button component={RouterLink} to="/rooms" size="small">
                     ← Vissza a szobákhoz
                 </Button>
@@ -182,7 +182,7 @@ export default function RoomDetailPage() {
                                         Ehhez a szobához még nincs értékelés.
                                     </Typography>
                                 ) : (
-                                    <Stack spacing={1.5}>
+                                    <Stack spacing={1.5} className={styles.reviewsList}>
                                         {reviews.map((r) => (
                                             <Box
                                                 key={r.id ?? r.reviewId ?? JSON.stringify(r)}
