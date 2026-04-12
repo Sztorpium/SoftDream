@@ -1,6 +1,7 @@
 package hu.softdream.config;
 
 import hu.softdream.entity.*;
+import hu.softdream.entity.enums.BookingStatus;
 import hu.softdream.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -37,6 +39,8 @@ public class DataInitializerService implements ApplicationRunner {
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
     private final UserAuthRepository userAuthRepository;
+    private final BookingRepository bookingRepository;
+    private final ReviewRepository reviewRepository;
     private final PasswordEncoder passwordEncoder;
 
     /** Admin password for the seeded admin account. Set ADMIN_PASSWORD env var in production. */
@@ -58,6 +62,8 @@ public class DataInitializerService implements ApplicationRunner {
         initRooms();
         initAdminUser();
         initDemoUsers();
+        initDemoReviews();
+        initDemoBookings();
     }
 
     private void warnIfDefaultAdminPassword() {
@@ -199,5 +205,58 @@ public class DataInitializerService implements ApplicationRunner {
                 .role(role)
                 .build();
         userAuthRepository.save(userAuth);
+    }
+
+    private void initDemoReviews() {
+        seedReview("john_doe", "103", 5, "Fantasztikus szoba! Nagyon tiszta és kényelmes. Az ágyon volt egy fürdőköpeny.");
+        seedReview("jane_smith", "105", 4, "Jó szoba, kicsit zsúfolt volt, de az ár érte megfelel.");
+        seedReview("peter_kovacs", "101", 5, "Egyágyas szobák ritkán ilyen jók. Nagyobb mint vártam!");
+        seedReview("john_doe", "105", 4, "Hármas szoba jó áron. Ajánlom!");
+    }
+
+    private void seedReview(String username, String roomNumber, int rating, String comment) {
+        User user = userRepository.findByUsername(username).orElse(null);
+        Room room = roomRepository.findByRoomNumber(roomNumber).orElse(null);
+        if (user == null || room == null) {
+            return;
+        }
+        if (reviewRepository.existsByUser_UserIdAndRoom_RoomId(user.getUserId(), room.getRoomId())) {
+            return;
+        }
+
+        Review review = Review.builder()
+                .user(user)
+                .room(room)
+                .rating(rating)
+                .comment(comment)
+                .build();
+        reviewRepository.save(review);
+    }
+
+    private void initDemoBookings() {
+        seedBooking("john_doe", "101", LocalDate.of(2026, 3, 25), LocalDate.of(2026, 3, 26), BookingStatus.PENDING);
+        seedBooking("john_doe", "103", LocalDate.of(2026, 4, 4), LocalDate.of(2026, 4, 7), BookingStatus.CONFIRMED);
+        seedBooking("jane_smith", "105", LocalDate.of(2026, 3, 27), LocalDate.of(2026, 3, 29), BookingStatus.CONFIRMED);
+        seedBooking("peter_kovacs", "102", LocalDate.of(2026, 4, 2), LocalDate.of(2026, 4, 4), BookingStatus.PENDING);
+    }
+
+    private void seedBooking(String username, String roomNumber, LocalDate checkIn, LocalDate checkOut, BookingStatus status) {
+        User user = userRepository.findByUsername(username).orElse(null);
+        Room room = roomRepository.findByRoomNumber(roomNumber).orElse(null);
+        if (user == null || room == null) {
+            return;
+        }
+        if (!bookingRepository.findByUser_UserIdAndRoom_RoomId(user.getUserId(), room.getRoomId()).isEmpty()) {
+            return;
+        }
+
+        Booking booking = Booking.builder()
+                .user(user)
+                .room(room)
+                .checkIn(checkIn)
+                .checkOut(checkOut)
+                .status(status)
+                .build();
+        bookingRepository.save(booking);
     }
 }

@@ -4,6 +4,7 @@ import hu.softdream.entity.enums.BookingStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -46,6 +47,7 @@ public class Booking {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
+    @Default
     private BookingStatus status = BookingStatus.PENDING;
 
     @CreationTimestamp
