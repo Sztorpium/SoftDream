@@ -2,6 +2,7 @@ package hu.softdream.controller;
 
 import hu.softdream.dto.response.UserResponse;
 import hu.softdream.dto.request.PasswordChangeRequest;
+import hu.softdream.dto.request.ProfileUpdateRequest;
 import hu.softdream.dto.request.PasswordVerifyRequest;
 import hu.softdream.exception.BadRequestException;
 import hu.softdream.security.CustomUserDetails;
@@ -61,6 +62,14 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails principal) {
         userService.changeCurrentPassword(principal.getUserId(), request);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/me")
+    @Operation(summary = "Update current user profile")
+    public ResponseEntity<UserResponse> updateCurrentUserProfile(
+            @Valid @RequestBody ProfileUpdateRequest request,
+            @AuthenticationPrincipal CustomUserDetails principal) {
+        return ResponseEntity.ok(userService.updateCurrentUserProfile(principal.getUserId(), request));
     }
 
     @GetMapping("/{userId}")

@@ -30,6 +30,10 @@ export function changeMyPassword(data) {
     return apiPut("/api/users/me/password", data);
 }
 
+export function updateMyProfile(data) {
+    return apiPut("/api/users/me", data);
+}
+
 export function deleteUser(userId) {
     return apiDelete(`/api/users/${userId}`);
 }

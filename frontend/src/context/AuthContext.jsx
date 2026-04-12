@@ -46,6 +46,23 @@ export function AuthProvider({ children }) {
         return nextAuth;
     }, []);
 
+    const updateCurrentUser = React.useCallback((updates) => {
+        setAuth((prev) => {
+            if (!prev.user) return prev;
+
+            const nextAuth = {
+                ...prev,
+                user: {
+                    ...prev.user,
+                    ...updates,
+                },
+            };
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(nextAuth));
+            return nextAuth;
+        });
+    }, []);
+
     const login = React.useCallback(
         async ({ username, password }) => {
             const response = await authApi.login({ username, password });
@@ -76,8 +93,9 @@ export function AuthProvider({ children }) {
             login,
             register,
             logout,
+            updateCurrentUser,
         }),
-        [user, token, isAdmin, loading, login, register, logout]
+        [user, token, isAdmin, loading, login, register, logout, updateCurrentUser]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

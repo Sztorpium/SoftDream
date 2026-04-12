@@ -1,6 +1,7 @@
 package hu.softdream.service;
 
 import hu.softdream.dto.request.PasswordChangeRequest;
+import hu.softdream.dto.request.ProfileUpdateRequest;
 import hu.softdream.dto.response.UserResponse;
 import hu.softdream.entity.User;
 import hu.softdream.entity.UserAuth;
@@ -67,6 +68,38 @@ public class UserService {
 
         userAuth.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
         userAuthRepository.save(userAuth);
+    }
+
+    @Transactional
+    public UserResponse updateCurrentUserProfile(Integer userId, ProfileUpdateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("A felhasználó nem található a megadott azonosítóval: " + userId));
+
+        UserAuth userAuth = userAuthRepository.findByUser_UserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("A felhasználó hitelesítése nem található."));
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), userAuth.getPasswordHash())) {
+            throw new BadRequestException("A megadott jelszó helytelen.");
+        }
+
+        String nextEmail = request.getEmail().trim();
+        String nextPhone = request.getPhone().trim();
+
+        boolean emailChanged = !user.getEmail().equals(nextEmail);
+        boolean phoneChanged = !user.getPhone().equals(nextPhone);
+
+        if (emailChanged && userRepository.existsByEmailAndUserIdNot(nextEmail, userId)) {
+            throw new BadRequestException("Ezzel az email címmel már regisztráltak fiókot!");
+        }
+        if (phoneChanged && userRepository.existsByPhoneAndUserIdNot(nextPhone, userId)) {
+            throw new BadRequestException("Ezzel a telefonszámmal már regisztráltak fiókot!");
+        }
+
+        user.setEmail(nextEmail);
+        user.setPhone(nextPhone);
+        userRepository.save(user);
+
+        return convertToResponse(user);
     }
 
     public void deleteUser(Integer userId, Integer requestingUserId) {

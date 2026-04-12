@@ -11,7 +11,7 @@ import {
     Typography,
 } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
-import { changeMyPassword, getMyProfile, verifyMyPassword } from "../api/users";
+import { changeMyPassword, getMyProfile, updateMyProfile, verifyMyPassword } from "../api/users";
 import styles from "./ProfilePage.module.css";
 
 function formatDate(value) {
@@ -25,14 +25,23 @@ function formatDate(value) {
 }
 
 export default function ProfilePage() {
-    const { user } = useAuth();
+    const { user, updateCurrentUser } = useAuth();
     const [profile, setProfile] = React.useState(null);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState("");
     const [unlockPassword, setUnlockPassword] = React.useState("");
     const [unlockError, setUnlockError] = React.useState("");
     const [unlocked, setUnlocked] = React.useState(false);
+    const [showDetails, setShowDetails] = React.useState(false);
     const [unlocking, setUnlocking] = React.useState(false);
+    const [profileForm, setProfileForm] = React.useState({
+        email: "",
+        phone: "",
+        currentPassword: "",
+    });
+    const [profileEditError, setProfileEditError] = React.useState("");
+    const [profileEditSuccess, setProfileEditSuccess] = React.useState("");
+    const [savingProfile, setSavingProfile] = React.useState(false);
     const [passwordForm, setPasswordForm] = React.useState({
         currentPassword: "",
         newPassword: "",
@@ -49,7 +58,13 @@ export default function ProfilePage() {
             setError("");
             try {
                 const data = await getMyProfile();
-                if (active) setProfile(data);
+                if (!active) return;
+                setProfile(data);
+                setProfileForm((prev) => ({
+                    ...prev,
+                    email: data?.email ?? "",
+                    phone: data?.phone ?? "",
+                }));
             } catch (err) {
                 if (active) setError(err?.message || "Nem sikerült betölteni a profilt.");
             } finally {
@@ -70,6 +85,7 @@ export default function ProfilePage() {
         try {
             await verifyMyPassword(unlockPassword);
             setUnlocked(true);
+            setShowDetails(true);
         } catch (err) {
             setUnlockError(err?.message || "Nem sikerült ellenőrizni a jelszót.");
         } finally {
@@ -83,6 +99,15 @@ export default function ProfilePage() {
             setPasswordForm((prev) => ({ ...prev, [field]: value }));
             setPasswordError("");
             setPasswordSuccess("");
+        };
+    }
+
+    function handleProfileEditChange(field) {
+        return (e) => {
+            const value = e.target.value;
+            setProfileForm((prev) => ({ ...prev, [field]: value }));
+            setProfileEditError("");
+            setProfileEditSuccess("");
         };
     }
 
@@ -111,6 +136,7 @@ export default function ProfilePage() {
             setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
             setUnlockPassword("");
             setUnlocked(false);
+            setShowDetails(false);
         } catch (err) {
             setPasswordError(err?.message || "Nem sikerült módosítani a jelszót.");
         } finally {
@@ -118,7 +144,56 @@ export default function ProfilePage() {
         }
     }
 
+    async function handleProfileSave(e) {
+        e.preventDefault();
+        setProfileEditError("");
+        setProfileEditSuccess("");
+
+        if (
+            profileForm.email.trim() === "" ||
+            profileForm.phone.trim() === "" ||
+            profileForm.currentPassword.trim() === ""
+        ) {
+            setProfileEditError("Az emailt, a telefonszámot és a jelszót is meg kell adni.");
+            return;
+        }
+
+        setSavingProfile(true);
+        try {
+            const updatedProfile = await updateMyProfile({
+                email: profileForm.email.trim(),
+                phone: profileForm.phone.trim(),
+                currentPassword: profileForm.currentPassword,
+            });
+            setProfile(updatedProfile);
+            setProfileForm((prev) => ({
+                ...prev,
+                email: updatedProfile?.email ?? prev.email,
+                phone: updatedProfile?.phone ?? prev.phone,
+                currentPassword: "",
+            }));
+            updateCurrentUser({ email: updatedProfile?.email, username: updatedProfile?.username });
+            setProfileEditSuccess("A profiladatok sikeresen frissítve lettek.");
+            setUnlockPassword("");
+            setUnlocked(false);
+            setShowDetails(false);
+        } catch (err) {
+            setProfileEditError(err?.message || "Nem sikerült frissíteni a profiladatokat.");
+        } finally {
+            setSavingProfile(false);
+        }
+    }
+
     const displayName = profile?.username || user?.username || "Profil";
+    const initials = displayName
+        .split(/\s+/)
+        .filter(Boolean)
+        .map((part) => part[0]?.toUpperCase())
+        .join("")
+        .slice(0, 2) || "SD";
+    const memberSince = profile?.createdAt ? formatDate(profile.createdAt) : "-";
+    const canReveal = unlocked;
+    const detailsVisible = unlocked && showDetails;
 
     return (
         <Container className={styles.page} maxWidth="lg">
@@ -131,8 +206,24 @@ export default function ProfilePage() {
                         {displayName}
                     </Typography>
                     <Typography className={styles.lead}>
-                        Itt látod a saját fiókadataidat, és innen tudod a jelszavadat is biztonságosan módosítani.
+                        Itt látod és módosíthatod a saját fiókadataidat. A személyes adatok csak jelszó ellenőrzés után jelennek meg.
                     </Typography>
+
+                    <Paper className={styles.identityCard}>
+                        <div className={styles.identityAvatar}>{initials}</div>
+                        <div>
+                            <Typography variant="h6" fontWeight={800}>
+                                {displayName}
+                            </Typography>
+                            <Typography variant="body2" className={styles.mutedText}>
+                                {profile?.role ?? "USER"} fiók
+                            </Typography>
+                        </div>
+                        <div className={styles.identityMeta}>
+                            <span className={styles.metaPill}>Tag óta: {memberSince}</span>
+                            <span className={styles.metaPill}>{detailsVisible ? "Privát nézet: nyitott" : "Privát nézet: zárt"}</span>
+                        </div>
+                    </Paper>
                 </Box>
 
                 {error ? <Alert severity="error">{error}</Alert> : null}
@@ -143,7 +234,7 @@ export default function ProfilePage() {
                             Profil feloldása
                         </Typography>
                         <Typography variant="body2" className={styles.mutedText}>
-                            A személyes adatok megjelenítéséhez írd be a jelenlegi jelszavadat. A jelszavadat soha nem jelenítjük meg, csak a hozzáférést ellenőrizzük.
+                            A személyes adatok megjelenítéséhez írd be a jelenlegi jelszavadat. Utána külön meg tudod mutatni vagy el tudod rejteni az adatokat.
                         </Typography>
 
                         <Box component="form" onSubmit={handleUnlock} className={styles.unlockForm}>
@@ -171,10 +262,20 @@ export default function ProfilePage() {
                                     Fiókadatok
                                 </Typography>
                                 <Typography variant="body2" className={styles.mutedText}>
-                                    A jelszót biztonsági okból nem lehet megjeleníteni, de a többi adat az ellenőrzés után látható.
+                                    A jelszót biztonsági okból nem lehet megjeleníteni, de a többi adat csak feloldás után látható.
                                 </Typography>
                             </Box>
-                            <Box className={styles.statusPill}>{unlocked ? "Feloldva" : "Zárolva"}</Box>
+                            <Stack direction="row" gap={1} alignItems="center" flexWrap="wrap" justifyContent="flex-end">
+                                <Box className={styles.statusPill}>{detailsVisible ? "Látható" : canReveal ? "Feloldva" : "Zárolva"}</Box>
+                                <Button
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={() => setShowDetails((prev) => !prev)}
+                                    disabled={!canReveal}
+                                >
+                                    {detailsVisible ? "Adatok elrejtése" : "Adatok megjelenítése"}
+                                </Button>
+                            </Stack>
                         </Stack>
 
                         <Divider />
@@ -189,11 +290,11 @@ export default function ProfilePage() {
                                 </div>
                                 <div>
                                     <span className={styles.fieldLabel}>Email</span>
-                                    <span className={styles.fieldValue}>{unlocked ? profile?.email ?? "-" : "••••••••"}</span>
+                                    <span className={styles.fieldValue}>{detailsVisible ? profile?.email ?? "-" : "••••••••"}</span>
                                 </div>
                                 <div>
                                     <span className={styles.fieldLabel}>Telefonszám</span>
-                                    <span className={styles.fieldValue}>{unlocked ? profile?.phone ?? "-" : "••••••••"}</span>
+                                    <span className={styles.fieldValue}>{detailsVisible ? profile?.phone ?? "-" : "••••••••"}</span>
                                 </div>
                                 <div>
                                     <span className={styles.fieldLabel}>Szerepkör</span>
@@ -201,13 +302,64 @@ export default function ProfilePage() {
                                 </div>
                                 <div>
                                     <span className={styles.fieldLabel}>Regisztráció ideje</span>
-                                    <span className={styles.fieldValue}>{unlocked ? formatDate(profile?.createdAt) : "••••••••"}</span>
+                                    <span className={styles.fieldValue}>{detailsVisible ? formatDate(profile?.createdAt) : "••••••••"}</span>
                                 </div>
                                 <div>
                                     <span className={styles.fieldLabel}>Jelszó</span>
                                     <span className={styles.fieldValue}>Nem jeleníthető meg, csak módosítható.</span>
                                 </div>
                             </Box>
+                        )}
+                    </Stack>
+                </Paper>
+
+                <Paper className={styles.profileCard}>
+                    <Stack spacing={2} component="form" onSubmit={handleProfileSave}>
+                        <Box>
+                            <Typography variant="h6" fontWeight={800}>
+                                Profilbeállítások
+                            </Typography>
+                            <Typography variant="body2" className={styles.mutedText}>
+                                Az email és telefonszám módosításához add meg a jelenlegi jelszavadat. Ez a rész a feloldás után használható.
+                            </Typography>
+                        </Box>
+
+                        {profileEditError ? <Alert severity="error">{profileEditError}</Alert> : null}
+                        {profileEditSuccess ? <Alert severity="success">{profileEditSuccess}</Alert> : null}
+
+                        {unlocked ? (
+                            <>
+                                <TextField
+                                    label="Email"
+                                    type="email"
+                                    value={profileForm.email}
+                                    onChange={handleProfileEditChange("email")}
+                                    fullWidth
+                                    autoComplete="email"
+                                />
+                                <TextField
+                                    label="Telefonszám"
+                                    type="tel"
+                                    value={profileForm.phone}
+                                    onChange={handleProfileEditChange("phone")}
+                                    fullWidth
+                                    autoComplete="tel"
+                                />
+                                <TextField
+                                    label="Jelenlegi jelszó"
+                                    type="password"
+                                    value={profileForm.currentPassword}
+                                    onChange={handleProfileEditChange("currentPassword")}
+                                    fullWidth
+                                    autoComplete="current-password"
+                                />
+
+                                <Button type="submit" variant="contained" disabled={savingProfile}>
+                                    {savingProfile ? "Mentés..." : "Profil mentése"}
+                                </Button>
+                            </>
+                        ) : (
+                            <Alert severity="info">Oldd fel a profilt, hogy módosítani tudd az email címet és a telefonszámot.</Alert>
                         )}
                     </Stack>
                 </Paper>
