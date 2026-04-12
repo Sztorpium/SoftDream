@@ -1,0 +1,91 @@
+.page {
+    padding: 32px 0;
+}
+
+.content {
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+}
+
+.headerBlock {
+    padding: 4px 4px 0;
+}
+
+.kicker {
+    color: #8fc8ff;
+    letter-spacing: 0.22em;
+    font-weight: 800;
+}
+
+.lead {
+    max-width: 720px;
+    color: rgba(233, 239, 255, 0.78);
+}
+
+.heroCard,
+.profileCard {
+    width: 100%;
+    padding: 20px;
+}
+
+.unlockForm {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.mutedText {
+    color: rgba(233, 239, 255, 0.74);
+}
+
+.statusPill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(78, 168, 255, 0.16);
+    color: #8fc8ff;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 20px;
+}
+
+.fieldLabel {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(167, 182, 215, 0.92);
+    margin-bottom: 6px;
+}
+
+.fieldValue {
+    display: block;
+    font-weight: 700;
+    color: #e9efff;
+    word-break: break-word;
+}
+
+@media (max-width: 700px) {
+    .page {
+        padding: 16px 0;
+    }
+
+    .unlockForm,
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .heroCard,
+    .profileCard {
+        padding: 16px;
+    }
+}

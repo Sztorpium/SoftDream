@@ -53,6 +53,7 @@ export default function AppShell({ children }) {
     ];
 
     const authedLinks = [
+        { label: "Profilom", to: "/profile" },
         { label: "Foglalásaim", to: "/my-bookings" },
         { label: "Értékeléseim", to: "/my-reviews" },
     ];
@@ -135,9 +136,16 @@ export default function AppShell({ children }) {
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1, ml: "auto" }}>
                         {isAuthenticated ? (
                             <>
-                                <Typography variant="body2" sx={{ opacity: 0.9, display: { xs: "none", sm: "block" } }}>
+                                <Button
+                                    component={RouterLink}
+                                    to="/profile"
+                                    color="inherit"
+                                    size="small"
+                                    variant="outlined"
+                                    sx={{ borderColor: "rgba(255,255,255,0.45)" }}
+                                >
                                     {user?.username}
-                                </Typography>
+                                </Button>
                                 <Button color="inherit" size="small" onClick={onLogout}>
                                     Kilépés
                                 </Button>

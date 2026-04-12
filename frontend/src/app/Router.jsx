@@ -6,6 +6,7 @@ import AboutPage from "../pages/AboutPage";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import MyBookingsPage from "../pages/MyBookingsPage";
+import ProfilePage from "../pages/ProfilePage";
 import NotFound from "../pages/NotFound";
 import ProtectedRoute from "../components/ProtectedRoute";
 import RoomsPage from "../pages/RoomsPage";
@@ -36,6 +37,7 @@ export default function AppRouter() {
 
                 {/* Protected routes */}
                 <Route element={<ProtectedRoute />}>
+                    <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/my-bookings" element={<MyBookingsPage />} />
                     <Route path="/my-reviews" element={<MyReviewsPage />} />
                     <Route path="/bookings/new" element={<NewBookingPage />} />
