@@ -75,7 +75,11 @@ export default function AppShell({ children }) {
 
     return (
         <Box className={styles.root}>
-            <AppBar position="sticky" elevation={0} sx={{ borderBottom: "1px solid rgba(255,255,255,0.18)" }}>
+            <AppBar
+                position="sticky"
+                elevation={0}
+                sx={{ borderBottom: (theme) => `1px solid ${theme.palette.divider}` }}
+            >
                 <Toolbar sx={{ gap: 2 }}>
                     {/* Mobile hamburger */}
                     <IconButton
