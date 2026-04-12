@@ -40,7 +40,7 @@ export const theme = createTheme({
         info: { main: "#57c7ff", dark: "#2f8fbe", light: "#8fdcff", contrastText: "#061523" },
         success: { main: "#47d7a1", dark: "#2ea97c", light: "#78e7bc", contrastText: "#051912" },
         warning: { main: "#ffc46b", dark: "#cc9648", light: "#ffd79a", contrastText: "#221404" },
-        error: { main: "#ff7f8f", dark: "#d45d6d", light: "#ffadb7", contrastText: "#28060c" },
+        error: { main: "#ff6f86", dark: "#cc4e63", light: "#ffa7b5", contrastText: "#2a0810" },
         background: {
             default: "#0b1220",
             paper: "#111b2f",
@@ -178,6 +178,49 @@ export const theme = createTheme({
                 outlinedPrimary: {
                     borderColor: "rgba(78, 168, 255, 0.6)",
                 },
+                outlinedError: {
+                    borderColor: "rgba(255, 111, 134, 0.6)",
+                    color: "#ffc0cb",
+                    "&:hover": {
+                        borderColor: "rgba(255, 143, 161, 0.82)",
+                        backgroundColor: "rgba(255, 111, 134, 0.14)",
+                    },
+                },
+                containedError: {
+                    backgroundImage: "linear-gradient(180deg, #ff90a3 0%, #ff6f86 100%)",
+                    color: "#2a0810",
+                },
+            },
+        },
+        MuiAlert: {
+            styleOverrides: {
+                root: {
+                    borderRadius: 12,
+                    backdropFilter: "blur(2px)",
+                },
+                standardError: {
+                    backgroundColor: "rgba(66, 48, 16, 0.72)",
+                    color: "#ffe9c7",
+                    border: "1px solid rgba(255, 196, 107, 0.46)",
+                    "& .MuiAlert-icon": {
+                        color: "#ffd79a",
+                    },
+                    "& .MuiAlert-action .MuiButton-root": {
+                        color: "#ffe0bc",
+                    },
+                },
+                outlinedError: {
+                    color: "#ffe9c7",
+                    border: "1px solid rgba(255, 196, 107, 0.58)",
+                    backgroundColor: "rgba(40, 30, 10, 0.5)",
+                    "& .MuiAlert-icon": {
+                        color: "#ffd79a",
+                    },
+                },
+                filledError: {
+                    color: "#221404",
+                    background: "linear-gradient(180deg, #ffd69a 0%, #ffc46b 100%)",
+                },
             },
         },
         MuiChip: {
@@ -209,8 +252,8 @@ export const theme = createTheme({
                     backgroundColor: "#ffd79a",
                 },
                 filledError: {
-                    color: "#28060c",
-                    backgroundColor: "#ffadb7",
+                    color: "#2a0810",
+                    backgroundColor: "#ffa7b5",
                 },
             },
         },
@@ -232,7 +275,7 @@ export const theme = createTheme({
                     color: "#ffd79a",
                 },
                 colorError: {
-                    color: "#ffadb7",
+                    color: "#ffa7b5",
                 },
                 colorInfo: {
                     color: "#8fdcff",

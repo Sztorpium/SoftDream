@@ -18,6 +18,38 @@ function getToken() {
     return auth?.token ?? null;
 }
 
+function parseErrorBody(body) {
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+        return { message: null, fields: null };
+    }
+
+    const directMessage =
+        body?.message ??
+        body?.error ??
+        (Array.isArray(body?.errors) ? body.errors.join(", ") : null);
+
+    if (typeof directMessage === "string" && directMessage.trim() !== "") {
+        return { message: directMessage, fields: null };
+    }
+
+    const fields = {};
+    for (const [key, value] of Object.entries(body)) {
+        if (typeof value === "string" && value.trim() !== "") {
+            fields[key] = value;
+        }
+    }
+
+    const fieldMessages = Object.values(fields);
+    if (fieldMessages.length > 0) {
+        return {
+            message: fieldMessages.join(" "),
+            fields,
+        };
+    }
+
+    return { message: null, fields: null };
+}
+
 async function request(path, options = {}) {
     const baseUrl = getBaseUrl();
     const token = getToken();
@@ -49,15 +81,14 @@ async function request(path, options = {}) {
 
     if (!response.ok) {
         let message = response.statusText;
+        let fieldErrors = null;
 
         try {
             if (isJson) {
                 const body = await response.json();
-                message =
-                    body?.message ??
-                    body?.error ??
-                    (Array.isArray(body?.errors) ? body.errors.join(", ") : null) ??
-                    message;
+                const parsed = parseErrorBody(body);
+                message = parsed.message ?? message;
+                fieldErrors = parsed.fields;
             } else {
                 const text = await response.text();
                 if (text) message = text;
@@ -68,6 +99,9 @@ async function request(path, options = {}) {
 
         const error = new Error(message || `HTTP ${response.status}`);
         error.status = response.status;
+        if (fieldErrors) {
+            error.fields = fieldErrors;
+        }
         throw error;
     }
 

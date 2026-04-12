@@ -30,10 +30,17 @@ export default function Register() {
         password: false,
     });
     const [submitError, setSubmitError] = React.useState("");
+    const [serverFieldErrors, setServerFieldErrors] = React.useState({});
     const [isSubmitting, setIsSubmitting] = React.useState(false);
 
     function handleChange(field) {
-        return (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
+        return (e) => {
+            setForm((f) => ({ ...f, [field]: e.target.value }));
+            setServerFieldErrors((prev) => {
+                if (!prev[field]) return prev;
+                return { ...prev, [field]: undefined };
+            });
+        };
     }
 
     function handleBlur(field) {
@@ -43,18 +50,20 @@ export default function Register() {
     const errors = {
         username: touched.username && form.username.trim() === "",
         email: touched.email && form.email.trim() === "",
-        phone: false,
+        phone: touched.phone && form.phone.trim() === "",
         password: touched.password && form.password.trim() === "",
     };
 
     async function onSubmit(e) {
         e.preventDefault();
         setSubmitError("");
+        setServerFieldErrors({});
         setTouched({ username: true, email: true, phone: true, password: true });
 
         if (
             form.username.trim() === "" ||
             form.email.trim() === "" ||
+            form.phone.trim() === "" ||
             form.password.trim() === ""
         ) {
             return;
@@ -65,13 +74,13 @@ export default function Register() {
             const payload = {
                 username: form.username.trim(),
                 email: form.email.trim(),
+                phone: form.phone.trim(),
                 password: form.password,
             };
-            const phoneTrimmed = form.phone.trim();
-            if (phoneTrimmed) payload.phone = phoneTrimmed;
             await register(payload);
             navigate("/", { replace: true });
         } catch (err) {
+            setServerFieldErrors(err?.fields ?? {});
             setSubmitError(err?.message || "Sikertelen regisztráció.");
         } finally {
             setIsSubmitting(false);
@@ -96,8 +105,11 @@ export default function Register() {
                         onBlur={handleBlur("username")}
                         required
                         fullWidth
-                        error={errors.username}
-                        helperText={errors.username ? "A felhasználónév megadása kötelező." : " "}
+                        error={errors.username || Boolean(serverFieldErrors.username)}
+                        helperText={
+                            serverFieldErrors.username ||
+                            (errors.username ? "A felhasználónév megadása kötelező." : " ")
+                        }
                         autoComplete="username"
                         inputProps={{ "aria-label": "username" }}
                     />
@@ -110,8 +122,11 @@ export default function Register() {
                         onBlur={handleBlur("email")}
                         required
                         fullWidth
-                        error={errors.email}
-                        helperText={errors.email ? "Az email megadása kötelező." : " "}
+                        error={errors.email || Boolean(serverFieldErrors.email)}
+                        helperText={
+                            serverFieldErrors.email ||
+                            (errors.email ? "Az email megadása kötelező." : " ")
+                        }
                         autoComplete="email"
                         inputProps={{ "aria-label": "email" }}
                     />
@@ -122,8 +137,13 @@ export default function Register() {
                         value={form.phone}
                         onChange={handleChange("phone")}
                         onBlur={handleBlur("phone")}
+                        required
                         fullWidth
-                        helperText=" "
+                        error={errors.phone || Boolean(serverFieldErrors.phone)}
+                        helperText={
+                            serverFieldErrors.phone ||
+                            (errors.phone ? "A telefonszám megadása kötelező." : " ")
+                        }
                         autoComplete="tel"
                         inputProps={{ "aria-label": "phone" }}
                     />
@@ -136,8 +156,11 @@ export default function Register() {
                         onBlur={handleBlur("password")}
                         required
                         fullWidth
-                        error={errors.password}
-                        helperText={errors.password ? "A jelszó megadása kötelező." : " "}
+                        error={errors.password || Boolean(serverFieldErrors.password)}
+                        helperText={
+                            serverFieldErrors.password ||
+                            (errors.password ? "A jelszó megadása kötelező." : " ")
+                        }
                         autoComplete="new-password"
                         inputProps={{ "aria-label": "password" }}
                     />
