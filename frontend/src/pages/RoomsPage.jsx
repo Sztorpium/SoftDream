@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { getAllRooms } from "../api/rooms";
+import { getAverageRating } from "../api/reviews";
 import RatingStars from "../components/RatingStars";
 import { getRoomImage } from "../utils/roomImages";
 import styles from "./RoomsPage.module.css";
@@ -36,6 +37,7 @@ export default function RoomsPage() {
     const [rooms, setRooms] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState("");
+    const [roomAverageRatings, setRoomAverageRatings] = React.useState({});
 
     // filters
     const [q, setQ] = React.useState("");
@@ -63,6 +65,54 @@ export default function RoomsPage() {
             cancelled = true;
         };
     }, []);
+
+    React.useEffect(() => {
+        let cancelled = false;
+
+        async function loadAverageRatings() {
+            const roomIds = rooms
+                .map((r) => r.id ?? r.roomId)
+                .filter((id) => id != null);
+
+            if (roomIds.length === 0) {
+                setRoomAverageRatings({});
+                return;
+            }
+
+            const uniqueRoomIds = Array.from(new Set(roomIds));
+
+            try {
+                const entries = await Promise.all(
+                    uniqueRoomIds.map(async (roomId) => {
+                        const avgData = await getAverageRating(roomId);
+                        const avgValue =
+                            typeof avgData === "number"
+                                ? avgData
+                                : typeof avgData?.average === "number"
+                                    ? avgData.average
+                                    : typeof avgData?.value === "number"
+                                        ? avgData.value
+                                        : null;
+                        return [String(roomId), avgValue];
+                    })
+                );
+
+                if (!cancelled) {
+                    setRoomAverageRatings(Object.fromEntries(entries));
+                }
+            } catch {
+                if (!cancelled) {
+                    setRoomAverageRatings({});
+                }
+            }
+        }
+
+        loadAverageRatings();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [rooms]);
 
     const roomTypes = React.useMemo(() => {
         const set = new Set();
@@ -187,7 +237,11 @@ export default function RoomsPage() {
                         {filtered.map((r) => {
                             const id = r.id ?? r.roomId;
                             const price = r.pricePerNight ?? r.price ?? r.nightlyPrice;
-                            const rating = r.avgRating ?? r.ratingAvg ?? r.rating ?? 0;
+                            const directRating = r.avgRating ?? r.ratingAvg ?? r.rating;
+                            const rating =
+                                Number.isFinite(Number(directRating))
+                                    ? Number(directRating)
+                                    : (id != null ? roomAverageRatings[String(id)] : null);
 
                             return (
                                 <Grid item key={id ?? JSON.stringify(r)} xs={12} sm={6} md={4} className={styles.roomGridItem}>
@@ -213,9 +267,9 @@ export default function RoomsPage() {
                                                 </Box>
 
                                                 <Box className={styles.ratingRow}>
-                                                    <RatingStars value={rating} />
+                                                    <RatingStars value={rating ?? 0} size={18} />
                                                     <Typography variant="body2" className={styles.ratingText}>
-                                                        {Number(rating) ? Number(rating).toFixed(1) : "—"}
+                                                        {rating == null ? "Nincs értékelés" : Number(rating).toFixed(1)}
                                                     </Typography>
                                                 </Box>
 

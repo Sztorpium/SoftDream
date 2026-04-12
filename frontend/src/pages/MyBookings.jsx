@@ -18,7 +18,8 @@ import {
     Typography,
 } from "@mui/material";
 import { getMyBookings } from "../api/bookings";
-import { createReview } from "../api/reviews";
+import { createReview, getAverageRating } from "../api/reviews";
+import RatingStars from "../components/RatingStars";
 import styles from "./MyBookings.module.css";
 
 const STATUS_COLOR = {
@@ -73,6 +74,13 @@ function getBookingRoomId(booking) {
     return booking?.roomId ?? booking?.room?.id ?? booking?.room?.roomId ?? null;
 }
 
+function normalizeAverageRating(value) {
+    if (typeof value === "number") return value;
+    if (typeof value?.average === "number") return value.average;
+    if (typeof value?.value === "number") return value.value;
+    return null;
+}
+
 function canWriteReview(booking) {
     const status = normalizeStatus(booking?.status);
     if (!REVIEWABLE_STATUSES.has(status)) return false;
@@ -92,6 +100,7 @@ export default function MyBookings() {
     const [reviewSubmitting, setReviewSubmitting] = React.useState(false);
     const [reviewError, setReviewError] = React.useState("");
     const [reviewSuccess, setReviewSuccess] = React.useState("");
+    const [roomAverageRatings, setRoomAverageRatings] = React.useState({});
 
     React.useEffect(() => {
         let cancelled = false;
@@ -113,6 +122,48 @@ export default function MyBookings() {
             cancelled = true;
         };
     }, []);
+
+    React.useEffect(() => {
+        let cancelled = false;
+
+        async function loadAverageRatings() {
+            const uniqueRoomIds = Array.from(
+                new Set(
+                    bookings
+                        .map((booking) => getBookingRoomId(booking))
+                        .filter((roomId) => roomId != null)
+                )
+            );
+
+            if (uniqueRoomIds.length === 0) {
+                setRoomAverageRatings({});
+                return;
+            }
+
+            try {
+                const entries = await Promise.all(
+                    uniqueRoomIds.map(async (roomId) => {
+                        const avgData = await getAverageRating(roomId);
+                        return [String(roomId), normalizeAverageRating(avgData)];
+                    })
+                );
+
+                if (!cancelled) {
+                    setRoomAverageRatings(Object.fromEntries(entries));
+                }
+            } catch {
+                if (!cancelled) {
+                    setRoomAverageRatings({});
+                }
+            }
+        }
+
+        loadAverageRatings();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [bookings]);
 
     function openReviewDialog(booking) {
         setReviewDialog(booking);
@@ -180,6 +231,7 @@ export default function MyBookings() {
                         {bookings.map((booking) => {
                         const canReview = canWriteReview(booking);
                         const roomId = getBookingRoomId(booking);
+                        const averageRating = roomId != null ? roomAverageRatings[String(roomId)] : null;
                         const checkIn = getBookingCheckIn(booking);
                         const checkOut = getBookingCheckOut(booking) ?? "-";
                         return (
@@ -198,6 +250,12 @@ export default function MyBookings() {
                                         <Typography variant="body2" color="text.secondary">
                                             Szoba: {roomId ?? "-"}
                                         </Typography>
+                                        <Box className={styles.ratingRow}>
+                                            <RatingStars value={averageRating ?? 0} />
+                                            <Typography variant="body2" className={styles.ratingText}>
+                                                {averageRating == null ? "Nincs értékelés" : `${Number(averageRating).toFixed(1)}/5`}
+                                            </Typography>
+                                        </Box>
                                         <Divider sx={{ my: 0.5 }} />
                                         <Typography variant="body2">
                                             {checkIn} → {checkOut}

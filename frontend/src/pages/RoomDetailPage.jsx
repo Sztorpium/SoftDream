@@ -74,6 +74,34 @@ export default function RoomDetailPage() {
         return new Intl.NumberFormat("hu-HU", { style: "currency", currency: "HUF" }).format(Number(price));
     }
 
+    function parseDateSafe(value) {
+        if (!value) return null;
+        const date = value instanceof Date ? value : new Date(String(value));
+        return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function formatDate(value) {
+        const date = parseDateSafe(value);
+        if (!date) return value ?? "?";
+        return new Intl.DateTimeFormat("hu-HU", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        }).format(date);
+    }
+
+    function formatDateTime(value) {
+        const date = parseDateSafe(value);
+        if (!date) return value ?? "";
+        return new Intl.DateTimeFormat("hu-HU", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+        }).format(date);
+    }
+
     return (
         <Container className={styles.page} maxWidth="md">
             <Stack spacing={2} className={styles.content}>
@@ -203,13 +231,13 @@ export default function RoomDetailPage() {
                                                     </Typography>
                                                 )}
                                                 {(r.checkIn || r.checkOut) && (
-                                                    <Typography variant="caption" className={styles.reviewCaption}>
-                                                        Szállás: {r.checkIn ?? "?"} – {r.checkOut ?? "?"}
+                                                    <Typography variant="caption" className={styles.reviewCaption} display="block">
+                                                        Szállás: {formatDate(r.checkIn) ?? "?"} – {formatDate(r.checkOut) ?? "?"}
                                                     </Typography>
                                                 )}
                                                 {r.createdAt && (
-                                                    <Typography variant="caption" className={styles.reviewCaption}>
-                                                        {String(r.createdAt)}
+                                                    <Typography variant="caption" className={styles.reviewCaption} display="block">
+                                                        Értékelés ideje: {formatDateTime(r.createdAt)}
                                                     </Typography>
                                                 )}
                                             </Box>

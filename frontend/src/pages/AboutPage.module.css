@@ -31,15 +31,20 @@
 
 .cardGrid {
     justify-content: center;
+    align-items: stretch;
 }
 
 .cardGridItem {
     display: flex;
+    align-self: stretch;
+    min-width: 0;
 }
 
 /* Stat cards */
 .statCard {
     width: 100%;
+    display: flex;
+    flex-direction: column;
     text-align: center;
     height: 100%;
     background: linear-gradient(135deg, rgba(176, 122, 63, 0.07), rgba(47, 106, 95, 0.07));
@@ -69,6 +74,8 @@
 /* Feature cards */
 .featureCard {
     width: 100%;
+    display: flex;
+    flex-direction: column;
     height: 100%;
     transition: box-shadow 0.2s ease, transform 0.15s ease;
 }
@@ -90,6 +97,8 @@
 /* Value cards */
 .valueCard {
     width: 100%;
+    display: flex;
+    flex-direction: column;
     height: 100%;
     transition: box-shadow 0.2s ease, transform 0.15s ease;
 }
@@ -114,12 +123,50 @@
     font-weight: 900;
 }
 
-/* Story image */
-.storyImage {
+/* Story images */
+.storyMedia {
+    position: relative;
+    min-height: 380px;
+    border-radius: 16px;
+}
+
+.storyImageMain {
     width: 100%;
-    border-radius: 12px;
+    height: 100%;
+    min-height: 380px;
+    border-radius: 16px;
     object-fit: cover;
-    max-height: 300px;
+    display: block;
+    box-shadow: 0 16px 30px rgba(47, 36, 24, 0.14);
+}
+
+.storyImageSecondary {
+    position: absolute;
+    right: -20px;
+    bottom: -22px;
+    width: 45%;
+    max-width: 240px;
+    aspect-ratio: 4 / 3;
+    border-radius: 14px;
+    object-fit: cover;
+    border: 4px solid #fff9ef;
+    box-shadow: 0 12px 24px rgba(47, 36, 24, 0.2);
+}
+
+@media (max-width: 900px) {
+    .storyMedia {
+        min-height: 300px;
+    }
+
+    .storyImageMain {
+        min-height: 300px;
+    }
+
+    .storyImageSecondary {
+        right: 10px;
+        bottom: 10px;
+        width: 42%;
+    }
 }
 
 /* CTA section */

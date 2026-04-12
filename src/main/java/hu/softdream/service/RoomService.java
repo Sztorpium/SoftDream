@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -132,16 +134,38 @@ public class RoomService {
     }
 
     private RoomResponse buildRoomResponse(Room room, Double avgRating) {
+        BigDecimal basePrice = room.getRoomType().getBasePrice();
+        BigDecimal pricePerNight = computeRoomPricePerNight(basePrice, room.getRoomNumber());
+
         return RoomResponse.builder()
                 .roomId(room.getRoomId())
                 .roomNumber(room.getRoomNumber())
                 .floor(room.getFloor())
                 .status(room.getRoomStatus().getName())
                 .type(room.getRoomType().getName())
-                .basePrice(room.getRoomType().getBasePrice())
+                .pricePerNight(pricePerNight)
+                .basePrice(basePrice)
                 .description(room.getRoomType().getDescription())
                 .maxGuests(room.getMaxGuests())
                 .averageRating(avgRating)
                 .build();
+    }
+
+    /**
+     * Returns a deterministic, room-specific nightly price based on the type base price.
+     * Variation range: roughly -10% to +15% to simulate realistic differences between rooms.
+     */
+    private BigDecimal computeRoomPricePerNight(BigDecimal basePrice, String roomNumber) {
+        if (basePrice == null) {
+            return null;
+        }
+
+        int hash = roomNumber == null ? 0 : roomNumber.hashCode();
+        // 0..25 -> -10%..+15%
+        int bucket = Math.floorMod(hash, 26);
+        BigDecimal variationPercent = BigDecimal.valueOf(bucket - 10L, 2); // -0.10 .. +0.15
+        BigDecimal multiplier = BigDecimal.ONE.add(variationPercent);
+
+        return basePrice.multiply(multiplier).setScale(2, RoundingMode.HALF_UP);
     }
 }

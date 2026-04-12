@@ -91,7 +91,7 @@ function FeatureCard({ icon, title, text }) {
             variant="outlined"
             className={styles.featureCard}
         >
-            <CardContent>
+            <CardContent sx={{ width: "100%", height: "100%" }}>
                 <Stack spacing={1.5}>
                     <Box sx={{ color: "primary.main" }}>{icon}</Box>
                     <Typography variant="h6" className={styles.featureTitle}>
@@ -112,7 +112,7 @@ function StatCard({ icon, value, label }) {
             variant="outlined"
             className={styles.statCard}
         >
-            <CardContent>
+            <CardContent sx={{ width: "100%", height: "100%" }}>
                 <Avatar
                     className={styles.statAvatar}
                     sx={{ bgcolor: "primary.main" }}
@@ -137,7 +137,7 @@ function ValueCard({ icon, title, text, borderColor }) {
             className={styles.valueCard}
             sx={{ height: "100%", borderTop: "4px solid", borderColor }}
         >
-            <CardContent>
+            <CardContent sx={{ width: "100%", height: "100%" }}>
                 <Box sx={{ mb: 1 }}>{icon}</Box>
                 <Typography variant="h6" className={styles.valueTitle}>
                     {title}
@@ -203,7 +203,7 @@ export default function AboutPage() {
                 <Box>
                     <Grid container spacing={2} className={styles.cardGrid}>
                         {STATS.map((s) => (
-                            <Grid item xs={6} md={3} key={s.label} className={styles.cardGridItem}>
+                            <Grid size={{ xs: 6, md: 3 }} key={s.label} className={styles.cardGridItem}>
                                 <StatCard icon={s.icon} value={s.value} label={s.label} />
                             </Grid>
                         ))}
@@ -217,8 +217,8 @@ export default function AboutPage() {
                     </Typography>
                     <Divider sx={{ mb: 2 }} />
                     <Grid container spacing={3} alignItems="center">
-                        <Grid item xs={12} md={6}>
-                            <Stack spacing={2}>
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <Stack spacing={2.2}>
                                 <Typography
                                     variant="body1"
                                     sx={{ opacity: 0.9, lineHeight: 1.8 }}
@@ -239,15 +239,43 @@ export default function AboutPage() {
                                     több elégedett vendégünkre és a közel 5 csillagos átlagos
                                     értékelésünkre.
                                 </Typography>
+
+                                <Typography
+                                    variant="body1"
+                                    sx={{ opacity: 0.9, lineHeight: 1.8 }}
+                                >
+                                    Hiszünk a személyre szabott vendéglátásban: nálunk nem csak
+                                    egy szobát kap, hanem figyelmet, rugalmasságot és valódi
+                                    törődést. A check-in pillanatától egészen a távozásig azért
+                                    dolgozunk, hogy Ön nyugodtan pihenhessen.
+                                </Typography>
+
+                                <Typography
+                                    variant="body1"
+                                    sx={{ opacity: 0.9, lineHeight: 1.8 }}
+                                >
+                                    Célunk, hogy a SoftDream ne egyszerű szállás legyen, hanem
+                                    visszatérő élmény. A modern kényelem, az otthonos hangulat
+                                    és a megbízható kiszolgálás együtt adják azt a minőséget,
+                                    amiért vendégeink újra és újra minket választanak.
+                                </Typography>
                             </Stack>
                         </Grid>
-                        <Grid item xs={12} md={6}>
-                            <Box
-                                component="img"
-                                src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800&h=500&fit=crop&auto=format&q=80"
-                                alt="Hotel lobby"
-                                className={styles.storyImage}
-                            />
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <Box className={styles.storyMedia}>
+                                <Box
+                                    component="img"
+                                    src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1100&h=760&fit=crop&auto=format&q=80"
+                                    alt="SoftDream hotel lobby"
+                                    className={styles.storyImageMain}
+                                />
+                                <Box
+                                    component="img"
+                                    src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=780&h=520&fit=crop&auto=format&q=80"
+                                    alt="SoftDream lounge and wellness area"
+                                    className={styles.storyImageSecondary}
+                                />
+                            </Box>
                         </Grid>
                     </Grid>
                 </Box>
@@ -260,7 +288,7 @@ export default function AboutPage() {
                     <Divider sx={{ mb: 3 }} />
                     <Grid container spacing={2} className={styles.cardGrid}>
                         {FEATURES.map((f) => (
-                            <Grid item xs={12} sm={6} md={4} key={f.title} className={styles.cardGridItem}>
+                            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={f.title} className={styles.cardGridItem}>
                                 <FeatureCard icon={f.icon} title={f.title} text={f.text} />
                             </Grid>
                         ))}
@@ -275,7 +303,7 @@ export default function AboutPage() {
                     <Divider sx={{ mb: 3 }} />
                     <Grid container spacing={2} className={styles.cardGrid}>
                         {VALUES.map((v) => (
-                            <Grid item xs={12} md={4} key={v.title} className={styles.cardGridItem}>
+                            <Grid size={{ xs: 12, md: 4 }} key={v.title} className={styles.cardGridItem}>
                                 <ValueCard
                                     icon={v.icon}
                                     title={v.title}

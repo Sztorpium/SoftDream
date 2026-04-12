@@ -17,6 +17,7 @@ public class RoomResponse {
     private Integer floor;
     private String status;
     private String type;
+    private BigDecimal pricePerNight;
     private BigDecimal basePrice;
     private String description;
     private Integer maxGuests;

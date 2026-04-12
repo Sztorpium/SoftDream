@@ -95,6 +95,9 @@ export const theme = createTheme({
         MuiAppBar: {
             styleOverrides: {
                 root: {
+                    borderRadius: 0,
+                    borderTopLeftRadius: 0,
+                    borderTopRightRadius: 0,
                     backgroundImage: "linear-gradient(90deg, #2b5c53 0%, #356f65 100%)",
                     color: "#fff7ea",
                     boxShadow: "0 6px 20px rgba(47, 36, 24, 0.18)",
