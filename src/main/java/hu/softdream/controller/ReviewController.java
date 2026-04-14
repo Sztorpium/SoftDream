@@ -86,10 +86,14 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{reviewId}")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Delete review (Admin only)")
-    public ResponseEntity<Void> deleteReview(@PathVariable("reviewId") Integer reviewId) {
-        reviewService.deleteReview(reviewId);
+    @Operation(summary = "Delete review (owner or admin)")
+    public ResponseEntity<Void> deleteReview(
+            @PathVariable("reviewId") Integer reviewId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        boolean isAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        reviewService.deleteReview(reviewId, userDetails.getUserId(), isAdmin);
         return ResponseEntity.noContent().build();
     }
 }

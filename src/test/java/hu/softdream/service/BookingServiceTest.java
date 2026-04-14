@@ -45,6 +45,9 @@ class BookingServiceTest {
     @Mock
     private RoomRepository roomRepository;
 
+    @Mock
+    private EmailService emailService;
+
     @InjectMocks
     private BookingService bookingService;
 
@@ -261,6 +264,8 @@ class BookingServiceTest {
                 .user(testUser)
                 .room(testRoom)
                 .status(BookingStatus.PENDING)
+                .checkIn(java.time.LocalDate.of(2026, 5, 1))
+                .checkOut(java.time.LocalDate.of(2026, 5, 3))
                 .build();
 
         Booking confirmedBooking = Booking.builder()
@@ -268,6 +273,8 @@ class BookingServiceTest {
                 .user(testUser)
                 .room(testRoom)
                 .status(BookingStatus.CONFIRMED)
+                .checkIn(java.time.LocalDate.of(2026, 5, 1))
+                .checkOut(java.time.LocalDate.of(2026, 5, 3))
                 .build();
 
         when(bookingRepository.findById(1)).thenReturn(Optional.of(pendingBooking));

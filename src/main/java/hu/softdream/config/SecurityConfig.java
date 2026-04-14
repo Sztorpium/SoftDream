@@ -55,7 +55,6 @@ public class SecurityConfig {
                             // ========================================
                             // PUBLIC ENDPOINTS - Authentication
                             // ========================================
-                            .requestMatchers("/auth/**").permitAll()
                             .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                             .requestMatchers("/api/auth/logout").authenticated()
 

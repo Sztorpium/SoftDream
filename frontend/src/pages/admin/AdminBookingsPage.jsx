@@ -139,8 +139,8 @@ export default function AdminBookingsPage() {
                                                     Foglalás #{id ?? "?"}
                                                 </Typography>
                                                 <Typography variant="body2" className={styles.bookingMeta}>
-                                                    User: {b.userId ?? b.user?.id ?? "–"} | Room:{" "}
-                                                    {b.roomId ?? b.room?.id ?? "–"}
+                                                    User: {b.username ?? b.userId ?? b.user?.id ?? "–"} | Room:{" "}
+                                                    {b.roomNumber ?? b.roomId ?? b.room?.id ?? "–"}
                                                 </Typography>
                                                 <Typography variant="body2" className={styles.bookingMeta}>
                                                     {b.checkIn ?? "?"} → {b.checkOut ?? "?"}
