@@ -238,7 +238,11 @@ public class DataInitializerService implements ApplicationRunner {
     private void initDemoBookings() {
         seedBooking("john_doe", "101", LocalDate.of(2026, 3, 25), LocalDate.of(2026, 3, 26), BookingStatus.PENDING);
         seedBooking("john_doe", "103", LocalDate.of(2026, 4, 4), LocalDate.of(2026, 4, 7), BookingStatus.CONFIRMED);
+        // john_doe értékeli a 105-ös szobát → szükséges CONFIRMED foglalás
+        seedBooking("john_doe", "105", LocalDate.of(2026, 2, 10), LocalDate.of(2026, 2, 13), BookingStatus.CONFIRMED);
         seedBooking("jane_smith", "105", LocalDate.of(2026, 3, 27), LocalDate.of(2026, 3, 29), BookingStatus.CONFIRMED);
+        // peter_kovacs értékeli a 101-es szobát → szükséges CONFIRMED foglalás
+        seedBooking("peter_kovacs", "101", LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 3), BookingStatus.CONFIRMED);
         seedBooking("peter_kovacs", "102", LocalDate.of(2026, 4, 2), LocalDate.of(2026, 4, 4), BookingStatus.PENDING);
     }
 

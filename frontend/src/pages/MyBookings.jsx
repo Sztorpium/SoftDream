@@ -18,7 +18,7 @@ import {
     Typography,
 } from "@mui/material";
 import { getMyBookings } from "../api/bookings";
-import { createReview, getAverageRating } from "../api/reviews";
+import { createReview, getAverageRating, getMyReviews } from "../api/reviews";
 import RatingStars from "../components/RatingStars";
 import styles from "./MyBookings.module.css";
 
@@ -101,15 +101,26 @@ export default function MyBookings() {
     const [reviewError, setReviewError] = React.useState("");
     const [reviewSuccess, setReviewSuccess] = React.useState("");
     const [roomAverageRatings, setRoomAverageRatings] = React.useState({});
+    /** roomId-k halmaza amelyekre a felhasználónak már van értékelése */
+    const [reviewedRoomIds, setReviewedRoomIds] = React.useState(new Set());
 
     React.useEffect(() => {
         let cancelled = false;
         setLoading(true);
         setError("");
 
-        getMyBookings()
-            .then((data) => {
-                if (!cancelled) setBookings(data ?? []);
+        Promise.all([getMyBookings(), getMyReviews()])
+            .then(([bookingData, reviewData]) => {
+                if (!cancelled) {
+                    setBookings(bookingData ?? []);
+                    const ids = new Set(
+                        (Array.isArray(reviewData) ? reviewData : [])
+                            .map((r) => r.roomId ?? r.room?.id ?? r.room?.roomId)
+                            .filter((id) => id != null)
+                            .map(String)
+                    );
+                    setReviewedRoomIds(ids);
+                }
             })
             .catch((err) => {
                 if (!cancelled) setError(err?.message || "Nem sikerült betölteni a foglalásokat.");
@@ -197,6 +208,7 @@ export default function MyBookings() {
                 rating,
                 comment: comment.trim() || undefined,
             });
+            setReviewedRoomIds((prev) => new Set([...prev, String(roomId)]));
             setReviewSuccess("Értékelés sikeresen elküldve!");
         } catch (err) {
             setReviewError(err?.message || "Nem sikerült elküldeni az értékelést.");
@@ -229,8 +241,9 @@ export default function MyBookings() {
                 {!loading && !error && bookings.length > 0 && (
                     <Stack spacing={2} className={styles.list}>
                         {bookings.map((booking) => {
-                        const canReview = canWriteReview(booking);
                         const roomId = getBookingRoomId(booking);
+                        const alreadyReviewed = roomId != null && reviewedRoomIds.has(String(roomId));
+                        const canReview = canWriteReview(booking) && !alreadyReviewed;
                         const averageRating = roomId != null ? roomAverageRatings[String(roomId)] : null;
                         const checkIn = getBookingCheckIn(booking);
                         const checkOut = getBookingCheckOut(booking) ?? "-";
@@ -245,7 +258,7 @@ export default function MyBookings() {
                                 >
                                     <Box>
                                         <Typography variant="subtitle1" className={styles.bookingTitle}>
-                                            Foglalás #{booking.id}
+                                            Foglalás #{booking.bookingId ?? booking.id}
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
                                             Szoba: {roomId ?? "-"}

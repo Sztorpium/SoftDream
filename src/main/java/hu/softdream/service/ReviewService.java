@@ -146,9 +146,12 @@ public class ReviewService {
         return convertToResponse(updatedReview, booking);
     }
 
-    public void deleteReview(Integer reviewId) {
-        if (!reviewRepository.existsById(reviewId)) {
-            throw new ResourceNotFoundException("Az értékelés nem található a megadott azonosítóval: " + reviewId);
+    @Transactional
+    public void deleteReview(Integer reviewId, Integer requestingUserId, boolean isAdmin) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ResourceNotFoundException("Az értékelés nem található a megadott azonosítóval: " + reviewId));
+        if (!isAdmin && !review.getUser().getUserId().equals(requestingUserId)) {
+            throw new BadRequestException("Nincs jogosultsága törölni ezt az értékelést.");
         }
         reviewRepository.deleteById(reviewId);
     }
