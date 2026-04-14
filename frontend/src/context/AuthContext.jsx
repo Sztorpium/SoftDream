@@ -80,8 +80,12 @@ export function AuthProvider({ children }) {
     );
 
     const logout = React.useCallback(() => {
-        localStorage.removeItem(STORAGE_KEY);
-        setAuth({ token: null, user: null });
+        authApi.logout().catch(() => {
+            // Ha a backend hívás nem sikerül, a helyi állapotot akkor is töröljük
+                }).finally(() => {
+                    localStorage.removeItem(STORAGE_KEY);
+                    setAuth({ token: null, user: null });
+                });
     }, []);
 
     const value = React.useMemo(

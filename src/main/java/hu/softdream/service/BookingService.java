@@ -156,6 +156,7 @@ public class BookingService {
         return convertToResponse(bookingRepository.save(booking));
     }
 
+    @Transactional
     public void deleteBooking(Integer bookingId) {
         if (!bookingRepository.existsById(bookingId)) {
             throw new ResourceNotFoundException("A foglalás nem található a megadott azonosítóval: " + bookingId);
