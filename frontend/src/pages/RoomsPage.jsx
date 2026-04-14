@@ -124,8 +124,12 @@ export default function RoomsPage() {
     }, [rooms]);
 
     const maxSliderValue = React.useMemo(() => {
-        const rounded = Math.ceil(maxAvailablePrice / 1000) * 1000;
-        return Math.max(10000, rounded);
+        if (!Number.isFinite(maxAvailablePrice) || maxAvailablePrice <= 0) {
+            return 100000;
+        }
+
+        const scaled = maxAvailablePrice * 1.2;
+        return Math.max(1000, Math.ceil(scaled / 1000) * 1000);
     }, [maxAvailablePrice]);
 
     const displayedMaxPrice = maxPrice ?? maxSliderValue;

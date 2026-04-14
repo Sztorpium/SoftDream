@@ -20,6 +20,7 @@ public class RoomRequest {
     private String roomNumber;
 
     @NotNull(message = "Az emelet kötelező!")
+    @Min(value = 1, message = "Az emeletnek legalább 1-nek kell lennie!")
     private Integer floor;
 
     @NotNull(message = "A szobatípus azonosítója kötelező!")

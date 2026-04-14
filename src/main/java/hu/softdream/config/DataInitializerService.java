@@ -14,7 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Idempotent database seeder that runs on every application startup.
@@ -105,17 +107,29 @@ public class DataInitializerService implements ApplicationRunner {
     }
 
     private void initRoomTypes() {
-        if (roomTypeRepository.count() > 0) {
-            return;
-        }
         log.info("Seeding room types...");
-        roomTypeRepository.saveAll(List.of(
-                RoomType.builder().name("SINGLE").basePrice(new BigDecimal("45.00")).description("Egyágyas szoba - 1 fő").build(),
-                RoomType.builder().name("DOUBLE").basePrice(new BigDecimal("65.00")).description("Dupla szoba - 2 fő").build(),
-                RoomType.builder().name("TRIPLE").basePrice(new BigDecimal("85.00")).description("Hármas szoba - 3 fő").build(),
-                RoomType.builder().name("SUITE").basePrice(new BigDecimal("150.00")).description("Luxus szobakomplexum - 4 fő").build(),
-                RoomType.builder().name("PENTHOUSE").basePrice(new BigDecimal("250.00")).description("Tetőtéri deluxe szoba - 2 fő").build()
-        ));
+        Map<String, RoomType> existingTypesByName = new LinkedHashMap<>();
+        roomTypeRepository.findAll().forEach(roomType -> existingTypesByName.put(roomType.getName(), roomType));
+
+        List<RoomType> desiredTypes = List.of(
+                RoomType.builder().name("SINGLE").basePrice(new BigDecimal("35000")).description("Egyágyas szoba - 1 fő").build(),
+                RoomType.builder().name("DOUBLE").basePrice(new BigDecimal("52000")).description("Dupla szoba - 2 fő").build(),
+                RoomType.builder().name("TRIPLE").basePrice(new BigDecimal("69000")).description("Hármas szoba - 3 fő").build(),
+                RoomType.builder().name("SUITE").basePrice(new BigDecimal("120000")).description("Luxus szobakomplexum - 4 fő").build(),
+                RoomType.builder().name("PENTHOUSE").basePrice(new BigDecimal("180000")).description("Tetőtéri deluxe szoba - 2 fő").build()
+        );
+
+        for (RoomType desiredType : desiredTypes) {
+            RoomType existingType = existingTypesByName.get(desiredType.getName());
+            if (existingType == null) {
+                roomTypeRepository.save(desiredType);
+                continue;
+            }
+
+            existingType.setBasePrice(desiredType.getBasePrice());
+            existingType.setDescription(desiredType.getDescription());
+            roomTypeRepository.save(existingType);
+        }
     }
 
     private void initRooms() {

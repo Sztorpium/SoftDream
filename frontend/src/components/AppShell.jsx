@@ -60,6 +60,7 @@ export default function AppShell({ children }) {
 
     const adminLinks = [
         { label: "Admin Users", to: "/admin/users", admin: true },
+        { label: "Admin Rooms", to: "/admin/rooms", admin: true },
         { label: "Admin Bookings", to: "/admin/bookings", admin: true },
     ];
 

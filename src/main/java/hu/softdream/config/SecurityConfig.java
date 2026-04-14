@@ -40,7 +40,7 @@ public class SecurityConfig {
     private final Environment environment;
 
     /** Comma-separated allowed CORS origins; set CORS_ALLOWED_ORIGINS env var in production. */
-    @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:5173,http://localhost:4200,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:5173,http://127.0.0.1:4200}")
+    @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:5173,http://localhost:5174,http://localhost:4200,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:5173,http://127.0.0.1:5174,http://127.0.0.1:4200}")
     private String allowedOriginsRaw;
 
     @Bean
