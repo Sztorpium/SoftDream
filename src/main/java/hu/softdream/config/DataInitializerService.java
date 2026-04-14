@@ -156,7 +156,8 @@ public class DataInitializerService implements ApplicationRunner {
     }
 
     private void initAdminUser() {
-        if (userRepository.existsByUsername("admin_user") || userRepository.existsByEmail("admin@softdream.hu")) {
+        if (userRepository.existsByUsername("admin_user") || userRepository.existsByEmail("admin@softdream.hu")
+                || userRepository.existsByPhone("+36201234567")) {
             return;
         }
         log.info("Seeding admin user...");
@@ -188,7 +189,8 @@ public class DataInitializerService implements ApplicationRunner {
     }
 
     private void seedUser(String username, String email, String phone, Role role, String rawPassword) {
-        if (userRepository.existsByUsername(username) || userRepository.existsByEmail(email)) {
+        if (userRepository.existsByUsername(username) || userRepository.existsByEmail(email)
+                || userRepository.existsByPhone(phone)) {
             return;
         }
 
