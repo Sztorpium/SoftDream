@@ -28,6 +28,7 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final RoomRepository roomRepository;
+    private final EmailService emailService;
 
     @Transactional(readOnly = true)
     public Page<BookingResponse> getAllBookings(Pageable pageable) {
@@ -126,7 +127,22 @@ public class BookingService {
 
     @Transactional
     public BookingResponse confirmBooking(Integer bookingId) {
-        return updateBookingStatus(bookingId, BookingStatus.CONFIRMED);
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("A foglalás nem található a megadott azonosítóval: " + bookingId));
+
+        booking.setStatus(BookingStatus.CONFIRMED);
+        Booking savedBooking = bookingRepository.save(booking);
+
+        emailService.sendBookingConfirmation(
+                savedBooking.getUser().getEmail(),
+                savedBooking.getUser().getUsername(),
+                savedBooking.getBookingId(),
+                savedBooking.getRoom().getRoomNumber(),
+                savedBooking.getCheckIn().toString(),
+                savedBooking.getCheckOut().toString()
+        );
+
+        return convertToResponse(savedBooking);
     }
 
     @Transactional
