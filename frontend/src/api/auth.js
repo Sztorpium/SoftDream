@@ -15,3 +15,11 @@ export function login(credentials) {
 export function register(data) {
     return apiPost("/api/auth/register", data);
 }
+
+/**
+ * Invalidates the current JWT token on the server side.
+ * @returns {Promise<null>}
+ */
+export function logout() {
+    return apiPost("/api/auth/logout", {});
+}

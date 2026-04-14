@@ -63,7 +63,8 @@ public class BookingController {
     }
 
     @GetMapping("/room/{roomId}")
-    @Operation(summary = "Get bookings by room ID")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get bookings by room ID (Admin only)")
     public ResponseEntity<List<BookingResponse>> getBookingsByRoomId(@PathVariable("roomId") Integer roomId) {
         return ResponseEntity.ok(bookingService.getBookingsByRoomId(roomId));
     }

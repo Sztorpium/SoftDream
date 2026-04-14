@@ -106,6 +106,7 @@ public class RoomService {
         return convertToResponse(updatedRoom);
     }
 
+    @Transactional
     public void deleteRoom(Integer roomId) {
         if (!roomRepository.existsById(roomId)) {
             throw new ResourceNotFoundException("A szoba nem található a megadott azonosítóval: " + roomId);

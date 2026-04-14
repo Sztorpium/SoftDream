@@ -1,6 +1,7 @@
 package hu.softdream.security;
 
 import hu.softdream.service.JwtService;
+import hu.softdream.service.TokenBlacklistService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +23,56 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final TokenBlacklistService tokenBlacklistService;
+
+    @Override
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
+    ) throws ServletException, IOException {
+
+        final String authHeader = request.getHeader("Authorization");
+        final String jwt;
+        final String username;
+
+        // Ha nincs Authorization header vagy nem Bearer token
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // JWT token kinyerése
+        jwt = authHeader.substring(7);
+        username = jwtService.extractUsername(jwt);
+
+        // Ha van username és még nincs autentikálva
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+            // Blacklist ellenőrzés – visszavont tokenek elutasítása
+            String jti = jwtService.extractJti(jwt);
+            if (tokenBlacklistService.isRevoked(jti)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+
+            // Token validálás
+            if (jwtService.isTokenValid(jwt, userDetails)) {
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+
+        filterChain.doFilter(request, response);
+    }
+}
 
     @Override
     protected void doFilterInternal(

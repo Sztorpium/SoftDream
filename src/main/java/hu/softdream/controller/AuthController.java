@@ -4,8 +4,12 @@ import hu.softdream.dto.request.LoginRequest;
 import hu.softdream.dto.request.RegisterRequest;
 import hu.softdream.dto.response.AuthResponse;
 import hu.softdream.service.AuthService;
+import hu.softdream.service.JwtService;
+import hu.softdream.service.TokenBlacklistService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtService jwtService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @PostMapping("/register")
     @Operation(summary = "Register a new user")
@@ -35,5 +41,23 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Logout – invalidates the current JWT token")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String jwt = authHeader.substring(7);
+            try {
+                String jti = jwtService.extractJti(jwt);
+                long expirationMs = jwtService.extractExpirationMs(jwt);
+                tokenBlacklistService.revoke(jti, expirationMs);
+            } catch (Exception ignored) {
+                // Érvénytelen token – nincs mit visszavonni
+            }
+        }
+        return ResponseEntity.noContent().build();
     }
 }
