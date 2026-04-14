@@ -34,19 +34,19 @@ public class ReviewController {
 
     @GetMapping("/{reviewId}")
     @Operation(summary = "Get review by ID")
-    public ResponseEntity<ReviewResponse> getReviewById(@PathVariable Integer reviewId) {
+    public ResponseEntity<ReviewResponse> getReviewById(@PathVariable("reviewId") Integer reviewId) {
         return ResponseEntity.ok(reviewService.getReviewById(reviewId));
     }
 
     @GetMapping("/room/{roomId}")
     @Operation(summary = "Get reviews by room ID")
-    public ResponseEntity<List<ReviewResponse>> getReviewsByRoomId(@PathVariable Integer roomId) {
+    public ResponseEntity<List<ReviewResponse>> getReviewsByRoomId(@PathVariable("roomId") Integer roomId) {
         return ResponseEntity.ok(reviewService.getReviewsByRoomId(roomId));
     }
 
     @GetMapping("/room/{roomId}/average-rating")
     @Operation(summary = "Get average rating for a room")
-    public ResponseEntity<Double> getAverageRating(@PathVariable Integer roomId) {
+    public ResponseEntity<Double> getAverageRating(@PathVariable("roomId") Integer roomId) {
         return ResponseEntity.ok(reviewService.getAverageRatingByRoomId(roomId));
     }
 
@@ -61,7 +61,7 @@ public class ReviewController {
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Get reviews by user ID (Admin only)")
-    public ResponseEntity<List<ReviewResponse>> getReviewsByUserId(@PathVariable Integer userId) {
+    public ResponseEntity<List<ReviewResponse>> getReviewsByUserId(@PathVariable("userId") Integer userId) {
         return ResponseEntity.ok(reviewService.getReviewsByUserId(userId));
     }
 
@@ -78,7 +78,7 @@ public class ReviewController {
     @PutMapping("/{reviewId}")
     @Operation(summary = "Update review (owner only)")
     public ResponseEntity<ReviewResponse> updateReview(
-            @PathVariable Integer reviewId,
+            @PathVariable("reviewId") Integer reviewId,
             @Valid @RequestBody ReviewRequest request,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
@@ -88,7 +88,7 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete review (Admin only)")
-    public ResponseEntity<Void> deleteReview(@PathVariable Integer reviewId) {
+    public ResponseEntity<Void> deleteReview(@PathVariable("reviewId") Integer reviewId) {
         reviewService.deleteReview(reviewId);
         return ResponseEntity.noContent().build();
     }

@@ -75,7 +75,7 @@ public class UserController {
     @GetMapping("/{userId}")
     @Operation(summary = "Get user by ID (admin or own data)")
     public ResponseEntity<UserResponse> getUserById(
-            @PathVariable Integer userId,
+            @PathVariable("userId") Integer userId,
             @AuthenticationPrincipal CustomUserDetails principal) {
         boolean isAdmin = ROLE_ADMIN.equals(principal.getRole());
         if (!isAdmin && !principal.getUserId().equals(userId)) {
@@ -87,7 +87,7 @@ public class UserController {
     @GetMapping("/username/{username}")
     @Operation(summary = "Get user by username (admin or own data)")
     public ResponseEntity<UserResponse> getUserByUsername(
-            @PathVariable String username,
+            @PathVariable("username") String username,
             @AuthenticationPrincipal CustomUserDetails principal) {
         boolean isAdmin = ROLE_ADMIN.equals(principal.getRole());
         if (!isAdmin && !principal.getUsername().equals(username)) {
@@ -100,7 +100,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Delete user (Admin only)")
     public ResponseEntity<Void> deleteUser(
-            @PathVariable Integer userId,
+            @PathVariable("userId") Integer userId,
             @AuthenticationPrincipal CustomUserDetails principal) {
         userService.deleteUser(userId, principal.getUserId());
         return ResponseEntity.noContent().build();
