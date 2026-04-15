@@ -261,7 +261,7 @@ export default function MyBookings() {
                                             Foglalás #{booking.bookingId ?? booking.id}
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
-                                            Szoba: {roomId ?? "-"}
+                                            Szoba: {booking.roomNumber ?? roomId ?? "-"}
                                         </Typography>
                                         <Box className={styles.ratingRow}>
                                             <RatingStars value={averageRating ?? 0} />
@@ -300,7 +300,7 @@ export default function MyBookings() {
             <Dialog open={!!reviewDialog} onClose={closeReviewDialog} maxWidth="sm" fullWidth>
                 <DialogTitle>
                     Értékelés – Szoba:{" "}
-                    {getBookingRoomId(reviewDialog) ?? "-"}
+                    {reviewDialog?.roomNumber ?? getBookingRoomId(reviewDialog) ?? "-"}
                 </DialogTitle>
                 <DialogContent>
                     <Stack spacing={2} sx={{ mt: 1 }}>

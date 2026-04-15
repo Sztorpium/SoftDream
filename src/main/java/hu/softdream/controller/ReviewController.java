@@ -91,8 +91,7 @@ public class ReviewController {
             @PathVariable("reviewId") Integer reviewId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        boolean isAdmin = userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean isAdmin = "ADMIN".equals(userDetails.getRole());
         reviewService.deleteReview(reviewId, userDetails.getUserId(), isAdmin);
         return ResponseEntity.noContent().build();
     }

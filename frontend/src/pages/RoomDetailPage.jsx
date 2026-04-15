@@ -151,13 +151,9 @@ export default function RoomDetailPage() {
                                                     <b>Szobaszám:</b> {room.roomNumber}
                                                 </Typography>
                                             )}
-                                            {room.type?.name ? (
+                                            {room.type ? (
                                                 <Typography variant="body2">
-                                                    <b>Típus:</b> {room.type.name}
-                                                </Typography>
-                                            ) : room.roomType ? (
-                                                <Typography variant="body2">
-                                                    <b>Típus:</b> {room.roomType}
+                                                    <b>Típus:</b> {room.type}
                                                 </Typography>
                                             ) : null}
                                             {room.status && (

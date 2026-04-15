@@ -131,7 +131,7 @@ export default function NewBookingPage() {
                             <Alert severity="error">{roomError}</Alert>
                         ) : room ? (
                             <Alert severity="info">
-                                Szoba: {room.name ?? `#${room.id ?? room.roomId ?? roomId}`}
+                                Szoba: {room.roomNumber ?? `#${room.roomId ?? roomId}`}
                             </Alert>
                         ) : null
                     ) : (

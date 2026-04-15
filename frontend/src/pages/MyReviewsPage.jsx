@@ -72,7 +72,7 @@ export default function MyReviewsPage() {
                             <Paper key={r.id ?? r.reviewId ?? JSON.stringify(r)} className={styles.reviewCard}>
                                 <Stack spacing={0.5}>
                                     <Typography variant="subtitle1" className={styles.reviewRoomTitle}>
-                                        Szoba: {r.roomId ?? r.room?.id ?? "–"}
+                                        Szoba: {r.roomNumber ?? r.roomId ?? "–"}
                                     </Typography>
 
                                     {r.rating != null ? (
