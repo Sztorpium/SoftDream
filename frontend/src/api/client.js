@@ -71,9 +71,16 @@ async function request(path, options = {}) {
         headers.Authorization = `Bearer ${token}`;
     }
 
+    console.debug(`[API] ${options.method || 'GET'} ${baseUrl}${path}`, {
+        hasToken: !!token,
+        tokenPreview: token ? token.substring(0, 20) + '...' : 'none',
+        headers,
+    });
+
     const response = await fetch(`${baseUrl}${path}`, {
         ...options,
         headers,
+        credentials: 'include',
     });
 
     // 204 No Content
@@ -101,6 +108,13 @@ async function request(path, options = {}) {
         } catch {
             // keep message
         }
+
+        console.error(`[API Error] ${response.status} on ${options.method || 'GET'} ${baseUrl}${path}`, {
+            status: response.status,
+            statusText: response.statusText,
+            message,
+            fieldErrors,
+        });
 
         const error = new Error(message || `HTTP ${response.status}`);
         error.status = response.status;
