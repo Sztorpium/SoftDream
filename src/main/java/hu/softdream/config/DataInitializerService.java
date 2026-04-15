@@ -170,8 +170,14 @@ public class DataInitializerService implements ApplicationRunner {
     }
 
     private void initAdminUser() {
+        // If the admin user already exists, update the password to match the current env var
         if (userRepository.existsByUsername("admin_user") || userRepository.existsByEmail("admin@softdream.hu")
                 || userRepository.existsByPhone("+36201234567")) {
+            userAuthRepository.findByUser_Username("admin_user").ifPresentOrElse(adminAuth -> {
+                adminAuth.setPasswordHash(passwordEncoder.encode(adminPassword));
+                userAuthRepository.save(adminAuth);
+                log.info("Admin user password updated from ADMIN_PASSWORD env var.");
+            }, () -> log.warn("Admin user record exists but no UserAuth found — inconsistent database state."));
             return;
         }
         log.info("Seeding admin user...");
