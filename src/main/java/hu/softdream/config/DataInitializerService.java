@@ -34,6 +34,7 @@ import java.util.Map;
 public class DataInitializerService implements ApplicationRunner {
 
     private static final String DEFAULT_ADMIN_PASSWORD = "admin123";
+    private static final String ADMIN_USERNAME = "admin_user";
 
     private final RoleRepository roleRepository;
     private final RoomStatusRepository roomStatusRepository;
@@ -171,21 +172,35 @@ public class DataInitializerService implements ApplicationRunner {
 
     private void initAdminUser() {
         // If the admin user already exists, update the password to match the current env var
-        if (userRepository.existsByUsername("admin_user") || userRepository.existsByEmail("admin@softdream.hu")
+        if (userRepository.existsByUsername(ADMIN_USERNAME) || userRepository.existsByEmail("admin@softdream.hu")
                 || userRepository.existsByPhone("+36201234567")) {
-            userAuthRepository.findByUser_Username("admin_user").ifPresentOrElse(adminAuth -> {
+            userAuthRepository.findByUser_Username(ADMIN_USERNAME).ifPresentOrElse(adminAuth -> {
                 adminAuth.setPasswordHash(passwordEncoder.encode(adminPassword));
                 userAuthRepository.save(adminAuth);
                 log.info("Admin user password updated from ADMIN_PASSWORD env var.");
-            }, () -> log.warn("Admin user record exists but no UserAuth found — inconsistent database state."));
+            }, () -> {
+                log.warn("Admin user record exists but no UserAuth found — repairing inconsistent database state.");
+                userRepository.findByUsername(ADMIN_USERNAME).ifPresent(adminUser -> {
+                    Role adminRole = roleRepository.findByName("ADMIN")
+                            .orElseThrow(() -> new IllegalStateException("ADMIN role not found"));
+                    UserAuth adminAuth = UserAuth.builder()
+                            .user(adminUser)
+                            .passwordHash(passwordEncoder.encode(adminPassword))
+                            .role(adminRole)
+                            .build();
+                    userAuthRepository.save(adminAuth);
+                    log.info("Admin UserAuth record recreated successfully.");
+                });
+            });
             return;
         }
         log.info("Seeding admin user...");
 
-        Role adminRole = roleRepository.findByName("ADMIN").orElseThrow();
+        Role adminRole = roleRepository.findByName("ADMIN")
+                .orElseThrow(() -> new IllegalStateException("ADMIN role not found"));
 
         User adminUser = User.builder()
-                .username("admin_user")
+                .username(ADMIN_USERNAME)
                 .email("admin@softdream.hu")
                 .phone("+36201234567")
                 .build();

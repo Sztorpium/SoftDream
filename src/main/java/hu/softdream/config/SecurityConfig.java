@@ -170,10 +170,12 @@ public class SecurityConfig {
     }
 
     /**
-     * Authentication Provider - Database-based authentication
+     * Authentication Provider - Database-based authentication.
+     * Not exposed as a @Bean to avoid the global AuthenticationManager warning and
+     * to ensure AuthenticationException propagates to the GlobalExceptionHandler.
      */
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
+
+    private AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
