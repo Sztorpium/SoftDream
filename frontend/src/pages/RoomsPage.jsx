@@ -34,7 +34,10 @@ function getRoomType(room) {
     return room.type ?? room.roomType ?? room.category ?? "";
 }
 
+const TEXT_SEARCH_DEBOUNCE_MS = 350;
+
 export default function RoomsPage() {
+    const [allRooms, setAllRooms] = React.useState([]);       // unfiltered – used for types dropdown & slider max
     const [rooms, setRooms] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState("");
@@ -46,26 +49,42 @@ export default function RoomsPage() {
     const [maxPrice, setMaxPrice] = React.useState(null);
     const [sort, setSort] = React.useState("RECOMMENDED"); // PRICE_ASC / PRICE_DESC
 
+// Fetch the full room list once to drive the types dropdown and the price slider max.
     React.useEffect(() => {
         let cancelled = false;
-        setLoading(true);
-        setError("");
 
         getAllRooms()
             .then((data) => {
-                if (!cancelled) setRooms(Array.isArray(data) ? data : []);
+                if (!cancelled) setAllRooms(Array.isArray(data) ? data : []);
             })
-            .catch((err) => {
-                if (!cancelled) setError(err?.message || "Nem sikerült betölteni a szobákat.");
-            })
-            .finally(() => {
-                if (!cancelled) setLoading(false);
-            });
+            .catch(() => {});
+                return () => { cancelled = true; };
+            }, []);
 
-        return () => {
-            cancelled = true;
-        };
-    }, []);
+        // Re-fetch whenever filters change, with a short debounce for the text field.
+            React.useEffect(() => {
+                let cancelled = false;
+                setLoading(true);
+                setError("");
+
+                const timer = setTimeout(() => {
+                    getAllRooms({ q, type, maxPrice, sort })
+                        .then((data) => {
+                            if (!cancelled) setRooms(Array.isArray(data) ? data : []);
+                        })
+                        .catch((err) => {
+                            if (!cancelled) setError(err?.message || "Nem sikerült betölteni a szobákat.");
+                        })
+                        .finally(() => {
+                            if (!cancelled) setLoading(false);
+                        });
+                }, q.trim() ? TEXT_SEARCH_DEBOUNCE_MS : 0);
+
+                return () => {
+                    cancelled = true;
+                    clearTimeout(timer);
+                };
+            }, [q, type, maxPrice, sort]);
 
     React.useEffect(() => {
         let cancelled = false;
@@ -116,12 +135,12 @@ export default function RoomsPage() {
     }, [rooms]);
 
     const maxAvailablePrice = React.useMemo(() => {
-        const prices = rooms
+        const prices = allRooms
             .map((r) => Number(r.pricePerNight ?? r.price ?? r.nightlyPrice ?? 0))
             .filter((p) => Number.isFinite(p) && p > 0);
         if (prices.length === 0) return 100;
         return Math.max(...prices);
-    }, [rooms]);
+    }, [allRooms]);
 
     const maxSliderValue = React.useMemo(() => {
         if (!Number.isFinite(maxAvailablePrice) || maxAvailablePrice <= 0) {
@@ -145,39 +164,12 @@ export default function RoomsPage() {
 
     const roomTypes = React.useMemo(() => {
         const set = new Set();
-        rooms.forEach((r) => {
+        allRooms.forEach((r) => {
             const t = String(getRoomType(r) || "").trim();
             if (t) set.add(t);
         });
         return ["ALL", ...Array.from(set).sort((a, b) => a.localeCompare(b))];
-    }, [rooms]);
-
-    const filtered = React.useMemo(() => {
-        const qLower = q.trim().toLowerCase();
-        const mp = maxPrice == null ? null : Number(maxPrice);
-
-        let list = rooms.filter((r) => {
-            const name = String(r.name ?? r.title ?? "").toLowerCase();
-            const desc = String(r.description ?? "").toLowerCase();
-            const matchesQ = !qLower || name.includes(qLower) || desc.includes(qLower);
-
-            const t = String(getRoomType(r) || "");
-            const matchesType = type === "ALL" || t === type;
-
-            const price = Number(r.pricePerNight ?? r.price ?? r.nightlyPrice);
-            const matchesPrice = mp == null || (!Number.isNaN(price) && price <= mp);
-
-            return matchesQ && matchesType && matchesPrice;
-        });
-
-        if (sort === "PRICE_ASC") {
-            list = list.slice().sort((a, b) => (Number(a.pricePerNight ?? a.price ?? 0) || 0) - (Number(b.pricePerNight ?? b.price ?? 0) || 0));
-        } else if (sort === "PRICE_DESC") {
-            list = list.slice().sort((a, b) => (Number(b.pricePerNight ?? b.price ?? 0) || 0) - (Number(a.pricePerNight ?? a.price ?? 0) || 0));
-        }
-
-        return list;
-    }, [rooms, q, type, maxPrice, sort]);
+    }, [allRooms]);
 
     return (
         <Container className={styles.page} maxWidth="xl">
@@ -289,8 +281,8 @@ export default function RoomsPage() {
                         </Grid>
 
                         <Box className={styles.chipRow}>
-                            <Chip label={`Összes: ${rooms.length}`} variant="outlined" />
-                            <Chip label={`Találat: ${filtered.length}`} color="primary" variant="outlined" />
+                            <Chip label={`Összes: ${allRooms.length}`} variant="outlined" />
+                            <Chip label={`Találat: ${rooms.length}`} color="primary" variant="outlined" />
                             {activeFilterCount > 0 && (
                                 <Chip label={`Aktív szűrők: ${activeFilterCount}`} color="secondary" variant="outlined" />
                             )}
@@ -315,17 +307,17 @@ export default function RoomsPage() {
                         <Typography color="error" fontWeight={700}>Hiba történt</Typography>
                         <Typography color="error">{error}</Typography>
                     </Box>
-                ) : filtered.length === 0 ? (
+                ) : rooms.length === 0 ? (
                     <Box className={styles.stateBox}>
                         <Typography sx={{ fontWeight: 700 }}>Nincs találat</Typography>
                         <Typography sx={{ opacity: 0.82 }}>Próbálj lazább szűrőket vagy töröld a beállításokat.</Typography>
                     </Box>
                 ) : (
                     <Grid container spacing={2} className={`${styles.list} ${styles.roomGrid}`}>
-                        {filtered.map((r) => {
+                        {rooms.map((r) => {
                             const id = r.id ?? r.roomId;
                             const price = r.pricePerNight ?? r.price ?? r.nightlyPrice;
-                            const directRating = r.avgRating ?? r.ratingAvg ?? r.rating;
+                            const directRating = r.avgRating ?? r.ratingAvg ?? r.rating ?? r.averageRating;
                             const rating =
                                 Number.isFinite(Number(directRating))
                                     ? Number(directRating)

@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -30,9 +31,14 @@ public class RoomController {
     private final BookingService bookingService;
 
     @GetMapping
-    @Operation(summary = "Get all rooms")
-    public ResponseEntity<List<RoomResponse>> getAllRooms() {
-        return ResponseEntity.ok(roomService.getAllRooms());
+    @Operation(summary = "Get all rooms with optional server-side filtering and sorting")
+    public ResponseEntity<List<RoomResponse>> getAllRooms(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false, defaultValue = "RECOMMENDED") String sort
+    ) {
+        return ResponseEntity.ok(roomService.getAllRooms(q, type, maxPrice, sort));
     }
 
     @GetMapping("/{roomId}")

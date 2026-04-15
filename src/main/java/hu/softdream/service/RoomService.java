@@ -16,9 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -30,12 +32,40 @@ public class RoomService {
     private final ReviewRepository reviewRepository;
 
     @Transactional(readOnly = true)
-    public List<RoomResponse> getAllRooms() {
+    public List<RoomResponse> getAllRooms(String q, String type, BigDecimal maxPrice, String sort) {
         List<Room> rooms = roomRepository.findAll();
         Map<Integer, Double> avgRatings = fetchAverageRatings(rooms);
-        return rooms.stream()
-                .map(room -> buildRoomResponse(room, avgRatings.get(room.getRoomId())))
-                .collect(Collectors.toList());
+
+        Stream<RoomResponse> stream = rooms.stream()
+                .map(room -> buildRoomResponse(room, avgRatings.get(room.getRoomId())));
+
+        if (type != null && !type.isBlank() && !type.equalsIgnoreCase("ALL")) {
+            stream = stream.filter(r -> type.equalsIgnoreCase(r.getType()));
+        }
+
+        if (q != null && !q.isBlank()) {
+            String qLower = q.trim().toLowerCase();
+            stream = stream.filter(r -> {
+                String roomNum = r.getRoomNumber() == null ? "" : r.getRoomNumber().toLowerCase();
+                String desc = r.getDescription() == null ? "" : r.getDescription().toLowerCase();
+                return roomNum.contains(qLower) || desc.contains(qLower);
+            });
+        }
+
+        if (maxPrice != null) {
+            stream = stream.filter(r -> r.getPricePerNight() != null
+                    && r.getPricePerNight().compareTo(maxPrice) <= 0);
+        }
+
+        if ("PRICE_ASC".equalsIgnoreCase(sort)) {
+            stream = stream.sorted(Comparator.comparing(
+                    RoomResponse::getPricePerNight, Comparator.nullsLast(Comparator.naturalOrder())));
+        } else if ("PRICE_DESC".equalsIgnoreCase(sort)) {
+            stream = stream.sorted(Comparator.comparing(
+                    RoomResponse::getPricePerNight, Comparator.nullsLast(Comparator.reverseOrder())));
+        }
+
+        return stream.collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
