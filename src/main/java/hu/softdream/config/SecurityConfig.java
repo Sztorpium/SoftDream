@@ -9,7 +9,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -171,11 +171,12 @@ public class SecurityConfig {
 
     /**
      * Authentication Provider - Database-based authentication.
-     * Not exposed as a @Bean to avoid the global AuthenticationManager warning and
-     * to ensure AuthenticationException propagates to the GlobalExceptionHandler.
+     * Exposed as a @Bean so that both the HTTP filter chain and the
+     * explicit AuthenticationManager use the same singleton instance.
      */
 
-    private AuthenticationProvider authenticationProvider() {
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
@@ -183,11 +184,14 @@ public class SecurityConfig {
     }
 
     /**
-     * Authentication Manager - For login/authentication
+     * Authentication Manager - For login/authentication.
+     * Explicitly creates a ProviderManager with our DaoAuthenticationProvider
+     * instead of relying on Spring Security's auto-configuration, which can
+     * fail to register the provider in certain Spring Boot 3.x setups.
      */
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
+    public AuthenticationManager authenticationManager() {
+        return new ProviderManager(authenticationProvider());
     }
 
     /**
