@@ -11,14 +11,14 @@ export default function NotFound() {
                     404
                 </Typography>
                 <Typography variant="h4" component="h1" className={styles.title}>
-                    Page Not Found
+                    Az oldal nem található
                 </Typography>
                 <Typography variant="body1" color="text.secondary" className={styles.subtitle}>
-                    The page you are looking for does not exist.
+                    A keresett oldal nem létezik.
                 </Typography>
 
                 <Button variant="contained" component={RouterLink} to="/">
-                    Back to Home
+                    Vissza a kezdőlapra
                 </Button>
             </Stack>
         </Container>

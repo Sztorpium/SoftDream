@@ -49,7 +49,7 @@ export default function AppShell({ children }) {
 
     const commonLinks = [
         { label: "Szobák", to: "/rooms" },
-        { label: "About", to: "/about" },
+        { label: "Rólunk", to: "/about" },
     ];
 
     const authedLinks = [
@@ -59,9 +59,9 @@ export default function AppShell({ children }) {
     ];
 
     const adminLinks = [
-        { label: "Admin Users", to: "/admin/users", admin: true },
-        { label: "Admin Rooms", to: "/admin/rooms", admin: true },
-        { label: "Admin Bookings", to: "/admin/bookings", admin: true },
+        { label: "Admin felhasználók", to: "/admin/users", admin: true },
+        { label: "Admin szobák", to: "/admin/rooms", admin: true },
+        { label: "Admin foglalások", to: "/admin/bookings", admin: true },
     ];
 
     const guestLinks = [
@@ -89,7 +89,7 @@ export default function AppShell({ children }) {
                         edge="start"
                         onClick={() => setOpen(true)}
                         sx={{ display: { xs: "inline-flex", md: "none" } }}
-                        aria-label="Open menu"
+                        aria-label="Menü megnyitása"
                     >
                         <MenuIcon />
                     </IconButton>

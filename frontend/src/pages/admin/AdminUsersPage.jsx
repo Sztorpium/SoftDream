@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import { deleteUser, getAllUsers } from "../../api/users";
 import { useAuth } from "../../context/AuthContext";
+import { translateRole } from "../../utils/displayText";
 import styles from "./AdminUsersPage.module.css";
 
 export default function AdminUsersPage() {
@@ -91,7 +92,7 @@ export default function AdminUsersPage() {
                     <span className={styles.adminBadge}>Admin</span>
                 </div>
                 <Typography variant="h4" component="h1">
-                    Admin – Users
+                    Admin - Felhasználók
                 </Typography>
 
                 <TextField
@@ -137,7 +138,7 @@ export default function AdminUsersPage() {
                                             ) : null}
                                             {u.role ? (
                                                 <Typography variant="body2" className={styles.userMeta}>
-                                                    Role: {u.role}
+                                                    Szerepkör: {translateRole(u.role)}
                                                 </Typography>
                                             ) : null}
                                         </Box>

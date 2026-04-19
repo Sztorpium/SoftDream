@@ -20,6 +20,7 @@ import { Link as RouterLink } from "react-router-dom";
 import { getAllRooms } from "../api/rooms";
 import RatingStars from "../components/RatingStars";
 import { getRoomImage } from "../utils/roomImages";
+import { translateRoomType } from "../utils/displayText";
 import styles from "./RoomsPage.module.css";
 
 function formatPrice(v) {
@@ -289,7 +290,7 @@ export default function RoomsPage() {
                                                     </Typography>
                                                     <Chip
                                                         size="small"
-                                                        label={getRoomType(r) || "Room"}
+                                                        label={translateRoomType(getRoomType(r) || "") || "Szoba"}
                                                         variant="outlined"
                                                     />
                                                 </Box>
@@ -308,7 +309,7 @@ export default function RoomsPage() {
 
                                                 <Typography variant="h6" className={styles.priceText}>
                                                     {formatPrice(price)}{" "}
-                                                    <Typography component="span" variant="body2" className={styles.priceUnit}>
+                                                    <Typography component="span" variant="subtitle2" className={styles.priceUnit}>
                                                         / éj
                                                     </Typography>
                                                 </Typography>

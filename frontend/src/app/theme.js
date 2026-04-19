@@ -55,16 +55,17 @@ export const theme = createTheme({
     typography: {
         fontFamily: [
             "Source Sans 3",
+            "Nunito Sans",
             "Segoe UI",
             "Trebuchet MS",
             "Arial",
             "sans-serif",
         ].join(","),
-        h1: { fontFamily: ["Cormorant Garamond", "Palatino Linotype", "Book Antiqua", "serif"].join(","), fontWeight: 700, letterSpacing: 0.2 },
-        h2: { fontFamily: ["Cormorant Garamond", "Palatino Linotype", "Book Antiqua", "serif"].join(","), fontWeight: 700, letterSpacing: 0.1 },
-        h3: { fontFamily: ["Cormorant Garamond", "Palatino Linotype", "Book Antiqua", "serif"].join(","), fontWeight: 700, letterSpacing: 0.1 },
-        h4: { fontFamily: ["Cormorant Garamond", "Palatino Linotype", "Book Antiqua", "serif"].join(","), fontWeight: 700, letterSpacing: 0.08 },
-        h5: { fontFamily: ["Cormorant Garamond", "Palatino Linotype", "Book Antiqua", "serif"].join(","), fontWeight: 700, letterSpacing: 0.06 },
+        h1: { fontFamily: ["Source Sans 3", "Nunito Sans", "Segoe UI", "Arial", "sans-serif"].join(","), fontWeight: 800, letterSpacing: 0.14 },
+        h2: { fontFamily: ["Source Sans 3", "Nunito Sans", "Segoe UI", "Arial", "sans-serif"].join(","), fontWeight: 800, letterSpacing: 0.08 },
+        h3: { fontFamily: ["Source Sans 3", "Nunito Sans", "Segoe UI", "Arial", "sans-serif"].join(","), fontWeight: 800, letterSpacing: 0.06 },
+        h4: { fontFamily: ["Source Sans 3", "Nunito Sans", "Segoe UI", "Arial", "sans-serif"].join(","), fontWeight: 800, letterSpacing: 0.04 },
+        h5: { fontFamily: ["Source Sans 3", "Nunito Sans", "Segoe UI", "Arial", "sans-serif"].join(","), fontWeight: 800, letterSpacing: 0.03 },
         button: { textTransform: "none", fontWeight: 700 },
     },
     components: {
