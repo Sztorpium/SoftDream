@@ -144,7 +144,7 @@ export default function RoomsPage() {
                                     <TextField
                                         value={q}
                                         onChange={(e) => setQ(e.target.value)}
-                                        placeholder="pl. deluxe, panoráma, családi"
+                                        placeholder="pl. luxus, panorámás, családi"
                                         size="small"
                                         fullWidth
                                     />
@@ -162,7 +162,7 @@ export default function RoomsPage() {
                                     >
                                         {roomTypes.map((t) => (
                                             <MenuItem key={t} value={t}>
-                                                {t === "ALL" ? "Összes" : t}
+                                                {t === "ALL" ? "Összes" : translateRoomType(t)}
                                             </MenuItem>
                                         ))}
                                     </TextField>
