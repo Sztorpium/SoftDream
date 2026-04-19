@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
 import {
     Alert,
     Box,
@@ -7,15 +8,21 @@ import {
     Container,
     Paper,
     Stack,
+    TextField,
     Typography,
 } from "@mui/material";
 import { deleteUser, getAllUsers } from "../../api/users";
+import { useAuth } from "../../context/AuthContext";
+import styles from "./AdminUsersPage.module.css";
 
 export default function AdminUsersPage() {
+    const { user: currentUser } = useAuth();
+    const navigate = useNavigate();
     const [users, setUsers] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState("");
     const [deletingId, setDeletingId] = React.useState(null);
+    const [search, setSearch] = React.useState("");
 
     const load = React.useCallback(async () => {
         setLoading(true);
@@ -52,27 +59,64 @@ export default function AdminUsersPage() {
         }
     }
 
+    const filteredUsers = React.useMemo(() => {
+        const q = search.trim().toLowerCase();
+        if (!q) return users;
+        return users.filter((u) => {
+            const id = String(u.id ?? u.userId ?? "");
+            const name = (u.username ?? "").toLowerCase();
+            const email = (u.email ?? "").toLowerCase();
+            const role = (u.role ?? "").toLowerCase();
+            return (
+                id.includes(q) ||
+                name.includes(q) ||
+                email.includes(q) ||
+                role.includes(q)
+            );
+        });
+    }, [users, search]);
+
+    function canDelete(u) {
+        const id = u.id ?? u.userId;
+        if (id == null) return false;
+        if (Number(id) === Number(currentUser?.userId)) return false;
+        if ((u.role ?? "").toUpperCase() === "ADMIN") return false;
+        return true;
+    }
+
     return (
-        <Container sx={{ py: 3 }} maxWidth="md">
-            <Stack spacing={2}>
+        <Container className={styles.page} maxWidth="lg">
+            <Stack spacing={2} className={styles.content}>
+                <div>
+                    <span className={styles.adminBadge}>Admin</span>
+                </div>
                 <Typography variant="h4" component="h1">
                     Admin – Users
                 </Typography>
 
+                <TextField
+                    placeholder="Keresés: id, név, e-mail, státusz..."
+                    size="small"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+
                 {error ? <Alert severity="error">{error}</Alert> : null}
 
                 {loading ? (
-                    <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+                    <Box className={styles.loadingBox}>
                         <CircularProgress />
                     </Box>
-                ) : users.length === 0 ? (
-                    <Typography color="text.secondary">Nincs felhasználó.</Typography>
+                ) : filteredUsers.length === 0 ? (
+                    <Typography color="text.secondary">
+                        {search ? "Nincs találat." : "Nincs felhasználó."}
+                    </Typography>
                 ) : (
-                    <Stack spacing={2}>
-                        {users.map((u) => {
+                    <Stack spacing={2} className={styles.list}>
+                        {filteredUsers.map((u) => {
                             const id = u.id ?? u.userId;
                             return (
-                                <Paper key={id ?? JSON.stringify(u)} sx={{ p: 2 }}>
+                                <Paper key={id ?? JSON.stringify(u)} className={styles.userCard}>
                                     <Stack
                                         direction={{ xs: "column", sm: "row" }}
                                         justifyContent="space-between"
@@ -82,32 +126,43 @@ export default function AdminUsersPage() {
                                         <Box>
                                             <Typography fontWeight={800}>
                                                 {u.username ?? "—"}{" "}
-                                                <Typography component="span" sx={{ opacity: 0.7 }}>
+                                                <Typography component="span" className={styles.userIdText}>
                                                     #{id ?? "?"}
                                                 </Typography>
                                             </Typography>
                                             {u.email ? (
-                                                <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                                                <Typography variant="body2" className={styles.userMeta}>
                                                     {u.email}
                                                 </Typography>
                                             ) : null}
                                             {u.role ? (
-                                                <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                                                <Typography variant="body2" className={styles.userMeta}>
                                                     Role: {u.role}
                                                 </Typography>
                                             ) : null}
                                         </Box>
 
-                                        {id != null ? (
-                                            <Button
-                                                color="error"
-                                                size="small"
-                                                onClick={() => onDelete(id, u.username)}
-                                                disabled={deletingId === id}
-                                            >
-                                                {deletingId === id ? "Törlés..." : "Törlés"}
-                                            </Button>
-                                        ) : null}
+                                        <Stack direction="row" gap={1}>
+                                            {id != null && (
+                                                <Button
+                                                    size="small"
+                                                    variant="outlined"
+                                                    onClick={() => navigate(`/admin/users/${id}`)}
+                                                >
+                                                    Részletek
+                                                </Button>
+                                            )}
+                                            {canDelete(u) ? (
+                                                <Button
+                                                    color="error"
+                                                    size="small"
+                                                    onClick={() => onDelete(id, u.username)}
+                                                    disabled={deletingId === id}
+                                                >
+                                                    {deletingId === id ? "Törlés..." : "Törlés"}
+                                                </Button>
+                                            ) : null}
+                                        </Stack>
                                     </Stack>
                                 </Paper>
                             );

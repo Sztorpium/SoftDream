@@ -1,0 +1,11 @@
+.footer {
+    margin-top: 48px;
+    padding: 24px 0;
+    border-top: 1px solid rgba(125, 151, 201, 0.28);
+    background: linear-gradient(180deg, rgba(18, 29, 49, 0.72) 0%, rgba(12, 20, 36, 0.92) 100%);
+}
+
+.footerText {
+    opacity: 0.88;
+    color: #b9c8e6;
+}

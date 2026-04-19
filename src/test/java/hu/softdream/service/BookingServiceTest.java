@@ -24,6 +24,9 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -41,6 +44,9 @@ class BookingServiceTest {
 
     @Mock
     private RoomRepository roomRepository;
+
+    @Mock
+    private EmailService emailService;
 
     @InjectMocks
     private BookingService bookingService;
@@ -182,7 +188,7 @@ class BookingServiceTest {
         when(bookingRepository.findById(1)).thenReturn(Optional.of(testBooking));
 
         // When
-        BookingResponse response = bookingService.getBookingById(1);
+        BookingResponse response = bookingService.getBookingById(1, 1, false);
 
         // Then
         assertNotNull(response);
@@ -198,7 +204,7 @@ class BookingServiceTest {
 
         // When & Then
         assertThrows(ResourceNotFoundException.class,
-                () -> bookingService.getBookingById(999));
+                () -> bookingService.getBookingById(999, 1, false));
     }
 
     @Test
@@ -258,6 +264,8 @@ class BookingServiceTest {
                 .user(testUser)
                 .room(testRoom)
                 .status(BookingStatus.PENDING)
+                .checkIn(java.time.LocalDate.of(2026, 5, 1))
+                .checkOut(java.time.LocalDate.of(2026, 5, 3))
                 .build();
 
         Booking confirmedBooking = Booking.builder()
@@ -265,6 +273,8 @@ class BookingServiceTest {
                 .user(testUser)
                 .room(testRoom)
                 .status(BookingStatus.CONFIRMED)
+                .checkIn(java.time.LocalDate.of(2026, 5, 1))
+                .checkOut(java.time.LocalDate.of(2026, 5, 3))
                 .build();
 
         when(bookingRepository.findById(1)).thenReturn(Optional.of(pendingBooking));
@@ -300,7 +310,7 @@ class BookingServiceTest {
         when(bookingRepository.save(any(Booking.class))).thenReturn(cancelledBooking);
 
         // When
-        BookingResponse response = bookingService.cancelBooking(1);
+        BookingResponse response = bookingService.cancelBooking(1, 1, false);
 
         // Then
         assertEquals(BookingStatus.CANCELLED.name(), response.getStatus());
@@ -339,13 +349,13 @@ class BookingServiceTest {
     @DisplayName("Összes foglalás lekérése - üres lista")
     void testGetAllBookings_Empty() {
         // Given
-        when(bookingRepository.findAll()).thenReturn(Collections.emptyList());
+        when(bookingRepository.findAll(any(Pageable.class))).thenReturn(Page.empty());
 
         // When
-        List<BookingResponse> responses = bookingService.getAllBookings();
+        Page<BookingResponse> responses = bookingService.getAllBookings(Pageable.unpaged());
 
         // Then
-        assertTrue(responses.isEmpty());
+        assertTrue(responses.getContent().isEmpty());
     }
 
     @Test
@@ -353,13 +363,14 @@ class BookingServiceTest {
     void testGetAllBookings_Multiple() {
         // Given
         List<Booking> bookings = List.of(testBooking);
-        when(bookingRepository.findAll()).thenReturn(bookings);
+        when(bookingRepository.findAll(any(Pageable.class)))
+                .thenReturn(new PageImpl<>(bookings));
 
         // When
-        List<BookingResponse> responses = bookingService.getAllBookings();
+        Page<BookingResponse> responses = bookingService.getAllBookings(Pageable.unpaged());
 
         // Then
-        assertFalse(responses.isEmpty());
-        assertEquals(1, responses.size());
+        assertFalse(responses.getContent().isEmpty());
+        assertEquals(1, responses.getContent().size());
     }
 }

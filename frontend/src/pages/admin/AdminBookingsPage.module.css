@@ -1,0 +1,79 @@
+.page {
+    padding: 32px 0;
+}
+
+.content {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    border-left: 4px solid rgba(78, 168, 255, 0.34);
+    padding-left: 20px;
+}
+
+.list {
+    width: 100%;
+}
+
+@media (max-width: 600px) {
+    .page {
+        padding: 16px 0;
+    }
+
+    .content {
+        padding-left: 12px;
+    }
+}
+
+.adminBadge {
+    display: inline-block;
+    background: rgba(78, 168, 255, 0.16);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #8fc8ff;
+    margin-bottom: 4px;
+}
+
+.loadingBox {
+    display: flex;
+    justify-content: center;
+    padding: 48px 0;
+}
+
+.bookingCard {
+    width: 100%;
+    padding: 16px;
+    transition: box-shadow 0.2s ease;
+}
+
+.bookingCard:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.bookingMeta {
+    opacity: 0.85;
+}
+
+.actionRow {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.actionButton {
+    min-width: 92px;
+}
+
+.actionButtonBusy {
+    opacity: 1;
+}
+
+.actionButtonBusy:disabled {
+    color: #8fc8ff;
+    border-color: rgba(143, 200, 255, 0.5);
+    background-color: rgba(78, 168, 255, 0.12);
+}

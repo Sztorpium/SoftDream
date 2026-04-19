@@ -16,6 +16,7 @@ import {
     deleteBooking,
     getAllBookings,
 } from "../../api/bookings";
+import styles from "./AdminBookingsPage.module.css";
 
 const STATUS_COLOR = {
     CONFIRMED: "success",
@@ -28,6 +29,7 @@ export default function AdminBookingsPage() {
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState("");
     const [actingId, setActingId] = React.useState(null);
+    const [actingAction, setActingAction] = React.useState(null);
 
     const load = React.useCallback(async () => {
         setLoading(true);
@@ -48,6 +50,7 @@ export default function AdminBookingsPage() {
 
     async function onConfirm(id) {
         setActingId(id);
+        setActingAction("confirm");
         setError("");
         try {
             await confirmBooking(id);
@@ -56,6 +59,7 @@ export default function AdminBookingsPage() {
             setError(err?.message || "Nem sikerült megerősíteni a foglalást.");
         } finally {
             setActingId(null);
+            setActingAction(null);
         }
     }
 
@@ -64,6 +68,7 @@ export default function AdminBookingsPage() {
         if (!ok) return;
 
         setActingId(id);
+        setActingAction("cancel");
         setError("");
         try {
             await cancelBooking(id);
@@ -72,6 +77,7 @@ export default function AdminBookingsPage() {
             setError(err?.message || "Nem sikerült lemondani a foglalást.");
         } finally {
             setActingId(null);
+            setActingAction(null);
         }
     }
 
@@ -80,6 +86,7 @@ export default function AdminBookingsPage() {
         if (!ok) return;
 
         setActingId(id);
+        setActingAction("delete");
         setError("");
         try {
             await deleteBooking(id);
@@ -88,12 +95,16 @@ export default function AdminBookingsPage() {
             setError(err?.message || "Nem sikerült törölni a foglalást.");
         } finally {
             setActingId(null);
+            setActingAction(null);
         }
     }
 
     return (
-        <Container sx={{ py: 3 }} maxWidth="md">
-            <Stack spacing={2}>
+        <Container className={styles.page} maxWidth="lg">
+            <Stack spacing={2} className={styles.content}>
+                <div>
+                    <span className={styles.adminBadge}>Admin</span>
+                </div>
                 <Typography variant="h4" component="h1">
                     Admin – Bookings
                 </Typography>
@@ -101,20 +112,21 @@ export default function AdminBookingsPage() {
                 {error ? <Alert severity="error">{error}</Alert> : null}
 
                 {loading ? (
-                    <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+                    <Box className={styles.loadingBox}>
                         <CircularProgress />
                     </Box>
                 ) : bookings.length === 0 ? (
                     <Typography color="text.secondary">Nincs foglalás.</Typography>
                 ) : (
-                    <Stack spacing={2}>
+                    <Stack spacing={2} className={styles.list}>
                         {bookings.map((b) => {
                             const id = b.id ?? b.bookingId;
-                            const status = b.status ?? "—";
+                            const status = String(b.status ?? "").toUpperCase() || "—";
                             const disabled = actingId === id;
-
+                            const canConfirm = status === "PENDING";
+                            const canCancel = status === "PENDING" || status === "CONFIRMED";
                             return (
-                                <Paper key={id ?? JSON.stringify(b)} sx={{ p: 2 }}>
+                                <Paper key={id ?? JSON.stringify(b)} className={styles.bookingCard}>
                                     <Stack spacing={1}>
                                         <Stack
                                             direction={{ xs: "column", sm: "row" }}
@@ -126,11 +138,11 @@ export default function AdminBookingsPage() {
                                                 <Typography fontWeight={800}>
                                                     Foglalás #{id ?? "?"}
                                                 </Typography>
-                                                <Typography variant="body2" sx={{ opacity: 0.85 }}>
-                                                    User: {b.userId ?? b.user?.id ?? "–"} | Room:{" "}
-                                                    {b.roomId ?? b.room?.id ?? "–"}
+                                                <Typography variant="body2" className={styles.bookingMeta}>
+                                                    User: {b.username ?? b.userId ?? b.user?.id ?? "–"} | Room:{" "}
+                                                    {b.roomNumber ?? b.roomId ?? b.room?.id ?? "–"}
                                                 </Typography>
-                                                <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                                                <Typography variant="body2" className={styles.bookingMeta}>
                                                     {b.checkIn ?? "?"} → {b.checkOut ?? "?"}
                                                 </Typography>
                                             </Box>
@@ -141,26 +153,34 @@ export default function AdminBookingsPage() {
                                                 size="small"
                                             />
                                         </Stack>
-
                                         <Stack direction="row" gap={1} flexWrap="wrap" justifyContent="flex-end">
-                                            <Button
-                                                size="small"
-                                                variant="outlined"
-                                                onClick={() => onConfirm(id)}
-                                                disabled={disabled || id == null}
-                                            >
-                                                {disabled ? "..." : "Confirm"}
-                                            </Button>
+                                            {canConfirm ? (
+                                                <Button
+                                                    size="small"
+                                                    variant="contained"
+                                                    color="success"
+                                                    onClick={() => onConfirm(id)}
+                                                    disabled={disabled || id == null}
+                                                >
+                                                    {disabled && actingAction === "confirm"
+                                                        ? "Folyamatban..."
+                                                        : "Megerősítés"}
+                                                </Button>
+                                            ) : null}
 
-                                            <Button
-                                                size="small"
-                                                variant="outlined"
-                                                color="warning"
-                                                onClick={() => onCancel(id)}
-                                                disabled={disabled || id == null}
-                                            >
-                                                {disabled ? "..." : "Cancel"}
-                                            </Button>
+                                            {canCancel ? (
+                                                <Button
+                                                    size="small"
+                                                    variant="outlined"
+                                                    color="warning"
+                                                    onClick={() => onCancel(id)}
+                                                    disabled={disabled || id == null}
+                                                >
+                                                    {disabled && actingAction === "cancel"
+                                                        ? "Folyamatban..."
+                                                        : "Lemondás"}
+                                                </Button>
+                                            ) : null}
 
                                             <Button
                                                 size="small"
@@ -169,7 +189,9 @@ export default function AdminBookingsPage() {
                                                 onClick={() => onDelete(id)}
                                                 disabled={disabled || id == null}
                                             >
-                                                {disabled ? "..." : "Delete"}
+                                                {disabled && actingAction === "delete"
+                                                    ? "Folyamatban..."
+                                                    : "Törlés"}
                                             </Button>
                                         </Stack>
                                     </Stack>

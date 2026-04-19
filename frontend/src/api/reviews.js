@@ -20,6 +20,10 @@ export function getMyReviews() {
     return apiGet("/api/reviews/my-reviews");
 }
 
+export function getReviewsByUserId(userId) {
+    return apiGet(`/api/reviews/user/${userId}`);
+}
+
 export function createReview(data) {
     return apiPost("/api/reviews", data);
 }

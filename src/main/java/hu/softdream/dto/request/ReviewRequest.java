@@ -3,6 +3,7 @@ package hu.softdream.dto.request;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,5 +23,6 @@ public class ReviewRequest {
     @Max(value = 5, message = "Az értékelés legfeljebb 5 lehet!")
     private Integer rating;
 
+    @Size(max = 2000, message = "A megjegyzés legfeljebb 2000 karakter lehet!")
     private String comment;
 }

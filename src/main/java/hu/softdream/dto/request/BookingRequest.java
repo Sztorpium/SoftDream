@@ -24,6 +24,6 @@ public class BookingRequest {
     private LocalDate checkIn;
 
     @NotNull(message = "A kijelentkezés dátuma kötelező!")
-    @FutureOrPresent(message = "A kijelentkezés dátuma nem lehet múltban!")
+    @Future(message = "A kijelentkezés dátuma a mai napnál később kell legyen!")
     private LocalDate checkOut;
 }

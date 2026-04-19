@@ -1,0 +1,144 @@
+.page {
+    padding: 32px 0;
+}
+
+.content {
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+}
+
+.headerBlock {
+    padding: 4px 4px 0;
+}
+
+.identityCard {
+    margin-top: 16px;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+    background: linear-gradient(120deg, rgba(32, 54, 92, 0.74), rgba(19, 33, 57, 0.68));
+    border: 1px solid rgba(132, 176, 255, 0.3);
+}
+
+.identityAvatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: #eff5ff;
+    background: linear-gradient(140deg, rgba(111, 176, 255, 0.56), rgba(88, 136, 220, 0.48));
+    border: 1px solid rgba(182, 210, 255, 0.35);
+}
+
+.identityMeta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.metaPill {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #dce8ff;
+    background: rgba(74, 127, 211, 0.24);
+    border: 1px solid rgba(124, 170, 249, 0.32);
+}
+
+.kicker {
+    color: #8fc8ff;
+    letter-spacing: 0.22em;
+    font-weight: 800;
+}
+
+.lead {
+    max-width: 720px;
+    color: rgba(233, 239, 255, 0.78);
+}
+
+.heroCard,
+.profileCard {
+    width: 100%;
+    padding: 20px;
+}
+
+.unlockForm {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.mutedText {
+    color: rgba(233, 239, 255, 0.74);
+}
+
+.statusPill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(78, 168, 255, 0.16);
+    color: #8fc8ff;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 20px;
+}
+
+.fieldLabel {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(167, 182, 215, 0.92);
+    margin-bottom: 6px;
+}
+
+.fieldValue {
+    display: block;
+    font-weight: 700;
+    color: #e9efff;
+    word-break: break-word;
+}
+
+@media (max-width: 700px) {
+    .page {
+        padding: 16px 0;
+    }
+
+    .unlockForm,
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .heroCard,
+    .profileCard {
+        padding: 16px;
+    }
+
+    .identityCard {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .identityMeta {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+}

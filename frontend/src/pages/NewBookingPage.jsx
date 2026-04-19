@@ -3,16 +3,21 @@ import {
     Alert,
     Box,
     Button,
+    Chip,
     CircularProgress,
     Container,
     Paper,
     Stack,
-    TextField,
     Typography,
 } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { createBooking } from "../api/bookings";
-import { getRoomById } from "../api/rooms";
+import { getRoomById, getRoomBookedDates } from "../api/rooms";
+import styles from "./NewBookingPage.module.css";
 
 export default function NewBookingPage() {
     const navigate = useNavigate();
@@ -24,8 +29,10 @@ export default function NewBookingPage() {
     const [loadingRoom, setLoadingRoom] = React.useState(Boolean(roomId));
     const [roomError, setRoomError] = React.useState("");
 
-    const [checkIn, setCheckIn] = React.useState("");
-    const [checkOut, setCheckOut] = React.useState("");
+    const [bookedDates, setBookedDates] = React.useState([]);
+
+    const [checkIn, setCheckIn] = React.useState(null);
+    const [checkOut, setCheckOut] = React.useState(null);
 
     const [submitError, setSubmitError] = React.useState("");
     const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -38,15 +45,20 @@ export default function NewBookingPage() {
                 setRoom(null);
                 setLoadingRoom(false);
                 setRoomError("");
+                setBookedDates([]);
                 return;
             }
 
             setLoadingRoom(true);
             setRoomError("");
             try {
-                const data = await getRoomById(roomId);
+                const [roomData, dates] = await Promise.all([
+                    getRoomById(roomId),
+                    getRoomBookedDates(roomId),
+                ]);
                 if (!alive) return;
-                setRoom(data ?? null);
+                setRoom(roomData ?? null);
+                setBookedDates(Array.isArray(dates) ? dates : []);
             } catch (err) {
                 if (!alive) return;
                 setRoomError(err?.message || "Nem sikerült betölteni a szobát.");
@@ -61,7 +73,23 @@ export default function NewBookingPage() {
         };
     }, [roomId]);
 
-    const canSubmit = Boolean(roomId && checkIn && checkOut) && !isSubmitting;
+    function isDateBooked(date) {
+        return bookedDates.some(({ checkIn: bIn, checkOut: bOut }) => {
+            return date.isAfter(dayjs(bIn).subtract(1, "day")) &&
+                date.isBefore(dayjs(bOut));
+        });
+    }
+
+    // Returns true if the [from, to) range overlaps with any existing booking.
+    // Used to prevent "surrounding" a booked period with a new booking.
+    function rangeOverlapsBooking(from, to) {
+        if (!from || !to) return false;
+        return bookedDates.some(({ checkIn: bIn, checkOut: bOut }) => {
+            return dayjs(bIn).isBefore(to) && dayjs(bOut).isAfter(from);
+        });
+    }
+    const rangeConflict = rangeOverlapsBooking(checkIn, checkOut);
+    const canSubmit = Boolean(roomId && checkIn && checkOut) && !isSubmitting && !rangeConflict;
 
     async function onSubmit(e) {
         e.preventDefault();
@@ -73,8 +101,8 @@ export default function NewBookingPage() {
         try {
             await createBooking({
                 roomId: Number(roomId),
-                checkIn,
-                checkOut,
+                checkIn: checkIn.format("YYYY-MM-DD"),
+                checkOut: checkOut.format("YYYY-MM-DD"),
             });
             navigate("/my-bookings", { replace: true });
         } catch (err) {
@@ -84,9 +112,11 @@ export default function NewBookingPage() {
         }
     }
 
+    const today = dayjs();
+
     return (
-        <Container sx={{ py: 3 }} maxWidth="sm">
-            <Paper sx={{ p: 3 }}>
+        <Container className={styles.page} maxWidth="sm">
+            <Paper className={styles.formPaper}>
                 <Stack spacing={2} component="form" onSubmit={onSubmit} noValidate>
                     <Typography variant="h4" component="h1">
                         Új foglalás
@@ -94,14 +124,14 @@ export default function NewBookingPage() {
 
                     {roomId ? (
                         loadingRoom ? (
-                            <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+                            <Box className={styles.loadingBox}>
                                 <CircularProgress size={22} />
                             </Box>
                         ) : roomError ? (
                             <Alert severity="error">{roomError}</Alert>
                         ) : room ? (
                             <Alert severity="info">
-                                Szoba: {room.name ?? `#${room.id ?? room.roomId ?? roomId}`}
+                                Szoba: {room.roomNumber ?? `#${room.roomId ?? roomId}`}
                             </Alert>
                         ) : null
                     ) : (
@@ -111,27 +141,63 @@ export default function NewBookingPage() {
                         </Alert>
                     )}
 
+                    {bookedDates.length > 0 && (
+                        <Box>
+                            <Typography variant="subtitle2" gutterBottom>
+                                Nem elérhető időszakok:
+                            </Typography>
+                            <Box className={styles.bookedDatesBox}>
+                                {bookedDates.map((d, i) => (
+                                    <Chip
+                                        key={i}
+                                        label={`${d.checkIn} – ${d.checkOut}`}
+                                        color="error"
+                                        size="small"
+                                        variant="outlined"
+                                    />
+                                ))}
+                            </Box>
+                        </Box>
+                    )}
+
                     {submitError ? <Alert severity="error">{submitError}</Alert> : null}
 
-                    <TextField
-                        label="Check-in"
-                        type="date"
-                        value={checkIn}
-                        onChange={(e) => setCheckIn(e.target.value)}
-                        InputLabelProps={{ shrink: true }}
-                        required
-                        fullWidth
-                    />
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                            label="Check-in"
+                            value={checkIn}
+                            onChange={(val) => {
+                                setCheckIn(val);
+                                setSubmitError("");
+                                if (checkOut && val) {
+                                    if (!checkOut.isAfter(val) || rangeOverlapsBooking(val, checkOut)) {
+                                        setCheckOut(null);
+                                    }
+                                }
+                            }}
+                            minDate={today}
+                            shouldDisableDate={(date) =>
+                                isDateBooked(date) ||
+                                (checkOut ? rangeOverlapsBooking(date, checkOut) : false)
+                            }
+                            slotProps={{ textField: { required: true, fullWidth: true } }}
+                        />
 
-                    <TextField
-                        label="Check-out"
-                        type="date"
-                        value={checkOut}
-                        onChange={(e) => setCheckOut(e.target.value)}
-                        InputLabelProps={{ shrink: true }}
-                        required
-                        fullWidth
-                    />
+                        <DatePicker
+                            label="Check-out"
+                            value={checkOut}
+                            onChange={(val) => {
+                                setCheckOut(val);
+                                setSubmitError("");
+                            }}
+                            minDate={checkIn ? checkIn.add(1, "day") : today.add(1, "day")}
+                            shouldDisableDate={(date) =>
+                                isDateBooked(date) ||
+                                (checkIn ? rangeOverlapsBooking(checkIn, date) : false)
+                            }
+                            slotProps={{ textField: { required: true, fullWidth: true } }}
+                        />
+                    </LocalizationProvider>
 
                     <Button type="submit" variant="contained" disabled={!canSubmit}>
                         {isSubmitting ? "Mentés..." : "Foglalás létrehozása"}

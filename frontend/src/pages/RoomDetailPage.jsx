@@ -5,6 +5,7 @@ import {
     Button,
     Card,
     CardContent,
+    CardMedia,
     CircularProgress,
     Container,
     Divider,
@@ -14,6 +15,9 @@ import {
 import { Link as RouterLink, useParams } from "react-router-dom";
 import { getRoomById } from "../api/rooms";
 import { getAverageRating, getReviewsByRoomId } from "../api/reviews";
+import RatingStars from "../components/RatingStars";
+import { getRoomImage } from "../utils/roomImages";
+import styles from "./RoomDetailPage.module.css";
 
 export default function RoomDetailPage() {
     const { roomId } = useParams();
@@ -38,7 +42,6 @@ export default function RoomDetailPage() {
                     getReviewsByRoomId(roomId),
                     getAverageRating(roomId),
                 ]);
-
                 if (!alive) return;
 
                 setRoom(roomData ?? null);
@@ -66,9 +69,42 @@ export default function RoomDetailPage() {
         };
     }, [roomId]);
 
+    function formatPrice(price) {
+        if (price == null) return "—";
+        return new Intl.NumberFormat("hu-HU", { style: "currency", currency: "HUF" }).format(Number(price));
+    }
+
+    function parseDateSafe(value) {
+        if (!value) return null;
+        const date = value instanceof Date ? value : new Date(String(value));
+        return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function formatDate(value) {
+        const date = parseDateSafe(value);
+        if (!date) return value ?? "?";
+        return new Intl.DateTimeFormat("hu-HU", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        }).format(date);
+    }
+
+    function formatDateTime(value) {
+        const date = parseDateSafe(value);
+        if (!date) return value ?? "";
+        return new Intl.DateTimeFormat("hu-HU", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+        }).format(date);
+    }
+
     return (
-        <Container sx={{ py: 3 }} maxWidth="md">
-            <Stack spacing={2}>
+        <Container className={styles.page} maxWidth="lg">
+            <Stack spacing={2} className={styles.content}>
                 <Button component={RouterLink} to="/rooms" size="small">
                     ← Vissza a szobákhoz
                 </Button>
@@ -76,57 +112,76 @@ export default function RoomDetailPage() {
                 {error ? <Alert severity="error">{error}</Alert> : null}
 
                 {loading ? (
-                    <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+                    <Box className={styles.loadingBox}>
                         <CircularProgress />
                     </Box>
                 ) : room ? (
                     <>
-                        <Card variant="outlined">
+                        <Card variant="outlined" className={styles.roomCard}>
+                            <CardMedia
+                                component="img"
+                                height="320"
+                                image={getRoomImage(room.id ?? room.roomId ?? roomId)}
+                                alt={room.name ?? `Szoba #${room.id ?? room.roomId ?? roomId}`}
+                                className={styles.roomImg}
+                            />
                             <CardContent>
-                                <Stack spacing={1.2}>
-                                    <Typography variant="h4" component="h1">
+                                <Stack spacing={1.8}>
+                                    <Typography variant="h4" component="h1" fontWeight={800}>
                                         {room.name ?? `Szoba #${room.id ?? room.roomId ?? roomId}`}
                                     </Typography>
 
-                                    {room.description ? (
-                                        <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                                    {room.description && (
+                                        <Typography variant="body1" className={styles.roomDescription}>
                                             {room.description}
                                         </Typography>
-                                    ) : null}
+                                    )}
 
-                                    <Divider />
+                                    <Divider light />
 
-                                    <Stack spacing={0.5}>
-                                        {room.roomNumber != null ? (
-                                            <Typography variant="body2">
-                                                Szobaszám: {room.roomNumber}
+                                    <Stack
+                                        direction={{ xs: "column", sm: "row" }}
+                                        spacing={2}
+                                        alignItems={{ sm: "center" }}
+                                        justifyContent="space-between"
+                                    >
+                                        <Stack spacing={0.2}>
+                                            {room.roomNumber != null && (
+                                                <Typography variant="body2">
+                                                    <b>Szobaszám:</b> {room.roomNumber}
+                                                </Typography>
+                                            )}
+                                            {room.type ? (
+                                                <Typography variant="body2">
+                                                    <b>Típus:</b> {room.type}
+                                                </Typography>
+                                            ) : null}
+                                            {room.status && (
+                                                <Typography variant="body2">
+                                                    <b>Státusz:</b> {room.status}
+                                                </Typography>
+                                            )}
+                                        </Stack>
+                                        <Box>
+                                            <Typography variant="body2" className={styles.priceText}>
+                                                {formatPrice(room.pricePerNight)}
+                                                <Typography component="span" variant="body2" className={styles.priceUnit}>
+                                                    {" "}
+                                                    / éj
+                                                </Typography>
                                             </Typography>
-                                        ) : null}
-                                        {room.type?.name ? (
-                                            <Typography variant="body2">
-                                                Típus: {room.type.name}
-                                            </Typography>
-                                        ) : room.roomType ? (
-                                            <Typography variant="body2">
-                                                Típus: {room.roomType}
-                                            </Typography>
-                                        ) : null}
-                                        {room.pricePerNight != null ? (
-                                            <Typography variant="body2">
-                                                Ár / éj: {room.pricePerNight}
-                                            </Typography>
-                                        ) : null}
-                                        {room.status ? (
-                                            <Typography variant="body2">
-                                                Státusz: {room.status}
-                                            </Typography>
-                                        ) : null}
-                                        {avgRating != null ? (
-                                            <Typography variant="body2">
-                                                Átlagos értékelés: {avgRating}
-                                            </Typography>
-                                        ) : null}
+                                        </Box>
                                     </Stack>
+
+                                    {/* Average rating with stars */}
+                                    {avgRating != null && (
+                                        <Box className={styles.ratingRow}>
+                                            <RatingStars value={avgRating} size={24} />
+                                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                                                {avgRating.toFixed(1)}/5
+                                            </Typography>
+                                        </Box>
+                                    )}
 
                                     <Box sx={{ pt: 1 }}>
                                         <Button
@@ -141,37 +196,46 @@ export default function RoomDetailPage() {
                             </CardContent>
                         </Card>
 
-                        <Card variant="outlined">
+                        <Card variant="outlined" className={styles.reviewsCard}>
                             <CardContent>
                                 <Typography variant="h6" gutterBottom>
                                     Értékelések
                                 </Typography>
-
                                 {reviews.length === 0 ? (
                                     <Typography variant="body2" sx={{ opacity: 0.8 }}>
                                         Ehhez a szobához még nincs értékelés.
                                     </Typography>
                                 ) : (
-                                    <Stack spacing={1.5}>
+                                    <Stack spacing={1.5} className={styles.reviewsList}>
                                         {reviews.map((r) => (
                                             <Box
                                                 key={r.id ?? r.reviewId ?? JSON.stringify(r)}
-                                                sx={{ borderBottom: "1px solid rgba(0,0,0,0.08)", pb: 1 }}
+                                                className={styles.reviewItem}
                                             >
-                                                <Typography variant="subtitle2">
-                                                    {r.username ?? r.user?.username ?? "Felhasználó"}
-                                                    {r.rating != null ? ` — ${r.rating}/5` : ""}
-                                                </Typography>
-                                                {r.comment ? (
-                                                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                                                <Box className={styles.reviewHeader}>
+                                                    <Typography variant="subtitle2" className={styles.reviewUsername}>
+                                                        {r.username ?? r.user?.username ?? "Felhasználó"}
+                                                    </Typography>
+                                                    <RatingStars value={r.rating} />
+                                                    <Typography variant="body2" className={styles.reviewRating}>
+                                                        {r.rating != null ? `${r.rating}/5` : ""}
+                                                    </Typography>
+                                                </Box>
+                                                {r.comment && (
+                                                    <Typography variant="body2" className={styles.reviewComment}>
                                                         {r.comment}
                                                     </Typography>
-                                                ) : null}
-                                                {r.createdAt ? (
-                                                    <Typography variant="caption" sx={{ opacity: 0.7 }}>
-                                                        {String(r.createdAt)}
+                                                )}
+                                                {(r.checkIn || r.checkOut) && (
+                                                    <Typography variant="caption" className={styles.reviewCaption} display="block">
+                                                        Szállás: {formatDate(r.checkIn) ?? "?"} – {formatDate(r.checkOut) ?? "?"}
                                                     </Typography>
-                                                ) : null}
+                                                )}
+                                                {r.createdAt && (
+                                                    <Typography variant="caption" className={styles.reviewCaption} display="block">
+                                                        Értékelés ideje: {formatDateTime(r.createdAt)}
+                                                    </Typography>
+                                                )}
                                             </Box>
                                         ))}
                                     </Stack>

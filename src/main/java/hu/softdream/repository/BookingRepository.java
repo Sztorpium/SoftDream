@@ -15,10 +15,17 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     List<Booking> findByUser_UserId(Integer userId);
     List<Booking> findByRoom_RoomId(Integer roomId);
     List<Booking> findByStatus(BookingStatus status);
+    List<Booking> findByUser_UserIdAndRoom_RoomId(Integer userId, Integer roomId);
+
+    @Query("SELECT b FROM Booking b WHERE b.user.userId IN :userIds AND b.room.roomId IN :roomIds")
+    List<Booking> findByUserIdsAndRoomIds(@Param("userIds") List<Integer> userIds,
+                                          @Param("roomIds") List<Integer> roomIds);
+
 
     @Query("SELECT b FROM Booking b WHERE b.room.roomId = :roomId AND " +
             "((b.checkIn <= :checkOut AND b.checkOut >= :checkIn)) AND " +
-            "b.status = hu.softdream.entity.enums.BookingStatus.CONFIRMED")
+            "(b.status = hu.softdream.entity.enums.BookingStatus.CONFIRMED OR " +
+            "b.status = hu.softdream.entity.enums.BookingStatus.PENDING)")
     List<Booking> findConflictingBookings(@Param("roomId") Integer roomId,
                                           @Param("checkIn") LocalDate checkIn,
                                           @Param("checkOut") LocalDate checkOut);
