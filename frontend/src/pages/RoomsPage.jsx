@@ -20,6 +20,7 @@ import { Link as RouterLink } from "react-router-dom";
 import { getAllRooms } from "../api/rooms";
 import RatingStars from "../components/RatingStars";
 import { getRoomImage } from "../utils/roomImages";
+import { translateRoomType } from "../utils/displayText";
 import styles from "./RoomsPage.module.css";
 
 function formatPrice(v) {
@@ -143,7 +144,7 @@ export default function RoomsPage() {
                                     <TextField
                                         value={q}
                                         onChange={(e) => setQ(e.target.value)}
-                                        placeholder="pl. deluxe, panoráma, családi"
+                                        placeholder="pl. luxus, panorámás, családi"
                                         size="small"
                                         fullWidth
                                     />
@@ -161,7 +162,7 @@ export default function RoomsPage() {
                                     >
                                         {roomTypes.map((t) => (
                                             <MenuItem key={t} value={t}>
-                                                {t === "ALL" ? "Összes" : t}
+                                                {t === "ALL" ? "Összes" : translateRoomType(t)}
                                             </MenuItem>
                                         ))}
                                     </TextField>
@@ -289,7 +290,7 @@ export default function RoomsPage() {
                                                     </Typography>
                                                     <Chip
                                                         size="small"
-                                                        label={getRoomType(r) || "Room"}
+                                                        label={translateRoomType(getRoomType(r) || "") || "Szoba"}
                                                         variant="outlined"
                                                     />
                                                 </Box>
@@ -308,7 +309,7 @@ export default function RoomsPage() {
 
                                                 <Typography variant="h6" className={styles.priceText}>
                                                     {formatPrice(price)}{" "}
-                                                    <Typography component="span" variant="body2" className={styles.priceUnit}>
+                                                    <Typography component="span" variant="subtitle2" className={styles.priceUnit}>
                                                         / éj
                                                     </Typography>
                                                 </Typography>

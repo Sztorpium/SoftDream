@@ -136,7 +136,7 @@ export default function NewBookingPage() {
                         ) : null
                     ) : (
                         <Alert severity="warning">
-                            Hiányzik a <strong>roomId</strong> a URL-ből. Nyisd meg a foglalást a szoba
+                            Hiányzik a <strong>szobaazonosító</strong> a URL-ből. Nyisd meg a foglalást a szoba
                             részleteinél.
                         </Alert>
                     )}
@@ -164,7 +164,7 @@ export default function NewBookingPage() {
 
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                            label="Check-in"
+                            label="Érkezés"
                             value={checkIn}
                             onChange={(val) => {
                                 setCheckIn(val);
@@ -184,7 +184,7 @@ export default function NewBookingPage() {
                         />
 
                         <DatePicker
-                            label="Check-out"
+                            label="Távozás"
                             value={checkOut}
                             onChange={(val) => {
                                 setCheckOut(val);

@@ -15,6 +15,7 @@ import {
 import { getUserById } from "../../api/users";
 import { getBookingsByUserId, deleteBooking } from "../../api/bookings";
 import { getReviewsByUserId, deleteReview } from "../../api/reviews";
+import { translateBookingStatus, translateRole } from "../../utils/displayText";
 import styles from "./AdminUserDetailsPage.module.css";
 const STATUS_COLOR = {
     CONFIRMED: "success",
@@ -117,7 +118,7 @@ export default function AdminUserDetailsPage() {
                                     <Typography variant="body2">{user.phone}</Typography>
                                 )}
                                 {user.role && (
-                                    <Typography variant="body2">Role: {user.role}</Typography>
+                                    <Typography variant="body2">Szerepkör: {translateRole(user.role)}</Typography>
                                 )}
                             </Paper>
                         )}
@@ -154,7 +155,7 @@ export default function AdminUserDetailsPage() {
                                                 </Box>
                                                 <Stack direction="row" gap={1} alignItems="center">
                                                     <Chip
-                                                        label={status}
+                                                        label={translateBookingStatus(status)}
                                                         color={STATUS_COLOR[status] ?? "default"}
                                                         size="small"
                                                     />

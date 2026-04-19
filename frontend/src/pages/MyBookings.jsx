@@ -20,6 +20,7 @@ import {
 import { getMyBookings } from "../api/bookings";
 import { createReview, getAverageRating, getMyReviews } from "../api/reviews";
 import RatingStars from "../components/RatingStars";
+import { translateBookingStatus } from "../utils/displayText";
 import styles from "./MyBookings.module.css";
 
 const STATUS_COLOR = {
@@ -285,7 +286,7 @@ export default function MyBookings() {
                                             </Button>
                                         )}
                                         <Chip
-                                            label={booking.status}
+                                            label={translateBookingStatus(booking.status)}
                                             color={STATUS_COLOR[booking.status] ?? "default"}
                                             size="small"
                                         />

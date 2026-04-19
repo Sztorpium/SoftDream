@@ -6,10 +6,10 @@ export default function Home() {
     return (
         <Container className={styles.page}>
             <Typography variant="h4" component="h1" className={styles.title} gutterBottom>
-                Home
+                Kezdőlap
             </Typography>
             <Typography variant="body1" color="text.secondary" className={styles.subtitle}>
-                Welcome to SoftDream frontend.
+                Üdvözlünk a SoftDream felületén.
             </Typography>
         </Container>
     );

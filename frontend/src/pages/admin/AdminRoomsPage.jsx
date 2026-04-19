@@ -16,20 +16,21 @@ import {
     Typography,
 } from "@mui/material";
 import { createRoom, deleteRoom, getAllRooms, updateRoomStatus } from "../../api/rooms";
+import { translateRoomStatus, translateRoomType } from "../../utils/displayText";
 import styles from "./AdminRoomsPage.module.css";
 
 const ROOM_TYPE_OPTIONS = [
-    { id: 1, label: "SINGLE" },
-    { id: 2, label: "DOUBLE" },
-    { id: 3, label: "TRIPLE" },
-    { id: 4, label: "SUITE" },
-    { id: 5, label: "PENTHOUSE" },
+    { id: 1, code: "SINGLE", label: "Egyágyas" },
+    { id: 2, code: "DOUBLE", label: "Kétágyas" },
+    { id: 3, code: "TRIPLE", label: "Háromágyas" },
+    { id: 4, code: "SUITE", label: "Lakosztály" },
+    { id: 5, code: "PENTHOUSE", label: "Penthouse" },
 ];
 
 const ROOM_STATUS_OPTIONS = [
-    { id: 1, label: "AVAILABLE" },
-    { id: 2, label: "BOOKED" },
-    { id: 3, label: "MAINTENANCE" },
+    { id: 1, code: "AVAILABLE", label: "Elérhető" },
+    { id: 2, code: "BOOKED", label: "Foglalt" },
+    { id: 3, code: "MAINTENANCE", label: "Karbantartás alatt" },
 ];
 
 function getRoomId(room) {
@@ -38,7 +39,7 @@ function getRoomId(room) {
 
 function getStatusIdByName(status) {
     const normalized = String(status ?? "").toUpperCase();
-    const match = ROOM_STATUS_OPTIONS.find((option) => option.label === normalized);
+    const match = ROOM_STATUS_OPTIONS.find((option) => option.code === normalized);
     return match?.id ?? "";
 }
 
@@ -175,7 +176,7 @@ export default function AdminRoomsPage() {
 
                 <Box>
                     <Typography variant="h4" component="h1">
-                        Admin – Rooms
+                        Admin - Szobák
                     </Typography>
                     <Typography variant="body2" className={styles.pageSubtitle}>
                         Itt lehet új szobát létrehozni, valamint a meglévő szobák státuszát módosítani vagy törölni.
@@ -277,8 +278,8 @@ export default function AdminRoomsPage() {
                         {rooms.map((room) => {
                             const roomId = getRoomId(room);
                             const statusId = getStatusIdByName(room.status);
-                            const statusLabel = String(room.status ?? "—");
-                            const typeLabel = String(room.type ?? "—");
+                            const statusLabel = translateRoomStatus(room.status);
+                            const typeLabel = translateRoomType(room.type);
 
                             return (
                                 <Grid key={roomId ?? JSON.stringify(room)} size={{ xs: 12, md: 6 }}>

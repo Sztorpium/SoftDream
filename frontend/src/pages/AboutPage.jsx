@@ -246,7 +246,7 @@ export default function AboutPage() {
                                 >
                                     Hiszünk a személyre szabott vendéglátásban: nálunk nem csak
                                     egy szobát kap, hanem figyelmet, rugalmasságot és valódi
-                                    törődést. A check-in pillanatától egészen a távozásig azért
+                                    törődést. Az érkezés pillanatától egészen a távozásig azért
                                     dolgozunk, hogy Ön nyugodtan pihenhessen.
                                 </Typography>
 
