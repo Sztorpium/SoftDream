@@ -164,7 +164,7 @@ class AuthIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("login – helyes hitelesítő adatok (seeded admin) → 200, JWT token és ADMIN szerepkör")
     void login_correctCredentials_returns200AndToken() throws Exception {
         LoginRequest req = LoginRequest.builder()
-                .username(ADMIN_USERNAME).password(ADMIN_PASSWORD)
+                .username(ADMIN_USERNAME).password(adminPassword)
                 .build();
 
         mockMvc.perform(post("/api/auth/login")

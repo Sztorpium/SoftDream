@@ -9,6 +9,7 @@ import hu.softdream.dto.response.AuthResponse;
 import hu.softdream.dto.response.BookingResponse;
 import hu.softdream.dto.response.RoomResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -46,8 +47,14 @@ abstract class AbstractIntegrationTest {
     /** A seeded adminisztrátor felhasználóneve (DataInitializerService). */
     protected static final String ADMIN_USERNAME = "admin_user";
 
-    /** A seeded adminisztrátor jelszava (DataInitializerService). */
-    protected static final String ADMIN_PASSWORD = "admin123";
+    /**
+     * A seeded adminisztrátor jelszava.
+     * Alapértelmezett értéke "admin123"; felülírható az {@code ADMIN_PASSWORD}
+     * környezeti változóval (pl. .env fájlban), ugyanúgy ahogy a
+     * {@link hu.softdream.config.DataInitializerService} is teszi.
+     */
+    @Value("${ADMIN_PASSWORD:admin123}")
+    protected String adminPassword;
 
     /** Jövőbeli foglalás bejelentkezési dátuma (30 nap múlva). */
     protected static final LocalDate FUTURE_CHECK_IN = LocalDate.now().plusDays(30);
@@ -130,7 +137,7 @@ abstract class AbstractIntegrationTest {
      * A seeded adminisztrátor JWT tokenjét adja vissza.
      */
     protected String adminToken() throws Exception {
-        return login(ADMIN_USERNAME, ADMIN_PASSWORD);
+        return login(ADMIN_USERNAME, adminPassword);
     }
 
     /**
