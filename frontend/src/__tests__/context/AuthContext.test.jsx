@@ -39,13 +39,17 @@ function renderWithProvider() {
 }
 
 describe('AuthContext', () => {
+    let consoleWarn;
+
     beforeEach(() => {
         localStorage.clear();
         vi.clearAllMocks();
+        consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => { });
     });
 
     afterEach(() => {
         localStorage.clear();
+        consoleWarn.mockRestore();
     });
 
     describe('kezdőállapot', () => {
@@ -239,6 +243,7 @@ describe('AuthContext', () => {
 
             await waitFor(() => expect(screen.getByTestId('user').textContent).toBe('null'));
             expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+            expect(consoleWarn).toHaveBeenCalled();
         });
     });
 
