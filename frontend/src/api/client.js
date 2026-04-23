@@ -121,6 +121,12 @@ async function request(path, options = {}) {
         if (fieldErrors) {
             error.fields = fieldErrors;
         }
+        
+        // Ha volt tárolt tokenünk de 401-et kaptunk, a session lejárt – értesítjük az AuthContext-et
+        if (response.status === 401 && token) {
+            window.dispatchEvent(new CustomEvent("auth:sessionExpired"));
+        }
+
         throw error;
     }
 

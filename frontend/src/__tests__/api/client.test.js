@@ -185,5 +185,32 @@ describe('api/client', () => {
 
             await expect(apiPost('/api/test', {})).rejects.toThrow('Rossz kérés');
         });
+        
+        it('401 válasz és meglévő token esetén auth:sessionExpired eseményt küld', async () => {
+            localStorage.setItem('softdream_auth', JSON.stringify({ token: 'my-jwt-token', user: {} }));
+            const dispatchSpy = vi.spyOn(window, 'dispatchEvent');
+            fetch.mockResolvedValue(
+                makeFetchResponse({ status: 401, body: { message: 'Unauthorized' } })
+            );
+
+            await expect(apiGet('/api/secure')).rejects.toThrow();
+
+            expect(dispatchSpy).toHaveBeenCalledWith(
+                expect.objectContaining({ type: 'auth:sessionExpired' })
+            );
+        });
+
+        it('401 válasz de nincs tárolt token esetén nem küld auth:sessionExpired eseményt', async () => {
+            const dispatchSpy = vi.spyOn(window, 'dispatchEvent');
+            fetch.mockResolvedValue(
+                makeFetchResponse({ status: 401, body: { message: 'Unauthorized' } })
+            );
+
+            await expect(apiGet('/api/public')).rejects.toThrow();
+
+            expect(dispatchSpy).not.toHaveBeenCalledWith(
+                expect.objectContaining({ type: 'auth:sessionExpired' })
+            );
+        });
     });
 });

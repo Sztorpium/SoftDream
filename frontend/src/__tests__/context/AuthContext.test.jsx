@@ -122,6 +122,41 @@ describe('AuthContext', () => {
             expect(screen.getByTestId('token').textContent).toBe('fallback-token');
             expect(screen.getByTestId('user').textContent).toContain('fallback');
         });
+        
+        it('ha a profil szinkron 401-et kap (lejárt token), az auth törlődik', async () => {
+            const stored = {
+                token: 'expired-token',
+                user: { userId: 7, username: 'olduser', email: 'o@u.com', role: 'USER' },
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+            const err = new Error('Unauthorized');
+            err.status = 401;
+            usersApi.getMyProfile = vi.fn().mockRejectedValue(err);
+
+            renderWithProvider();
+
+            await waitFor(() => expect(screen.getByTestId('loading').textContent).toBe('false'));
+            expect(screen.getByTestId('token').textContent).toBe('null');
+            expect(screen.getByTestId('user').textContent).toBe('null');
+            expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+        });
+
+        it('auth:sessionExpired esemény hatására az auth törlődik', async () => {
+            const stored = { token: 'tok', user: { userId: 1, username: 'u', email: 'e@e.com', role: 'USER' } };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+            usersApi.getMyProfile = vi.fn().mockResolvedValue(stored.user);
+
+            renderWithProvider();
+            await waitFor(() => expect(screen.getByTestId('token').textContent).toBe('tok'));
+
+            await act(async () => {
+                window.dispatchEvent(new CustomEvent('auth:sessionExpired'));
+            });
+
+            await waitFor(() => expect(screen.getByTestId('token').textContent).toBe('null'));
+            expect(screen.getByTestId('user').textContent).toBe('null');
+            expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+        });
     });
 
     describe('isAdmin', () => {
