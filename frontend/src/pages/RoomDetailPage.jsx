@@ -16,6 +16,7 @@ import { Link as RouterLink, useParams } from "react-router-dom";
 import { getRoomById } from "../api/rooms";
 import { getAverageRating, getReviewsByRoomId } from "../api/reviews";
 import RatingStars from "../components/RatingStars";
+import { translateRoomStatus, translateRoomType } from "../utils/displayText";
 import { getRoomImage } from "../utils/roomImages";
 import styles from "./RoomDetailPage.module.css";
 
@@ -153,19 +154,19 @@ export default function RoomDetailPage() {
                                             )}
                                             {room.type ? (
                                                 <Typography variant="body2">
-                                                    <b>Típus:</b> {room.type}
+                                                    <b>Típus:</b> {translateRoomType(room.type)}
                                                 </Typography>
                                             ) : null}
                                             {room.status && (
                                                 <Typography variant="body2">
-                                                    <b>Státusz:</b> {room.status}
+                                                    <b>Státusz:</b> {translateRoomStatus(room.status)}
                                                 </Typography>
                                             )}
                                         </Stack>
                                         <Box>
-                                            <Typography variant="body2" className={styles.priceText}>
+                                            <Typography variant="h5" className={styles.priceText}>
                                                 {formatPrice(room.pricePerNight)}
-                                                <Typography component="span" variant="body2" className={styles.priceUnit}>
+                                                <Typography component="span" variant="subtitle2" className={styles.priceUnit}>
                                                     {" "}
                                                     / éj
                                                 </Typography>

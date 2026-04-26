@@ -6,7 +6,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.3.2</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/> <!-- szülő POM keresése a tárolóból -->
     </parent>
     <groupId>hu.softdream</groupId>
     <artifactId>SoftDream_Projekt</artifactId>
@@ -24,7 +24,7 @@
     </properties>
 
     <dependencies>
-        <!--  Spring Boot Starters  -->
+        <!--  Spring Boot kezdőcsomagok  -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -45,19 +45,19 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <!--  Database  -->
+        <!--  Adatbázis  -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <!--  Lombok - Code simplification  -->
+        <!--  Lombok - kód egyszerűsítése  -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-        <!--  JWT Token Management  -->
+        <!--  JWT tokenkezelés  -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -75,37 +75,37 @@
             <version>${jjwt.version}</version>
             <scope>runtime</scope>
         </dependency>
-        <!--  ModelMapper - Entity/DTO conversion  -->
+        <!--  ModelMapper - Entity/DTO átalakítás  -->
         <dependency>
             <groupId>org.modelmapper</groupId>
             <artifactId>modelmapper</artifactId>
             <version>${modelmapper.version}</version>
         </dependency>
-        <!--  API Documentation (Swagger UI)  -->
+        <!--  API dokumentáció (Swagger UI)  -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc.version}</version>
         </dependency>
-        <!--  Advanced Date/Time handling  -->
+        <!--  Fejlett dátum/idő kezelés  -->
         <dependency>
             <groupId>org.threeten</groupId>
             <artifactId>threeten-extra</artifactId>
             <version>1.7.2</version>
         </dependency>
-        <!--  Apache Commons Lang - Utility functions  -->
+        <!--  Apache Commons Lang - segédfüggvények  -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
-        <!--  Development Tools  -->
+        <!--  Fejlesztői eszközök  -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-        <!--  Testing Dependencies  -->
+        <!--  Tesztelési függőségek  -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -116,7 +116,7 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!--  Testcontainers - Integration testing with MySQL  -->
+        <!--  Testcontainers - integrációs tesztelés MySQL-lel  -->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
@@ -135,7 +135,7 @@
             <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- H2 Database (Development) -->
+        <!-- H2 Adatbázis (Fejlesztés) -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>

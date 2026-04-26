@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -28,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 
 @Configuration
 @EnableWebSecurity
@@ -39,7 +41,7 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final Environment environment;
 
-    /** Comma-separated allowed CORS origins; set CORS_ALLOWED_ORIGINS env var in production. */
+    /** Vesszővel elválasztott engedélyezett CORS originek; éles környezetben állítsd be a CORS_ALLOWED_ORIGINS környezeti változót. */
     @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:5173,http://localhost:5174,http://localhost:4200,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:5173,http://127.0.0.1:5174,http://127.0.0.1:4200}")
     private String allowedOriginsRaw;
 
@@ -53,29 +55,29 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> {
                     auth
                             // ========================================
-                            // PUBLIC ENDPOINTS - Authentication
+                            // PUBLIKUS VÉGPONTOK - Hitelesítés
                             // ========================================
                             .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
                             .requestMatchers("/api/auth/logout").authenticated()
 
                             // ========================================
-                            // PUBLIC ENDPOINTS - Rooms (GET only)
+                            // PUBLIKUS VÉGPONTOK - Szobák (csak lekérdezés/GET)
                             // ========================================
                             .requestMatchers(HttpMethod.GET, "/rooms/**").permitAll()
                             .requestMatchers(HttpMethod.GET, "/api/rooms/**").permitAll()
 
                             // ========================================
-                            // PUBLIC ENDPOINTS - Reviews (GET only, my-reviews requires auth)
+                            // PUBLIKUS VÉGPONTOK - Értékelések (csak lekérdezés/GET, a my-reviews hitelesítést igényel)
                             // ========================================
 
                             .requestMatchers(HttpMethod.GET, "/reviews/**").permitAll()
-                            // IMPORTANT: this rule must come before the general GET permit below,
-                            // so that /api/reviews/my-reviews requires authentication.
+                            // FONTOS: ennek a szabálynak az alábbi általános lekérdezési/GET engedélyezés előtt kell szerepelnie,
+                            // így az /api/reviews/my-reviews hitelesítést igényel.
                             .requestMatchers("/api/reviews/my-reviews").authenticated()
                             .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
 
                             // ========================================
-                            // PUBLIC ENDPOINTS - Swagger/OpenAPI/Documentation
+                            // PUBLIKUS VÉGPONTOK - Swagger/OpenAPI/Dokumentáció
                             // ========================================
                             .requestMatchers(
                                     "/swagger-ui/**",
@@ -88,13 +90,13 @@ public class SecurityConfig {
                             ).permitAll()
 
                             // ========================================
-                            // PUBLIC ENDPOINTS - Actuator Health Check only
+                            // PUBLIKUS VÉGPONTOK - csak Actuator health ellenőrzés
                             // ========================================
                             .requestMatchers("/actuator/health").permitAll()
                             .requestMatchers("/actuator/**").hasRole("ADMIN");
 
                     // ========================================
-                    // H2 Console - Development profile only
+                    // H2 konzol - csak fejlesztői profilban
                     // ========================================
                     if (isDevProfile) {
                         auth.requestMatchers("/h2-console/**").permitAll();
@@ -102,18 +104,18 @@ public class SecurityConfig {
 
                     auth
                             // ========================================
-                            // PROTECTED ENDPOINTS - Bookings (Authenticated Users)
+                            // VÉDETT VÉGPONTOK - Foglalások (hitelesített felhasználók)
                             // ========================================
                             .requestMatchers("/api/bookings/**").authenticated()
                             .requestMatchers("/api/users/**").authenticated()
 
                             // ========================================
-                            // ADMIN ENDPOINTS
+                            // ADMIN VÉGPONTOK
                             // ========================================
                             .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                             // ========================================
-                            // ALL OTHER ENDPOINTS - Require Authentication
+                            // MINDEN MÁS VÉGPONT - Hitelesítés szükséges
                             // ========================================
                             .anyRequest().authenticated();
                 })
@@ -122,7 +124,10 @@ public class SecurityConfig {
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                // Disable X-Frame-Options only in dev (needed for H2 Console iframe)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                )
+                // Az X-Frame-Options csak dev környezetben legyen tiltva (szükséges a H2 konzol iframe-hez)
                 .headers(headers -> {
                     if (!isDevProfile) {
                         headers.frameOptions(frameOptions -> frameOptions.deny());
@@ -135,8 +140,8 @@ public class SecurityConfig {
     }
 
     /**
-     * CORS Configuration - origins loaded from application properties.
-     * Override via CORS_ALLOWED_ORIGINS environment variable in production.
+     * CORS konfiguráció - az originek az alkalmazás tulajdonságaiból töltődnek be.
+     * Éles környezetben a CORS_ALLOWED_ORIGINS környezeti változóval felülírható.
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -170,9 +175,9 @@ public class SecurityConfig {
     }
 
     /**
-     * Authentication Provider - Database-based authentication.
-     * Exposed as a @Bean so that both the HTTP filter chain and the
-     * explicit AuthenticationManager use the same singleton instance.
+     * Hitelesítési szolgáltató - adatbázis alapú hitelesítés.
+     * @Bean-ként van kitéve, hogy mind a HTTP szűrőlánc, mind az
+     * explicit AuthenticationManager ugyanazt a singleton példányt használja.
      */
 
     @Bean
@@ -184,10 +189,10 @@ public class SecurityConfig {
     }
 
     /**
-     * Authentication Manager - For login/authentication.
-     * Explicitly creates a ProviderManager with our DaoAuthenticationProvider
-     * instead of relying on Spring Security's auto-configuration, which can
-     * fail to register the provider in certain Spring Boot 3.x setups.
+     * Hitelesítéskezelő - bejelentkezéshez/hitelesítéshez.
+     * Kifejezetten létrehoz egy ProviderManager-t a saját DaoAuthenticationProvider példányunkkal
+     * ahelyett, hogy a Spring Security automatikus konfigurációjára hagyatkozna, ami
+     * bizonyos Spring Boot 3.x felállásokban nem regisztrálja a szolgáltatót.
      */
     @Bean
     public AuthenticationManager authenticationManager() {
@@ -195,7 +200,7 @@ public class SecurityConfig {
     }
 
     /**
-     * Password Encoder - BCrypt hashing
+     * Jelszó-kódoló - BCrypt hash-elés
      */
     @Bean
     public PasswordEncoder passwordEncoder() {

@@ -25,6 +25,17 @@ export function AuthProvider({ children }) {
     const [{ token, user }, setAuth] = React.useState(() => loadStoredAuth());
     const [loading, setLoading] = React.useState(true);
 
+    const clearStoredAuth = React.useCallback(() => {
+            localStorage.removeItem(STORAGE_KEY);
+            setAuth({ token: null, user: null });
+        }, []);
+
+        // Ha bármely API hívás 401-et kap tárolt tokennel, a session lejárt – kijelentkeztetés
+        React.useEffect(() => {
+            window.addEventListener("auth:sessionExpired", clearStoredAuth);
+            return () => window.removeEventListener("auth:sessionExpired", clearStoredAuth);
+        }, [clearStoredAuth]);
+
     React.useEffect(() => {
         // ensure we sync from localStorage once on mount
         const storedAuth = loadStoredAuth();
@@ -49,8 +60,13 @@ export function AuthProvider({ children }) {
                     setAuth(nextAuth);
                 })
                 .catch((error) => {
-                    console.warn("Failed to sync user from backend:", error);
-                    // Keep the stored auth as fallback
+                    if (error.status === 401) {
+                        // Lejárt vagy érvénytelen token – azonnali kijelentkeztetés
+                        clearStoredAuth();
+                    } else {
+                        console.warn("Failed to sync user from backend:", error);
+                        // Keep the stored auth as fallback for other errors (e.g. network issues)
+                    }
                 })
                 .finally(() => {
                     setLoading(false);

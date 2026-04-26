@@ -145,7 +145,7 @@ public class RoomService {
     }
 
     /**
-     * Batch-fetches average ratings for the given rooms in a single query, avoiding the N+1 problem.
+     * A megadott szobák átlagértékelését egyetlen lekérdezéssel gyűjti be, elkerülve az N+1 problémát.
      */
     private Map<Integer, Double> fetchAverageRatings(List<Room> rooms) {
         if (rooms.isEmpty()) {
@@ -183,8 +183,8 @@ public class RoomService {
     }
 
     /**
-     * Returns a deterministic, room-specific nightly price based on the type base price.
-     * Variation range: roughly -10% to +15% to simulate realistic differences between rooms.
+     * A szobatípus alapára alapján determinisztikus, szobaspecifikus éjszakánkénti árat ad vissza.
+     * Eltérési tartomány: nagyjából -10% és +15% között, hogy valósághű különbségeket szimuláljon a szobák között.
      */
     private BigDecimal computeRoomPricePerNight(BigDecimal basePrice, String roomNumber) {
         if (basePrice == null) {

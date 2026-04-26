@@ -19,14 +19,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Idempotent database seeder that runs on every application startup.
- * Inserts reference data (roles, room statuses, room types, rooms) and the
- * demo authentication accounts only when needed, making it safe for both
- * fresh deployments and repeated restarts.
+ Idempotens adatbázis-feltöltő, amely minden alkalmazásindításkor lefut.
+ * Referenciaadatokat (szerepkörök, szobastátuszok, szobatípusok, szobák) és
+ * bemutató hitelesítési fiókokat csak szükség esetén szúr be, így biztonságosan használható
+ * új telepítéseknél és ismételt újraindításoknál is.
  *
- * <p>Configure the admin password via the {@code ADMIN_PASSWORD} environment variable.
- * The default value is only for local development and <strong>must be changed</strong>
- * before deploying to any non-development environment.
+ * <p>Az admin jelszót az {@code ADMIN_PASSWORD} környezeti változóval lehet beállítani.
+ *  * Az alapértelmezett érték csak helyi fejlesztésre való, és <strong>kötelező megváltoztatni</strong>
+ *  * mielőtt nem fejlesztői környezetbe telepíted.
  */
 @Slf4j
 @Component
@@ -46,11 +46,11 @@ public class DataInitializerService implements ApplicationRunner {
     private final ReviewRepository reviewRepository;
     private final PasswordEncoder passwordEncoder;
 
-    /** Admin password for the seeded admin account. Set ADMIN_PASSWORD env var in production. */
+    /** A seedelt admin fiók jelszava. Éles környezetben állítsd be az ADMIN_PASSWORD környezeti változót. */
     @Value("${ADMIN_PASSWORD:" + DEFAULT_ADMIN_PASSWORD + "}")
     private String adminPassword;
 
-    /** Mail username – empty means mail is disabled/unconfigured. */
+    /** Levelezési felhasználónév – üresen hagyva a levelezés letiltott/nincs beállítva. */
     @Value("${MAIL_USERNAME:}")
     private String mailUsername;
 
@@ -171,7 +171,7 @@ public class DataInitializerService implements ApplicationRunner {
     }
 
     private void initAdminUser() {
-        // If the admin user already exists, update the password to match the current env var
+        // Ha az admin felhasználó már létezik, frissíti a jelszót az aktuális környezeti változó alapján
         if (userRepository.existsByUsername(ADMIN_USERNAME) || userRepository.existsByEmail("admin@softdream.hu")
                 || userRepository.existsByPhone("+36201234567")) {
             userAuthRepository.findByUser_Username(ADMIN_USERNAME).ifPresentOrElse(adminAuth -> {

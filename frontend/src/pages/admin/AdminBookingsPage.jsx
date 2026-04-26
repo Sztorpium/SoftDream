@@ -16,6 +16,7 @@ import {
     deleteBooking,
     getAllBookings,
 } from "../../api/bookings";
+import { translateBookingStatus } from "../../utils/displayText";
 import styles from "./AdminBookingsPage.module.css";
 
 const STATUS_COLOR = {
@@ -106,7 +107,7 @@ export default function AdminBookingsPage() {
                     <span className={styles.adminBadge}>Admin</span>
                 </div>
                 <Typography variant="h4" component="h1">
-                    Admin – Bookings
+                    Admin - Foglalások
                 </Typography>
 
                 {error ? <Alert severity="error">{error}</Alert> : null}
@@ -139,7 +140,7 @@ export default function AdminBookingsPage() {
                                                     Foglalás #{id ?? "?"}
                                                 </Typography>
                                                 <Typography variant="body2" className={styles.bookingMeta}>
-                                                    User: {b.username ?? b.userId ?? b.user?.id ?? "–"} | Room:{" "}
+                                                    Felhasználó: {b.username ?? b.userId ?? b.user?.id ?? "–"} | Szoba:{" "}
                                                     {b.roomNumber ?? b.roomId ?? b.room?.id ?? "–"}
                                                 </Typography>
                                                 <Typography variant="body2" className={styles.bookingMeta}>
@@ -148,7 +149,7 @@ export default function AdminBookingsPage() {
                                             </Box>
 
                                             <Chip
-                                                label={status}
+                                                label={translateBookingStatus(status)}
                                                 color={STATUS_COLOR[status] ?? "default"}
                                                 size="small"
                                             />

@@ -36,7 +36,7 @@ public class ReviewService {
         if (reviews.isEmpty()) {
             return List.of();
         }
-        // Fetch only bookings relevant to the reviews (avoids loading the entire bookings table)
+        // Csak az értékelésekhez tartozó foglalásokat tölti be (nem tölti be az egész foglalási táblát)
         List<Integer> userIds = new java.util.ArrayList<>();
         List<Integer> roomIds = new java.util.ArrayList<>();
         for (Review r : reviews) {
@@ -93,7 +93,7 @@ public class ReviewService {
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new ResourceNotFoundException("A szoba nem található a megadott azonosítóval: " + request.getRoomId()));
 
-        // Only confirmed (completed) stays may be reviewed
+        // Csak megerősített (lezárt) tartózkodás értékelhető
         boolean hasConfirmedBooking = bookingRepository
                 .findByUser_UserIdAndRoom_RoomId(userId, request.getRoomId())
                 .stream()
@@ -102,7 +102,7 @@ public class ReviewService {
             throw new BadRequestException("Csak olyan szobát értékelhet, amelyben már megszállt (megerősített foglalás szükséges).");
         }
 
-        // Prevent duplicate reviews for the same user-room pair
+        // Megakadályozza az azonos felhasználó-szoba párhoz tartozó duplikált értékeléseket
         if (reviewRepository.existsByUser_UserIdAndRoom_RoomId(userId, request.getRoomId())) {
             throw new BadRequestException("Már értékelte ezt a szobát.");
         }
@@ -156,10 +156,10 @@ public class ReviewService {
         reviewRepository.deleteById(reviewId);
     }
 
-    // ---- helpers --------------------------------------------------------
+    // ---- segédfüggvények --------------------------------------------------
     /**
-     * Build a "userId|roomId" → most-recent-Booking map from the supplied list.
-     * When a user has multiple bookings for the same room we keep the latest one.
+     * A megadott listából egy "userId|roomId" → legfrissebb foglalás leképezést épít.
+     * Ha egy felhasználónak több foglalása van ugyanarra a szobára, a legutóbbit tartjuk meg.
      */
     private Map<String, Booking> buildBookingMap(List<Booking> bookings) {
         return bookings.stream()

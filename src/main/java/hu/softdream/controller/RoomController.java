@@ -75,7 +75,7 @@ public class RoomController {
     }
 
     // ========================================
-    // ADMIN ENDPOINTS
+    // ADMIN VÉGPONTOK
     // ========================================
 
     @PostMapping

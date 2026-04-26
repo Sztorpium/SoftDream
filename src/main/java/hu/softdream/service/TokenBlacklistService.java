@@ -5,24 +5,24 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * In-memory JWT token blacklist.
- * Revoked token JTIs are kept until they expire, after which
- * they are no longer needed because the token itself would be invalid.
+ * Memóriában tárolt JWT token tiltólista.
+ * A visszavont token JTI-k az elévülésükig maradnak meg, ezután
+ * már nincs rájuk szükség, mert maga a token is érvénytelen lenne.
  *
- * <p>Note: This implementation is single-instance only. In a clustered
- * deployment a shared store (e.g. Redis) should be used instead.
+ * <p>Megjegyzés: Ez a megvalósítás csak egy példány esetén működik. Klaszteres
+ * környezetben megosztott tárat (pl. Redis) érdemes használni.
  */
 @Service
 public class TokenBlacklistService {
 
-    /** Maps token JTI → expiration time (epoch millis). */
+    /** A token JTI-ket az elévülési időhöz rendeli (epoch milliszekundumban). */
     private final ConcurrentHashMap<String, Long> blacklist = new ConcurrentHashMap<>();
 
     /**
-     * Adds a token to the blacklist.
+     * Hozzáad egy tokent a tiltólistához.
      *
-     * @param jti            the JWT ID claim of the token
-     * @param expirationMs   the token's expiration time in epoch millis
+     * @param jti            a token JWT ID claim értéke
+     * @param expirationMs   a token lejárati ideje epoch milliszekundumban
      */
     public void revoke(String jti, long expirationMs) {
         purgeExpired();
@@ -30,7 +30,7 @@ public class TokenBlacklistService {
     }
 
     /**
-     * Returns {@code true} if the given JTI has been revoked.
+     * {@code true}-t ad vissza, ha a megadott JTI vissza lett vonva.
      */
     public boolean isRevoked(String jti) {
         if (jti == null) {
@@ -47,7 +47,7 @@ public class TokenBlacklistService {
         return true;
     }
 
-    /** Removes all entries whose tokens have already expired. */
+    /** Eltávolítja az összes bejegyzést, amelynek tokenje már lejárt. */
     private void purgeExpired() {
         long now = System.currentTimeMillis();
         blacklist.entrySet().removeIf(entry -> entry.getValue() < now);
